@@ -1,74 +1,156 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { MessageSquare, Users, Shield, Sliders, Play, Lock, Globe, Check } from 'lucide-react';
+
 interface WelcomeScreenProps {
   onStartChat: () => void;
   onShowFilters: () => void;
 }
 
 export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScreenProps) {
+  const [activeUsers] = useState(Math.floor(Math.random() * 200) + 150); // Mock user count between 150-350
+  
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
-      <div className="mb-6">
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-16 w-16 text-primary mb-4" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
+    <div className="flex-1 flex flex-col items-center justify-center text-center py-6 sm:py-8 px-4">
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="mb-8"
+      >
+        <div className="relative inline-block">
+          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
+          <div className="relative bg-gray-800/80 p-6 rounded-full border border-primary/30">
+            <MessageSquare className="h-14 w-14 sm:h-16 sm:w-16 text-primary" />
+          </div>
+          
+          {/* Active users badge */}
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            className="absolute -top-2 -right-2 bg-primary/20 px-2 py-1 rounded-full flex items-center space-x-1 border border-primary/30"
+          >
+            <Users className="h-3 w-3 text-primary" />
+            <span className="text-xs font-medium text-primary">{activeUsers}</span>
+          </motion.div>
+        </div>
+        
+        <motion.h2 
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="text-2xl sm:text-3xl font-bold text-white mt-6 mb-2"
         >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        <h2 className="text-2xl font-bold text-text-primary mb-2">Start Chatting Anonymously</h2>
-        <p className="text-text-secondary max-w-md mx-auto">Connect with random people around the world. Your identity stays private.</p>
-      </div>
+          Start Chatting Anonymously
+        </motion.h2>
+        
+        <motion.p 
+          initial={{ y: -5, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-gray-300 max-w-md mx-auto"
+        >
+          Connect with random people around the world. Your identity stays completely private.
+        </motion.p>
+      </motion.div>
       
-      <div className="flex flex-col sm:flex-row gap-3 mt-4">
-        <button 
+      {/* Trust badges */}
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-w-md mb-6"
+      >
+        <div className="flex flex-col items-center bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+          <div className="p-1.5 bg-primary/20 rounded-full mb-2">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          <span className="text-xs font-medium text-gray-300">Safe & Moderated</span>
+        </div>
+        
+        <div className="flex flex-col items-center bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+          <div className="p-1.5 bg-green-500/20 rounded-full mb-2">
+            <Lock className="h-4 w-4 text-green-500" />
+          </div>
+          <span className="text-xs font-medium text-gray-300">100% Anonymous</span>
+        </div>
+        
+        <div className="flex flex-col items-center bg-gray-800/50 p-3 rounded-lg border border-gray-700 col-span-2 sm:col-span-1">
+          <div className="p-1.5 bg-blue-500/20 rounded-full mb-2">
+            <Globe className="h-4 w-4 text-blue-500" />
+          </div>
+          <span className="text-xs font-medium text-gray-300">Global Community</span>
+        </div>
+      </motion.div>
+      
+      {/* Action buttons */}
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-md"
+      >
+        <motion.button 
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onStartChat}
-          className="bg-primary hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+          className="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center shadow-lg shadow-primary/20"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-5 w-5 mr-2" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
+          <Play className="h-5 w-5 mr-2" />
           Start Chatting
-        </button>
-        <button 
+        </motion.button>
+        
+        <motion.button 
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onShowFilters}
-          className="bg-surface-light hover:bg-gray-700 text-text-primary font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+          className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center shadow-lg"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-5 w-5 mr-2" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <line x1="4" y1="21" x2="4" y2="14" />
-            <line x1="4" y1="10" x2="4" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12" y2="3" />
-            <line x1="20" y1="21" x2="20" y2="16" />
-            <line x1="20" y1="12" x2="20" y2="3" />
-            <line x1="1" y1="14" x2="7" y2="14" />
-            <line x1="9" y1="8" x2="15" y2="8" />
-            <line x1="17" y1="16" x2="23" y2="16" />
-          </svg>
+          <Sliders className="h-5 w-5 mr-2" />
           Set Preferences
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
+      
+      {/* Testimonials */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-10 max-w-md w-full"
+      >
+        <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center justify-center">
+          <Users className="h-3 w-3 mr-1" />
+          What our users say
+        </h3>
+        
+        <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+          <div className="flex items-start space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-sm font-bold">M</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-center mb-1">
+                <h4 className="text-sm font-medium text-white">Michael</h4>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg key={star} className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-gray-300">
+                "I've made so many interesting connections here. The anonymous format makes conversations more genuine."
+              </p>
+              <div className="flex items-center mt-2">
+                <Check className="h-3 w-3 text-green-500 mr-1" />
+                <span className="text-xs text-gray-400">Verified user</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
