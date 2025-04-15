@@ -510,7 +510,7 @@ export default function LandingPage() {
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-white font-medium rounded-full px-8 py-3 text-lg shadow-lg hover:shadow-primary/20 transition-all w-full sm:w-auto"
               >
-                Start Anonymous Chat
+                Start StrangerWave Chat
               </Button>
               
               <Button 

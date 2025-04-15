@@ -31,18 +31,7 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-xl font-bold flex items-center">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6 mr-2 text-primary" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <img src="/logo.svg" alt="StrangerWave Logo" className="h-8 w-8 mr-2" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400">StrangerWave</span>
           </h1>
         </div>

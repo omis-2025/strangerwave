@@ -350,7 +350,7 @@ export default function Payment() {
 
       <footer className="bg-gray-800 py-4 px-4 sm:px-6 border-t border-gray-700">
         <div className="container mx-auto max-w-7xl text-center text-gray-400 text-sm">
-          <p>© {new Date().getFullYear()} Anonymous Chat - <a href="#" className="hover:text-primary">Terms</a> · <a href="#" className="hover:text-primary">Privacy</a> · <a href="#" className="hover:text-primary">Support</a></p>
+          <p>© {new Date().getFullYear()} StrangerWave - <a href="#" className="hover:text-primary">Terms</a> · <a href="#" className="hover:text-primary">Privacy</a> · <a href="#" className="hover:text-primary">Support</a></p>
         </div>
       </footer>
     </motion.div>

@@ -176,7 +176,7 @@ export default function LoginForm() {
               onClick={handleAnonymousLogin}
               disabled={loading}
             >
-              {loading ? 'Connecting...' : 'Start Anonymous Chat'}
+              {loading ? 'Connecting...' : 'Start StrangerWave Chat'}
             </Button>
           </div>
         )}
