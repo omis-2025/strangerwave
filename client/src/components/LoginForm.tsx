@@ -98,7 +98,7 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Welcome to AnonChat</CardTitle>
+        <CardTitle className="text-2xl text-center">Welcome to StrangerWave</CardTitle>
         <CardDescription className="text-center">
           Login to start chatting or continue anonymously
         </CardDescription>

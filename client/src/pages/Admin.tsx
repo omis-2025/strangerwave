@@ -521,7 +521,7 @@ export default function Admin() {
 
       <footer className="bg-surface py-4 px-4 sm:px-6 border-t border-gray-800">
         <div className="container mx-auto text-center text-text-secondary text-sm">
-          <p>© {new Date().getFullYear()} Anonymous Chat - <a href="#" className="hover:text-primary">Terms</a> · <a href="#" className="hover:text-primary">Privacy</a></p>
+          <p>© {new Date().getFullYear()} StrangerWave - <a href="#" className="hover:text-primary">Terms</a> · <a href="#" className="hover:text-primary">Privacy</a></p>
         </div>
       </footer>
     </div>

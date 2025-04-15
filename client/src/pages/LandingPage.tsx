@@ -59,7 +59,7 @@ export default function LandingPage() {
       await login();
       navigate('/chat');
       toast({
-        title: "Welcome to AnonChat!",
+        title: "Welcome to StrangerWave!",
         description: "You're now logged in anonymously.",
       });
     } catch (error) {
@@ -217,7 +217,7 @@ export default function LandingPage() {
       <section className="py-20 md:py-28 bg-gray-900">
         <ResponsiveContainer className="px-6 mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose AnonChat?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose StrangerWave?</h2>
             <p className="text-lg text-gray-400 max-w-3xl mx-auto">Our platform combines anonymity with safety to create the best chat experience.</p>
           </div>
           
@@ -316,7 +316,7 @@ export default function LandingPage() {
         <ResponsiveContainer className="relative z-10 px-6 mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2>
-            <p className="text-lg text-gray-400 max-w-3xl mx-auto">Join thousands of satisfied users who love AnonChat.</p>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto">Join thousands of satisfied users who love StrangerWave.</p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -546,12 +546,12 @@ export default function LandingPage() {
         <ResponsiveContainer className="px-6 mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div className="md:col-span-2">
-              <h3 className="text-xl font-bold mb-4">AnonChat</h3>
+              <h3 className="text-xl font-bold mb-4">StrangerWave</h3>
               <p className="text-gray-400 mb-4">
                 The leading platform for anonymous chat with strangers. Connect with people from all over the world instantly.
               </p>
               <p className="text-sm text-gray-500">
-                © {new Date().getFullYear()} AnonChat. All rights reserved.
+                © {new Date().getFullYear()} StrangerWave. All rights reserved.
               </p>
             </div>
             
