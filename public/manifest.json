@@ -1,0 +1,21 @@
+{
+  "name": "StrangerChat",
+  "short_name": "StrangerChat",
+  "description": "Anonymous random chat platform for secure connections",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
