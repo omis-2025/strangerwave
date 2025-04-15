@@ -6,6 +6,8 @@ import {
   reports, type Report, type InsertReport,
   waitingQueue, type WaitingQueue, type InsertWaitingQueue
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -45,79 +47,42 @@ export interface IStorage {
   getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private usersByUid: Map<string, User>;
-  private chatPreferences: Map<number, ChatPreferences>;
-  private chatSessions: Map<number, ChatSession>;
-  private messages: Map<number, Message>;
-  private reports: Map<number, Report>;
-  private waitingQueue: Map<number, WaitingQueue>;
-  
-  private currentUserId: number;
-  private currentChatPreferencesId: number;
-  private currentChatSessionId: number;
-  private currentMessageId: number;
-  private currentReportId: number;
-  private currentWaitingQueueId: number;
+import { db } from "./db";
+import { eq, and, desc, isNull } from "drizzle-orm";
 
-  constructor() {
-    this.users = new Map();
-    this.usersByUid = new Map();
-    this.chatPreferences = new Map();
-    this.chatSessions = new Map();
-    this.messages = new Map();
-    this.reports = new Map();
-    this.waitingQueue = new Map();
-    
-    this.currentUserId = 1;
-    this.currentChatPreferencesId = 1;
-    this.currentChatSessionId = 1;
-    this.currentMessageId = 1;
-    this.currentReportId = 1;
-    this.currentWaitingQueueId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUid(uid: string): Promise<User | undefined> {
-    return this.usersByUid.get(uid);
+    const [user] = await db.select().from(users).where(eq(users.uid, uid));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const now = new Date();
-    const user: User = { 
-      ...insertUser, 
-      id,
+    const [user] = await db.insert(users).values({
+      ...insertUser,
       isAdmin: false,
       isBanned: false,
-      lastActive: now,
-      stripeCustomerId: null
-    };
-    this.users.set(id, user);
-    this.usersByUid.set(user.uid, user);
+      lastActive: new Date(),
+    }).returning();
     return user;
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
-    const user = await this.getUser(id);
-    if (!user) return undefined;
-    
-    const updatedUser = { ...user, ...updates };
-    this.users.set(id, updatedUser);
-    if (user.uid) {
-      this.usersByUid.set(user.uid, updatedUser);
-    }
+    const [updatedUser] = await db
+      .update(users)
+      .set({ ...updates, lastActive: new Date() })
+      .where(eq(users.id, id))
+      .returning();
     return updatedUser;
   }
 
@@ -127,162 +92,164 @@ export class MemStorage implements IStorage {
 
   // Chat preferences methods
   async getChatPreferences(userId: number): Promise<ChatPreferences | undefined> {
-    return Array.from(this.chatPreferences.values()).find(
-      (pref) => pref.userId === userId
-    );
+    const [preferences] = await db
+      .select()
+      .from(chatPreferences)
+      .where(eq(chatPreferences.userId, userId));
+    return preferences;
   }
 
   async setChatPreferences(insertPreferences: InsertChatPreferences): Promise<ChatPreferences> {
-    const existingPrefs = await this.getChatPreferences(insertPreferences.userId as number);
+    // First try to find existing preferences
+    const existingPreferences = await this.getChatPreferences(insertPreferences.userId);
     
-    if (existingPrefs) {
-      const updatedPrefs = { ...existingPrefs, ...insertPreferences };
-      this.chatPreferences.set(existingPrefs.id, updatedPrefs);
-      return updatedPrefs;
+    if (existingPreferences) {
+      // Update existing preferences
+      const [updatedPreferences] = await db
+        .update(chatPreferences)
+        .set(insertPreferences)
+        .where(eq(chatPreferences.id, existingPreferences.id))
+        .returning();
+      return updatedPreferences;
     } else {
-      const id = this.currentChatPreferencesId++;
-      const preferences: ChatPreferences = { ...insertPreferences, id };
-      this.chatPreferences.set(id, preferences);
-      return preferences;
+      // Create new preferences
+      const [newPreferences] = await db
+        .insert(chatPreferences)
+        .values(insertPreferences)
+        .returning();
+      return newPreferences;
     }
   }
 
   // Chat session methods
   async createChatSession(insertSession: InsertChatSession): Promise<ChatSession> {
-    const id = this.currentChatSessionId++;
-    const now = new Date();
-    const session: ChatSession = {
-      ...insertSession,
-      id,
-      startedAt: now,
-      endedAt: null,
-      active: true
-    };
-    this.chatSessions.set(id, session);
+    const [session] = await db
+      .insert(chatSessions)
+      .values({
+        ...insertSession,
+        startedAt: new Date(),
+        active: true
+      })
+      .returning();
     return session;
   }
 
   async getChatSession(id: number): Promise<ChatSession | undefined> {
-    return this.chatSessions.get(id);
+    const [session] = await db
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.id, id));
+    return session;
   }
 
   async endChatSession(id: number): Promise<ChatSession | undefined> {
-    const session = await this.getChatSession(id);
-    if (!session) return undefined;
-    
-    const now = new Date();
-    const updatedSession = { ...session, endedAt: now, active: false };
-    this.chatSessions.set(id, updatedSession);
+    const [updatedSession] = await db
+      .update(chatSessions)
+      .set({
+        endedAt: new Date(),
+        active: false
+      })
+      .where(eq(chatSessions.id, id))
+      .returning();
     return updatedSession;
   }
 
   // Messages methods
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
-    const id = this.currentMessageId++;
-    const now = new Date();
-    const message: Message = {
-      ...insertMessage,
-      id,
-      createdAt: now
-    };
-    this.messages.set(id, message);
+    const [message] = await db
+      .insert(messages)
+      .values(insertMessage)
+      .returning();
     return message;
   }
 
   async getSessionMessages(sessionId: number): Promise<Message[]> {
-    return Array.from(this.messages.values())
-      .filter(message => message.sessionId === sessionId)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    return db
+      .select()
+      .from(messages)
+      .where(eq(messages.sessionId, sessionId))
+      .orderBy(messages.createdAt);
   }
 
   // Reports methods
   async createReport(insertReport: InsertReport): Promise<Report> {
-    const id = this.currentReportId++;
-    const now = new Date();
-    const report: Report = {
-      ...insertReport,
-      id,
-      createdAt: now,
-      resolved: false
-    };
-    this.reports.set(id, report);
+    const [report] = await db
+      .insert(reports)
+      .values({
+        ...insertReport,
+        resolved: false
+      })
+      .returning();
     return report;
   }
 
   async getReports(resolved?: boolean): Promise<Report[]> {
-    let reports = Array.from(this.reports.values());
-    
     if (resolved !== undefined) {
-      reports = reports.filter(report => report.resolved === resolved);
+      return db
+        .select()
+        .from(reports)
+        .where(eq(reports.resolved, resolved))
+        .orderBy(desc(reports.createdAt));
     }
     
-    return reports.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return db
+      .select()
+      .from(reports)
+      .orderBy(desc(reports.createdAt));
   }
 
   async resolveReport(id: number): Promise<Report | undefined> {
-    const report = this.reports.get(id);
-    if (!report) return undefined;
-    
-    const updatedReport = { ...report, resolved: true };
-    this.reports.set(id, updatedReport);
+    const [updatedReport] = await db
+      .update(reports)
+      .set({ resolved: true })
+      .where(eq(reports.id, id))
+      .returning();
     return updatedReport;
   }
 
   // Waiting queue methods
   async addToWaitingQueue(insertEntry: InsertWaitingQueue): Promise<WaitingQueue> {
-    // First remove any existing entry for this user
-    await this.removeFromWaitingQueue(insertEntry.userId as number);
+    // First, remove any existing entries for this user
+    await this.removeFromWaitingQueue(insertEntry.userId);
     
     // Then add the new entry
-    const id = this.currentWaitingQueueId++;
-    const now = new Date();
-    const entry: WaitingQueue = {
-      ...insertEntry,
-      id,
-      joinedAt: now
-    };
-    this.waitingQueue.set(id, entry);
+    const [entry] = await db
+      .insert(waitingQueue)
+      .values(insertEntry)
+      .returning();
     return entry;
   }
 
   async removeFromWaitingQueue(userId: number): Promise<void> {
-    const entries = Array.from(this.waitingQueue.values())
-      .filter(entry => entry.userId === userId);
-    
-    for (const entry of entries) {
-      this.waitingQueue.delete(entry.id);
-    }
+    await db
+      .delete(waitingQueue)
+      .where(eq(waitingQueue.userId, userId));
   }
 
   async getMatchingUsers(preferences: { preferredGender?: string, country?: string }): Promise<WaitingQueue[]> {
-    let entries = Array.from(this.waitingQueue.values());
+    let query = db.select().from(waitingQueue);
     
-    // Sort by join time (oldest first)
-    entries = entries.sort((a, b) => 
-      a.joinedAt.getTime() - b.joinedAt.getTime()
-    );
-    
-    // Apply filters if specified
     if (preferences.preferredGender && preferences.preferredGender !== 'any') {
-      // If user wants specific gender, find users of that gender 
-      // who either want any gender or specifically user's gender
-      const userGender = preferences.preferredGender;
-      entries = entries.filter(entry => {
-        // Only match if user's gender matches what the queue entry is looking for,
-        // or if the queue entry is looking for any gender
-        return entry.preferredGender === 'any' || entry.preferredGender === userGender;
-      });
+      // When user prefers a specific gender, find queue entries that either:
+      // 1. Want any gender, or
+      // 2. Want the specific gender the user is
+      query = query.where(
+        eq(waitingQueue.preferredGender, 'any' as any) || 
+        eq(waitingQueue.preferredGender, preferences.preferredGender as any)
+      );
     }
     
     if (preferences.country) {
-      entries = entries.filter(entry => {
-        // If entry specified a country, match it exactly
-        // If entry didn't specify a country, it's a match for any country
-        return !entry.country || entry.country === preferences.country;
-      });
+      // When user prefers a specific country, find queue entries that either:
+      // 1. Have no country preference (null), or
+      // 2. Want the specific country the user is from
+      query = query.where(
+        isNull(waitingQueue.country) || 
+        eq(waitingQueue.country, preferences.country)
+      );
     }
     
-    return entries;
+    return query.orderBy(waitingQueue.joinedAt);
   }
 
   // Admin methods
@@ -295,16 +262,19 @@ export class MemStorage implements IStorage {
   }
 
   async getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]> {
-    let users = Array.from(this.users.values());
-    
     if (filter?.isBanned !== undefined) {
-      users = users.filter(user => user.isBanned === filter.isBanned);
+      return db
+        .select()
+        .from(users)
+        .where(eq(users.isBanned, filter.isBanned))
+        .orderBy(desc(users.lastActive));
     }
     
-    return users.sort((a, b) => 
-      (b.lastActive?.getTime() || 0) - (a.lastActive?.getTime() || 0)
-    );
+    return db
+      .select()
+      .from(users)
+      .orderBy(desc(users.lastActive));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
