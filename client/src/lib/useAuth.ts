@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import { User as FirebaseUser } from "firebase/auth";
 import { auth, signInAnonymouslyWithFirebase } from "./firebase";
 import { apiRequest } from "./queryClient";
-import { useToast } from "@/hooks/use-toast";
 
 export interface User {
   userId: number;
@@ -36,7 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { toast } = useToast();
+  
+  // We'll create a simple toast function instead of using the hook
+  const showToast = (message: string, type: 'error' | 'success' = 'error') => {
+    console.error(message);
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (fbUser) => {
@@ -60,11 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
-          toast({
-            variant: "destructive",
-            title: "Authentication Error",
-            description: "Failed to load user data. Please try again."
-          });
+          showToast("Failed to load user data. Please try again.");
         }
       } else {
         setUser(null);
@@ -74,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [toast]);
+  }, []);
 
   const createAnonymousUser = async (uid: string) => {
     try {
@@ -96,21 +95,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Handle rate limiting error
       if (error.code === "auth/too-many-requests") {
-        toast({
-          variant: "destructive",
-          title: "Login Temporarily Unavailable",
-          description: "Please wait a moment before trying again. Too many login attempts."
-        });
+        showToast("Please wait a moment before trying again. Too many login attempts.");
         // Set a delay before allowing another attempt
         setTimeout(() => {
           setIsLoading(false);
         }, 5000);
       } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: "Failed to login anonymously. Please try again."
-        });
+        showToast("Failed to login anonymously. Please try again.");
         setIsLoading(false);
       }
     }
@@ -122,11 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
     } catch (error) {
       console.error("Logout error:", error);
-      toast({
-        variant: "destructive",
-        title: "Logout Failed",
-        description: "Failed to logout. Please try again."
-      });
+      showToast("Failed to logout. Please try again.");
     }
   };
 

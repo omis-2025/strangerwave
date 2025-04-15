@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { FlexContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
@@ -37,7 +37,7 @@ const getRandomNumber = (min: number, max: number) => {
 export default function LandingPage() {
   const [activeUsers, setActiveUsers] = useState(getRandomNumber(150, 350));
   const [countriesCount, setCountriesCount] = useState(getRandomNumber(25, 45));
-  const navigate = useNavigate();
+  const [_, navigate] = useLocation();
   const isMobile = useIsMobile();
   const { user, login } = useAuth();
   const { toast } = useToast();
