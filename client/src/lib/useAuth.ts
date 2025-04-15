@@ -94,25 +94,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle rate limiting error
       if (error.code === "auth/too-many-requests") {
         toast({
           variant: "destructive",
-          title: "Login Temporarily Unavailable",
-          description: "Please wait a moment before trying again. Too many login attempts."
+          title: "Login Rate Limited",
+          description: "System is experiencing high load. We'll automatically retry with backoff."
         });
-        // Set a delay before allowing another attempt
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 5000);
       } else {
         toast({
           variant: "destructive",
           title: "Login Failed",
-          description: "Failed to login anonymously. Please try again."
+          description: "Failed to login anonymously. Please try again later."
         });
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
   };
 

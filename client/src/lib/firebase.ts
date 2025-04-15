@@ -50,14 +50,22 @@ console.log("Firebase initialized successfully");
 export { app, auth, db };
 
 // For anonymous sign-in
-export const signInAnonymouslyWithFirebase = async () => {
+export const signInAnonymouslyWithFirebase = async (attempt = 1, maxAttempts = 3) => {
   try {
-    console.log("Attempting anonymous sign-in");
+    console.log(`Attempting anonymous sign-in (attempt ${attempt}/${maxAttempts})`);
     const userCredential = await signInAnonymously(auth);
     console.log("Anonymous sign-in successful");
     return userCredential.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error signing in anonymously:", error);
+    
+    if (error.code === 'auth/too-many-requests' && attempt < maxAttempts) {
+      const backoffTime = Math.min(1000 * Math.pow(2, attempt), 10000); // Max 10 second delay
+      console.log(`Backing off for ${backoffTime}ms before retry`);
+      await new Promise(resolve => setTimeout(resolve, backoffTime));
+      return signInAnonymouslyWithFirebase(attempt + 1, maxAttempts);
+    }
+    
     throw error;
   }
 };
