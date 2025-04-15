@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Users, Shield, Sliders, Play, Lock, Globe, Check } from 'lucide-react';
+import { MessageSquare, Users, Shield, Sliders, Play, Lock, Globe, Check, Video, Camera, Mic } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStartChat: () => void;
@@ -18,22 +18,42 @@ export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScr
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <div className="relative inline-block">
-          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
-          <div className="relative bg-gray-800/80 p-6 rounded-full border border-primary/30">
-            <MessageSquare className="h-14 w-14 sm:h-16 sm:w-16 text-primary" />
+        <div className="flex items-center justify-center space-x-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
+            <div className="relative bg-gray-800/80 p-5 rounded-full border border-primary/30">
+              <MessageSquare className="h-12 w-12 sm:h-14 sm:w-14 text-primary" />
+            </div>
+            
+            {/* Active users badge */}
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+              className="absolute -top-2 -right-2 bg-primary/20 px-2 py-1 rounded-full flex items-center space-x-1 border border-primary/30"
+            >
+              <Users className="h-3 w-3 text-primary" />
+              <span className="text-xs font-medium text-primary">{activeUsers}</span>
+            </motion.div>
           </div>
           
-          {/* Active users badge */}
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-            className="absolute -top-2 -right-2 bg-primary/20 px-2 py-1 rounded-full flex items-center space-x-1 border border-primary/30"
-          >
-            <Users className="h-3 w-3 text-primary" />
-            <span className="text-xs font-medium text-primary">{activeUsers}</span>
-          </motion.div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl"></div>
+            <div className="relative bg-gray-800/80 p-5 rounded-full border border-blue-500/30">
+              <Video className="h-12 w-12 sm:h-14 sm:w-14 text-blue-500" />
+            </div>
+            
+            {/* Camera badge */}
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+              className="absolute -bottom-2 -left-2 bg-blue-500/20 px-2 py-1 rounded-full flex items-center space-x-1 border border-blue-500/30"
+            >
+              <Camera className="h-3 w-3 text-blue-500" />
+              <Mic className="h-3 w-3 text-blue-500" />
+            </motion.div>
+          </div>
         </div>
         
         <motion.h2 
@@ -42,7 +62,7 @@ export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScr
           transition={{ delay: 0.1, duration: 0.5 }}
           className="text-2xl sm:text-3xl font-bold text-white mt-6 mb-2"
         >
-          Start Chatting Anonymously
+          Text & Video Chat Anonymously
         </motion.h2>
         
         <motion.p 
@@ -51,7 +71,7 @@ export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScr
           transition={{ delay: 0.2, duration: 0.5 }}
           className="text-gray-300 max-w-md mx-auto"
         >
-          Connect with random people around the world. Your identity stays completely private.
+          Connect with random people around the world via text or video chat. Your identity stays completely private.
         </motion.p>
       </motion.div>
       

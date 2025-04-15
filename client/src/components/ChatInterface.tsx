@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { FlexContainer } from "@/components/ui/responsive-container";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Flag, LogOut, Send, Image, User, Shield, Lock, Info, AlertTriangle, MessageSquare } from "lucide-react";
+import { 
+  Flag, LogOut, Send, Image, User, Shield, Lock, Info, AlertTriangle, 
+  MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatInterfaceProps {
@@ -33,6 +36,83 @@ export default function ChatInterface({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  
+  // Video chat state
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
+  const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+  const [isRemoteStreamConnected, setIsRemoteStreamConnected] = useState(false);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  
+  // Video call functions
+  const toggleVideoCall = async (active: boolean) => {
+    if (active) {
+      try {
+        // Get user media (camera and microphone)
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: true, 
+          audio: true 
+        });
+        
+        setLocalStream(stream);
+        
+        // Set local video
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+        
+        // Mock remote connection for demo purposes
+        // In a real app, this would involve WebRTC connection setup
+        setTimeout(() => {
+          setIsRemoteStreamConnected(true);
+          
+          // For demo, just use the same stream
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = stream;
+          }
+        }, 2000);
+        
+        setIsVideoCallActive(true);
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+        alert('Could not access camera or microphone. Please check permissions.');
+      }
+    } else {
+      // Stop all tracks
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        setLocalStream(null);
+      }
+      
+      setIsVideoCallActive(false);
+      setIsRemoteStreamConnected(false);
+    }
+  };
+  
+  const toggleMicrophone = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      if (audioTracks.length > 0) {
+        const audioEnabled = !isMicrophoneMuted;
+        audioTracks[0].enabled = audioEnabled;
+        setIsMicrophoneMuted(!audioEnabled);
+      }
+    }
+  };
+  
+  const toggleCamera = () => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      if (videoTracks.length > 0) {
+        const videoEnabled = !isCameraOff;
+        videoTracks[0].enabled = videoEnabled;
+        setIsCameraOff(!videoEnabled);
+      }
+    }
+  };
   
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -98,6 +178,20 @@ export default function ChatInterface({
           </div>
         </div>
         <div className="flex">
+          {/* Video call button */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <Button 
+              variant="ghost" 
+              size={isMobile ? "sm" : "default"}
+              onClick={() => toggleVideoCall(true)}
+              className="text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors mr-1 p-1 sm:p-2"
+              title="Start video call"
+            >
+              <Video className="h-4 w-4 sm:h-5 sm:w-5" />
+              {!isMobile && <span className="ml-1 hidden sm:inline">Video</span>}
+            </Button>
+          </motion.div>
+          
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
               variant="ghost" 
@@ -110,6 +204,7 @@ export default function ChatInterface({
               {!isMobile && <span className="ml-1 hidden sm:inline">Report</span>}
             </Button>
           </motion.div>
+          
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
               variant="ghost" 
@@ -133,8 +228,125 @@ export default function ChatInterface({
           <span className="text-gray-500">•</span>
           <Shield className="h-3 w-3 text-green-500" />
           <span>AI moderated</span>
+          <span className="text-gray-500">•</span>
+          <Video className="h-3 w-3 text-blue-500" />
+          <span>Video available</span>
         </div>
       </div>
+      
+      {/* Video Call Modal */}
+      {isVideoCallActive && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+          {/* Video call header */}
+          <div className="bg-gray-900 p-2 sm:p-4 flex justify-between items-center">
+            <div className="flex items-center">
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gray-800 mr-2">
+                <User className="h-4 w-4 text-gray-400" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-gray-800" />
+              </div>
+              <span className="font-medium text-white">Stranger</span>
+            </div>
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => toggleMicrophone()}
+                className={`rounded-full aspect-square p-2 ${isMicrophoneMuted ? 'bg-red-500/20 text-red-500' : 'bg-gray-800 text-white'}`}
+              >
+                {isMicrophoneMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => toggleCamera()}
+                className={`rounded-full aspect-square p-2 ${isCameraOff ? 'bg-red-500/20 text-red-500' : 'bg-gray-800 text-white'}`}
+              >
+                {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+              </Button>
+              
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => toggleVideoCall(false)}
+                className="rounded-full aspect-square p-2"
+              >
+                <PhoneOff className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+          
+          {/* Video containers */}
+          <div className="flex-1 flex flex-col sm:flex-row p-4 gap-4 relative">
+            {/* Remote video (fullscreen) */}
+            <div className="flex-1 bg-gray-800 rounded-lg overflow-hidden relative flex items-center justify-center min-h-[300px]">
+              {isRemoteStreamConnected ? (
+                <video
+                  ref={remoteVideoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="text-center p-4">
+                  <div className="w-16 h-16 mx-auto bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                    <User className="h-8 w-8 text-gray-500" />
+                  </div>
+                  <p className="text-gray-400">Waiting for peer to join video call...</p>
+                  <div className="mt-4">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Local video (pip) */}
+              <div className="absolute bottom-4 right-4 w-32 h-24 sm:w-40 sm:h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 shadow-lg">
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                {isCameraOff && (
+                  <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                    <VideoOff className="h-6 w-6 text-gray-500" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Text chat in video mode */}
+          <div className="h-32 sm:h-40 bg-gray-900 border-t border-gray-800 p-2 flex flex-col">
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+              {messages.slice(-3).map((message, index) => (
+                <div key={index} className={`flex ${message.senderId === user?.userId ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`px-2 py-1 rounded-lg text-xs max-w-[80%] ${
+                    message.senderId === user?.userId ? 'bg-primary/90 text-white' : 'bg-gray-800 text-gray-200'
+                  }`}>
+                    {message.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex gap-2 p-1">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                className="flex-1 bg-gray-800 text-white rounded-full px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                value={messageInput}
+                onChange={handleInputChange}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+              />
+              <Button size="sm" className="rounded-full aspect-square p-1" onClick={handleSubmit}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Messages */}
       <div className="flex-1 bg-gray-800 overflow-y-auto p-2 sm:p-4 space-y-3" style={{ height: "calc(100vh - 200px)" }}>
