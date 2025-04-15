@@ -7,8 +7,7 @@ import {
   waitingQueue, type WaitingQueue, type InsertWaitingQueue
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, isNull } from "drizzle-orm";
-
+import { eq, and, desc, isNull, or } from "drizzle-orm";
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -46,9 +45,6 @@ export interface IStorage {
   unbanUser(id: number): Promise<User | undefined>;
   getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]>;
 }
-
-import { db } from "./db";
-import { eq, and, desc, isNull } from "drizzle-orm";
 
 export class DatabaseStorage implements IStorage {
   // User methods
@@ -100,8 +96,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async setChatPreferences(insertPreferences: InsertChatPreferences): Promise<ChatPreferences> {
+    // Make sure userId is treated as a number
+    const userId = Number(insertPreferences.userId);
+    if (isNaN(userId)) {
+      throw new Error("Invalid userId in chat preferences");
+    }
+    
     // First try to find existing preferences
-    const existingPreferences = await this.getChatPreferences(insertPreferences.userId);
+    const existingPreferences = await this.getChatPreferences(userId);
     
     if (existingPreferences) {
       // Update existing preferences
@@ -227,15 +229,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchingUsers(preferences: { preferredGender?: string, country?: string }): Promise<WaitingQueue[]> {
-    let query = db.select().from(waitingQueue);
+    // We need to use the 'or' and 'and' operators correctly for complex conditions
+    let conditions = [];
     
     if (preferences.preferredGender && preferences.preferredGender !== 'any') {
       // When user prefers a specific gender, find queue entries that either:
       // 1. Want any gender, or
       // 2. Want the specific gender the user is
-      query = query.where(
-        eq(waitingQueue.preferredGender, 'any' as any) || 
-        eq(waitingQueue.preferredGender, preferences.preferredGender as any)
+      conditions.push(
+        or(
+          eq(waitingQueue.preferredGender, 'any' as any),
+          eq(waitingQueue.preferredGender, preferences.preferredGender as any)
+        )
       );
     }
     
@@ -243,13 +248,27 @@ export class DatabaseStorage implements IStorage {
       // When user prefers a specific country, find queue entries that either:
       // 1. Have no country preference (null), or
       // 2. Want the specific country the user is from
-      query = query.where(
-        isNull(waitingQueue.country) || 
-        eq(waitingQueue.country, preferences.country)
+      conditions.push(
+        or(
+          isNull(waitingQueue.country),
+          eq(waitingQueue.country, preferences.country)
+        )
       );
     }
     
-    return query.orderBy(waitingQueue.joinedAt);
+    // If we have conditions, use them, otherwise select all
+    if (conditions.length > 0) {
+      return db
+        .select()
+        .from(waitingQueue)
+        .where(conditions.length === 1 ? conditions[0] : and(...conditions))
+        .orderBy(waitingQueue.joinedAt);
+    } else {
+      return db
+        .select()
+        .from(waitingQueue)
+        .orderBy(waitingQueue.joinedAt);
+    }
   }
 
   // Admin methods
