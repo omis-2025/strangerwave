@@ -10,8 +10,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('STRIPE_SECRET_KEY is not set. Payment features will not work.');
 }
 
+// Use the most recent API version for Stripe
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : undefined;
 
 // Create Stripe checkout session for banned users
