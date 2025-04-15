@@ -478,13 +478,26 @@ async function handleSendMessage(userId: number, data: any) {
       });
     }
     
-    // Validate and save the message
+    // Validate the message
     const messageData = insertMessageSchema.parse({
       sessionId: activeSession.sessionId,
       senderId: userId,
       content: data.content
     });
-    
+
+    // Check if we need to import the moderation function
+    let moderationResult = null;
+    try {
+      // Dynamically import moderation to avoid issues if OpenAI is not configured
+      const { moderateMessage } = await import('./moderation');
+      // Moderate the message content for harmful content
+      moderationResult = await moderateMessage(userId, data.content);
+    } catch (modError) {
+      console.error("Moderation error:", modError);
+      // Continue without moderation if it fails
+    }
+
+    // Save the message to the database
     const message = await storage.createMessage(messageData);
     
     // Send the message to both users
@@ -500,6 +513,37 @@ async function handleSendMessage(userId: number, data: any) {
     
     sendToUser(userId, messagePayload);
     sendToUser(activeSession.partnerId, messagePayload);
+
+    // Handle moderation actions if message was flagged
+    if (moderationResult?.isFlagged) {
+      console.log(`Message from User ${userId} flagged. Toxicity score: ${moderationResult.toxicityScore}`);
+      
+      // Create a report for the flagged message
+      await storage.createReport({
+        reporterId: 0, // System-generated report
+        reportedId: userId,
+        sessionId: activeSession.sessionId,
+        reason: "AI Moderation Flag",
+        details: `Toxicity score: ${moderationResult.toxicityScore}. Categories: ${JSON.stringify(moderationResult.categories)}`
+      });
+
+      // If user was auto-banned, notify them and end the session
+      if (moderationResult.autoBanned) {
+        sendToUser(userId, { 
+          type: "banned", 
+          reason: "Your message was flagged as inappropriate by our automated system." 
+        });
+        
+        // Notify partner
+        sendToUser(activeSession.partnerId, { 
+          type: "partner_banned",
+          message: "Your chat partner has been removed due to a violation of our community guidelines."
+        });
+        
+        // End the session
+        await handleDisconnect(userId);
+      }
+    }
   } catch (error) {
     console.error("Error sending message:", error);
     sendToUser(userId, { type: "error", error: "Failed to send message" });
