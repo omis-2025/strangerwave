@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found - StrangerChat</title>
+  <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #e2e8f0;
+      background-color: #121212;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+    }
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 0;
+      color: #7c3aed;
+    }
+    p {
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      background-color: #7c3aed;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+    .btn:hover {
+      background-color: #6d28d9;
+    }
+    .error-icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 2rem;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .float {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="float">
+      <svg class="error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#7c3aed" stroke-width="1.5" />
+        <path d="M9 9L15 15M15 9L9 15" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+    </div>
+    
+    <h1>404</h1>
+    <p>Oops! The chat you're looking for can't be found.</p>
+    <p>The chat may have disconnected or the page doesn't exist.</p>
+    
+    <a href="/" class="btn">Back to Chat</a>
+  </div>
+</body>
+</html>
