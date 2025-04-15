@@ -2,21 +2,34 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// Debug logging to check environment variables
+console.log("Firebase ENV check - API Key exists:", Boolean(import.meta.env.VITE_FIREBASE_API_KEY));
+console.log("Firebase ENV check - Project ID exists:", Boolean(import.meta.env.VITE_FIREBASE_PROJECT_ID));
+console.log("Firebase ENV check - App ID exists:", Boolean(import.meta.env.VITE_FIREBASE_APP_ID));
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  messagingSenderId: "000000000000", // Default placeholder, not critical for anonymous auth
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: "G-0000000000" // Default placeholder
+  messagingSenderId: "123456789012", // Default placeholder for messaging
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+// Log full config (without sensitive values)
+console.log("Firebase Config:", {
+  apiKeyExists: Boolean(firebaseConfig.apiKey),
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  appIdExists: Boolean(firebaseConfig.appId)
+});
 
 // Check if Firebase config is properly set
 const isConfigValid = import.meta.env.VITE_FIREBASE_API_KEY && 
-                       import.meta.env.VITE_FIREBASE_PROJECT_ID && 
-                       import.meta.env.VITE_FIREBASE_APP_ID;
+                      import.meta.env.VITE_FIREBASE_PROJECT_ID && 
+                      import.meta.env.VITE_FIREBASE_APP_ID;
 
 if (!isConfigValid) {
   console.error("Firebase configuration is incomplete. Please ensure all required Firebase keys are set.");

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import ChatScreen from "@/components/ChatScreen";
 import FilterModal from "@/components/FilterModal";
@@ -10,10 +10,12 @@ export default function Home() {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const { isLoading, login, user } = useAuth();
   
-  // If user is not logged in, initiate anonymous login
-  if (!user && !isLoading) {
-    login();
-  }
+  // Move login logic to useEffect to avoid render-time state updates
+  useEffect(() => {
+    if (!user && !isLoading) {
+      login();
+    }
+  }, [user, isLoading, login]);
   
   return (
     <div className="flex flex-col min-h-screen bg-background">
