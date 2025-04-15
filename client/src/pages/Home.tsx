@@ -3,12 +3,14 @@ import Header from "@/components/Header";
 import ChatScreen from "@/components/ChatScreen";
 import FilterModal from "@/components/FilterModal";
 import AdminModal from "@/components/AdminModal";
+import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const { isLoading, login, user } = useAuth();
   

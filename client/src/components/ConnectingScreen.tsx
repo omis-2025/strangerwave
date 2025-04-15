@@ -28,6 +28,11 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
     
     const startCamera = async () => {
       try {
+        // First check if media devices are supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Media devices not supported in this browser');
+        }
+        
         stream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
@@ -41,6 +46,17 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
       } catch (error) {
         console.error('Error accessing camera:', error);
         setVideoEnabled(false);
+        
+        // More user-friendly error handling
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          alert('Please allow camera and microphone access to use video chat features');
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          alert('No camera or microphone found. Please connect a device and try again.');
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          alert('Your camera or microphone is already in use by another application.');
+        } else {
+          alert('Unable to access camera and microphone. Video preview disabled.');
+        }
       }
     };
     
@@ -235,17 +251,23 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
             <div className="flex justify-between text-xs text-gray-400">
               <div className="flex items-center space-x-1">
                 <Mic className="h-3 w-3 text-blue-400" />
-                <select className="bg-gray-700 border-none rounded text-xs py-0.5 px-1">
+                <select 
+                  className="bg-gray-700 border-none rounded text-xs py-0.5 px-1"
+                  defaultValue="medium"
+                >
                   <option value="high">Audio: High</option>
-                  <option value="medium" selected>Audio: Medium</option>
+                  <option value="medium">Audio: Medium</option>
                   <option value="low">Audio: Low</option>
                 </select>
               </div>
               <div className="flex items-center space-x-1">
                 <Camera className="h-3 w-3 text-blue-400" />
-                <select className="bg-gray-700 border-none rounded text-xs py-0.5 px-1">
+                <select 
+                  className="bg-gray-700 border-none rounded text-xs py-0.5 px-1"
+                  defaultValue="480p"
+                >
                   <option value="720p">Video: HD</option>
-                  <option value="480p" selected>Video: SD</option>
+                  <option value="480p">Video: SD</option>
                   <option value="360p">Video: Low</option>
                 </select>
               </div>
