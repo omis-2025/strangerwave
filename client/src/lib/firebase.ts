@@ -2,48 +2,65 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Debug logging to check environment variables
-console.log("Firebase ENV check - API Key exists:", Boolean(import.meta.env.VITE_FIREBASE_API_KEY));
-console.log("Firebase ENV check - Project ID exists:", Boolean(import.meta.env.VITE_FIREBASE_PROJECT_ID));
-console.log("Firebase ENV check - App ID exists:", Boolean(import.meta.env.VITE_FIREBASE_APP_ID));
-
-// Firebase configuration
+// Firebase configuration directly from Firebase Console
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  messagingSenderId: "123456789012", // Default placeholder for messaging
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyBhCaneh4UN0p-NB7VLfRqEw7lTlTo4sqk",
+  authDomain: "strangerwave-fbed8.firebaseapp.com",
+  projectId: "strangerwave-fbed8",
+  storageBucket: "strangerwave-fbed8.firebasestorage.app",
+  messagingSenderId: "720316631299",
+  appId: "1:720316631299:web:e45741afa949a2f8f3c136",
+  measurementId: "G-RHHQ0J4QY3"
 };
 
-// Log full config (without sensitive values)
-console.log("Firebase Config:", {
-  apiKeyExists: Boolean(firebaseConfig.apiKey),
+// Log configuration for debugging
+console.log("Using Firebase configuration:", {
   authDomain: firebaseConfig.authDomain,
   projectId: firebaseConfig.projectId,
   storageBucket: firebaseConfig.storageBucket,
+  apiKeyExists: Boolean(firebaseConfig.apiKey),
   appIdExists: Boolean(firebaseConfig.appId)
 });
 
-// Check if Firebase config is properly set
-const isConfigValid = import.meta.env.VITE_FIREBASE_API_KEY && 
-                      import.meta.env.VITE_FIREBASE_PROJECT_ID && 
-                      import.meta.env.VITE_FIREBASE_APP_ID;
+// Initialize Firebase
+console.log("Initializing Firebase with config");
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-if (!isConfigValid) {
-  console.error("Firebase configuration is incomplete. Please ensure all required Firebase keys are set.");
+// Initialize analytics in browser environment only
+if (typeof window !== 'undefined') {
+  // Dynamically import analytics to avoid server-side issues
+  import('firebase/analytics').then((module) => {
+    try {
+      const { getAnalytics } = module;
+      const analytics = getAnalytics(app);
+      console.log("Firebase Analytics initialized");
+    } catch (analyticsError) {
+      console.warn("Firebase Analytics initialization failed:", analyticsError);
+    }
+  }).catch(err => {
+    console.warn("Could not load Firebase Analytics:", err);
+  });
 }
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+console.log("Firebase initialized successfully");
+
+// Export the Firebase instances
+export { app, auth, db };
 
 // For anonymous sign-in
 export const signInAnonymouslyWithFirebase = async () => {
   try {
+    // Check if auth is properly initialized
+    if (!auth || !auth.signInAnonymously) {
+      console.error("Firebase auth not properly initialized");
+      throw new Error("Firebase auth not properly initialized");
+    }
+    
+    console.log("Attempting anonymous sign-in");
     const userCredential = await signInAnonymously(auth);
+    console.log("Anonymous sign-in successful");
     return userCredential.user;
   } catch (error) {
     console.error("Error signing in anonymously:", error);
@@ -52,10 +69,5 @@ export const signInAnonymouslyWithFirebase = async () => {
 };
 
 export const isFirebaseConfigured = () => {
-  // Check if essential Firebase config values are set
-  return (
-    import.meta.env.VITE_FIREBASE_API_KEY !== undefined &&
-    import.meta.env.VITE_FIREBASE_PROJECT_ID !== undefined &&
-    import.meta.env.VITE_FIREBASE_APP_ID !== undefined
-  );
+  return !!firebaseConfig.apiKey && !!firebaseConfig.projectId && !!firebaseConfig.appId;
 };
