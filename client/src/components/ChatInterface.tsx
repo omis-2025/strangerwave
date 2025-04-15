@@ -44,6 +44,8 @@ export default function ChatInterface({
   const [isRemoteStreamConnected, setIsRemoteStreamConnected] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [micEnabled, setMicEnabled] = useState(true);
+  const [videoEnabled, setVideoEnabled] = useState(true);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   
@@ -281,12 +283,47 @@ export default function ChatInterface({
             {/* Remote video (fullscreen) */}
             <div className="flex-1 bg-gray-800 rounded-lg overflow-hidden relative flex items-center justify-center min-h-[300px]">
               {isRemoteStreamConnected ? (
-                <video
-                  ref={remoteVideoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Audio level indicators */}
+                  <div className="absolute bottom-4 left-4 flex items-center space-x-2 bg-black/40 rounded-full py-1 px-3">
+                    <div className="relative h-3 flex items-center space-x-0.5">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <motion.div 
+                          key={level}
+                          className="w-0.5 bg-green-500 rounded-full"
+                          initial={{ height: 3 }}
+                          animate={{ 
+                            height: Math.random() > 0.5 ? Math.random() * 10 + 3 : 3 
+                          }}
+                          transition={{ 
+                            repeat: Infinity,
+                            repeatType: "mirror",
+                            duration: 0.2 + (level * 0.1),
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-white">Audio</span>
+                  </div>
+                  
+                  {/* Connection quality indicator */}
+                  <div className="absolute top-4 left-4 bg-black/40 rounded-full py-1 px-2 flex items-center">
+                    <div className="flex space-x-0.5 mr-1">
+                      <div className="w-1 h-3 bg-green-500 rounded-full" />
+                      <div className="w-1 h-3 bg-green-500 rounded-full" />
+                      <div className="w-1 h-3 bg-green-500 rounded-full" />
+                      <div className="w-1 h-3 bg-green-500/40 rounded-full" />
+                    </div>
+                    <span className="text-xs text-white">Good</span>
+                  </div>
+                </>
               ) : (
                 <div className="text-center p-4">
                   <div className="w-16 h-16 mx-auto bg-gray-700 rounded-full flex items-center justify-center mb-4">
@@ -313,6 +350,16 @@ export default function ChatInterface({
                     <VideoOff className="h-6 w-6 text-gray-500" />
                   </div>
                 )}
+                
+                {/* Audio/Video status indicators */}
+                <div className="absolute bottom-1 right-1 flex space-x-1">
+                  <div className={`rounded-full p-0.5 ${!isMicrophoneMuted ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
+                    {!isMicrophoneMuted ? <Mic className="h-2 w-2 text-white" /> : <MicOff className="h-2 w-2 text-white" />}
+                  </div>
+                  <div className={`rounded-full p-0.5 ${!isCameraOff ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
+                    {!isCameraOff ? <Video className="h-2 w-2 text-white" /> : <VideoOff className="h-2 w-2 text-white" />}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

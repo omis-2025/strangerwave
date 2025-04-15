@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Globe, Shield, X, Video, Camera, Mic, VideoOff } from 'lucide-react';
+import { Users, Search, Globe, Shield, X, Video, Camera, Mic, VideoOff, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ConnectingScreenProps {
@@ -219,14 +219,36 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
             </div>
           </div>
           
-          <div className="px-3 py-2 flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-              <span className="text-xs text-gray-300">Camera ready</span>
+          <div className="p-2 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center">
+                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                <span className="text-xs text-gray-300">Camera ready</span>
+              </div>
+              <div className="text-xs text-gray-400 flex items-center">
+                <Video className="h-3 w-3 mr-1 text-blue-400" />
+                <span>Video activated</span>
+              </div>
             </div>
-            <div className="text-xs text-gray-400 flex items-center">
-              <Video className="h-3 w-3 mr-1 text-blue-400" />
-              <span>Video activated</span>
+            
+            {/* Audio/Video quality selectors */}
+            <div className="flex justify-between text-xs text-gray-400">
+              <div className="flex items-center space-x-1">
+                <Mic className="h-3 w-3 text-blue-400" />
+                <select className="bg-gray-700 border-none rounded text-xs py-0.5 px-1">
+                  <option value="high">Audio: High</option>
+                  <option value="medium" selected>Audio: Medium</option>
+                  <option value="low">Audio: Low</option>
+                </select>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Camera className="h-3 w-3 text-blue-400" />
+                <select className="bg-gray-700 border-none rounded text-xs py-0.5 px-1">
+                  <option value="720p">Video: HD</option>
+                  <option value="480p" selected>Video: SD</option>
+                  <option value="360p">Video: Low</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
