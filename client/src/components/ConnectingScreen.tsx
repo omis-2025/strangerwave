@@ -7,6 +7,11 @@ interface ConnectingScreenProps {
   onCancel: () => void;
 }
 
+interface MediaError {
+  name?: string;
+  message?: string;
+}
+
 // Random country names for animation
 const countries = [
   'United States', 'Canada', 'United Kingdom', 'Australia', 
@@ -43,7 +48,8 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      } catch (error) {
+      } catch (err) {
+        const error = err as MediaError;
         console.error('Error accessing camera:', error);
         setVideoEnabled(false);
         

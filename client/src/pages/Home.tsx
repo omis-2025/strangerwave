@@ -22,6 +22,17 @@ export default function Home() {
     }
   }, [user, isLoading, login, loginAttempts]);
   
+  // Show onboarding for new users after login
+  useEffect(() => {
+    if (user && !isLoading) {
+      // Check if this is first time visit
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [user, isLoading]);
+  
   // Handle manual login
   const handleManualLogin = () => {
     setLoginAttempts(0);
@@ -103,6 +114,11 @@ export default function Home() {
             onClose={() => setShowAdminModal(false)}
           />
         </>
+      )}
+      
+      {/* Onboarding modal for first-time users */}
+      {showOnboarding && (
+        <OnboardingModal onClose={() => setShowOnboarding(false)} />
       )}
       
       <footer className="bg-surface py-4 px-4 sm:px-6 border-t border-gray-800">
