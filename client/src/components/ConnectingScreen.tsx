@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Globe, Shield, X } from 'lucide-react';
+import { Users, Search, Globe, Shield, X, Video, Camera, Mic, VideoOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ConnectingScreenProps {
   onCancel: () => void;
@@ -16,6 +17,64 @@ const countries = [
 export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
   const [searchingCountry, setSearchingCountry] = useState('');
   const [userCount] = useState(Math.floor(Math.random() * 200) + 150);
+  const [videoEnabled, setVideoEnabled] = useState(true);
+  const [micEnabled, setMicEnabled] = useState(true);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Initialize camera on component mount
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    
+    const startCamera = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: true, 
+          audio: true 
+        });
+        
+        setLocalStream(stream);
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setVideoEnabled(false);
+      }
+    };
+    
+    startCamera();
+    
+    // Cleanup function to stop all tracks when component unmounts
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+  
+  // Toggle video 
+  const toggleVideo = () => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      if (videoTracks.length > 0) {
+        videoTracks[0].enabled = !videoEnabled;
+        setVideoEnabled(!videoEnabled);
+      }
+    }
+  };
+  
+  // Toggle microphone
+  const toggleMic = () => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      if (audioTracks.length > 0) {
+        audioTracks[0].enabled = !micEnabled;
+        setMicEnabled(!micEnabled);
+      }
+    }
+  };
   
   // Simulate searching through different countries
   useEffect(() => {
@@ -115,6 +174,64 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
         </motion.div>
       </motion.div>
       
+      {/* Video Preview */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="mb-6 w-full max-w-xs"
+      >
+        <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+          <div className="aspect-video relative bg-gray-900 overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`w-full h-full object-cover ${!videoEnabled ? 'hidden' : ''}`}
+            />
+            
+            {!videoEnabled && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800">
+                <VideoOff className="h-10 w-10 text-gray-600 mb-2" />
+                <p className="text-sm text-gray-400">Camera is turned off</p>
+              </div>
+            )}
+            
+            <div className="absolute bottom-3 right-3 flex space-x-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${!micEnabled ? 'bg-red-500/20 text-red-400' : 'bg-gray-900/80 text-white'}`}
+                onClick={toggleMic}
+              >
+                {micEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${!videoEnabled ? 'bg-red-500/20 text-red-400' : 'bg-gray-900/80 text-white'}`}
+                onClick={toggleVideo}
+              >
+                {videoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+          
+          <div className="px-3 py-2 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+              <span className="text-xs text-gray-300">Camera ready</span>
+            </div>
+            <div className="text-xs text-gray-400 flex items-center">
+              <Video className="h-3 w-3 mr-1 text-blue-400" />
+              <span>Video activated</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+      
       {/* Trust elements */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -130,6 +247,11 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
         <div className="flex items-center">
           <Users className="h-3 w-3 mr-1 text-blue-500" />
           <span>Smart matching</span>
+        </div>
+        <span>•</span>
+        <div className="flex items-center">
+          <Camera className="h-3 w-3 mr-1 text-blue-500" />
+          <span>Video enabled</span>
         </div>
       </motion.div>
       
