@@ -91,14 +91,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       await signInAnonymouslyWithFirebase();
       // The onAuthStateChanged listener will handle updating the user state
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: "Failed to login anonymously. Please try again."
-      });
-      setIsLoading(false);
+      
+      // Handle rate limiting error
+      if (error.code === "auth/too-many-requests") {
+        toast({
+          variant: "destructive",
+          title: "Login Temporarily Unavailable",
+          description: "Please wait a moment before trying again. Too many login attempts."
+        });
+        // Set a delay before allowing another attempt
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 5000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "Failed to login anonymously. Please try again."
+        });
+        setIsLoading(false);
+      }
     }
   };
 

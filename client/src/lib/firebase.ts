@@ -52,12 +52,6 @@ export { app, auth, db };
 // For anonymous sign-in
 export const signInAnonymouslyWithFirebase = async () => {
   try {
-    // Check if auth is properly initialized
-    if (!auth || !auth.signInAnonymously) {
-      console.error("Firebase auth not properly initialized");
-      throw new Error("Firebase auth not properly initialized");
-    }
-    
     console.log("Attempting anonymous sign-in");
     const userCredential = await signInAnonymously(auth);
     console.log("Anonymous sign-in successful");
