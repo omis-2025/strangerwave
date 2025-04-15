@@ -160,9 +160,9 @@ export default function LandingPage() {
               <div className="h-[64px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
               <div className="rounded-[2rem] overflow-hidden h-full w-full bg-white">
                 <img 
-                  src="https://framerusercontent.com/images/8xdpU7tlXQ5Rh1PYS7NMn75dM.png" 
+                  src="/assets/phone-mockup.png" 
                   className="h-full w-full object-cover"
-                  alt="AnonChat mobile preview" 
+                  alt="StrangerChat mobile preview" 
                 />
               </div>
             </div>
