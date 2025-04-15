@@ -15,7 +15,7 @@ interface FilterModalProps {
 type GenderOption = 'any' | 'male' | 'female';
 
 const countries = [
-  { code: "", name: "Any Country" },
+  { code: "any", name: "Any Country" },
   { code: "us", name: "United States" },
   { code: "ca", name: "Canada" },
   { code: "gb", name: "United Kingdom" },
@@ -115,8 +115,8 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                   Country:
                 </Label>
                 <Select
-                  value={country || ""}
-                  onValueChange={(value) => setCountry(value || null)}
+                  value={country || "any"}
+                  onValueChange={(value) => setCountry(value === "any" ? null : value)}
                 >
                   <SelectTrigger className="w-full bg-surface-light text-text-primary">
                     <SelectValue placeholder="Any Country" />
