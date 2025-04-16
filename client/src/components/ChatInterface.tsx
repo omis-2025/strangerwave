@@ -251,10 +251,10 @@ export default function ChatInterface({
               size={isMobile ? "sm" : "default"}
               onClick={onDisconnect} /* reusing onDisconnect to skip to next stranger */
               className="text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors mr-1 p-1 sm:p-2"
-              title="Next Stranger"
+              title="Skip to next stranger"
             >
               <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
-              {!isMobile && <span className="ml-1 hidden sm:inline">Next</span>}
+              {!isMobile && <span className="ml-1 hidden sm:inline">Skip</span>}
             </Button>
           </motion.div>
           
@@ -305,10 +305,10 @@ export default function ChatInterface({
               size={isMobile ? "sm" : "default"}
               onClick={onDisconnect}
               className="text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-colors p-1 sm:p-2"
-              title="Disconnect"
+              title="Stop chatting"
             >
               <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
-              {!isMobile && <span className="ml-1 hidden sm:inline">Leave</span>}
+              {!isMobile && <span className="ml-1 hidden sm:inline">Stop</span>}
             </Button>
           </motion.div>
         </div>

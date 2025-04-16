@@ -93,7 +93,7 @@ export default function DisconnectedScreen({ onNewChat, onBackToWelcome }: Disco
           className="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-5 rounded-lg transition-all flex items-center shadow-lg shadow-primary/20"
         >
           <RefreshCw className="h-5 w-5 mr-2" />
-          Find New Chat
+          Skip to New Chat
         </motion.button>
         
         <motion.button 
