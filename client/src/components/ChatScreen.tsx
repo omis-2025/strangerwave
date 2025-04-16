@@ -89,6 +89,20 @@ export default function ChatScreen() {
     setChatState('disconnected');
   };
   
+  const handleToggleVideoChat = (useVideo: boolean) => {
+    setUseVideoChat(useVideo);
+  };
+  
+  const handleSendVideoMessage = (message: string) => {
+    const newMessage = {
+      id: crypto.randomUUID(),
+      sender: 'me' as const,
+      content: message,
+      timestamp: new Date()
+    };
+    setVideoMessages(prev => [...prev, newMessage]);
+  };
+  
   const handleNewChat = () => {
     setChatState('connecting');
     chatService.joinQueue(preferences);
@@ -113,13 +127,15 @@ export default function ChatScreen() {
   };
   
   // Update state based on chat service events
-  if (chatState === 'connecting' && chatService.connected) {
-    setChatState('chatting');
-  }
-  
-  if (chatState === 'chatting' && chatService.partnerDisconnected) {
-    setChatState('disconnected');
-  }
+  useEffect(() => {
+    if (chatState === 'connecting' && chatService.connected) {
+      setChatState(useVideoChat ? 'videochat' : 'chatting');
+    }
+    
+    if ((chatState === 'chatting' || chatState === 'videochat') && chatService.partnerDisconnected) {
+      setChatState('disconnected');
+    }
+  }, [chatState, chatService.connected, chatService.partnerDisconnected, useVideoChat]);
   
   return (
     <main className="flex-1 container mx-auto px-4 sm:px-6 py-6 flex flex-col">
@@ -132,6 +148,7 @@ export default function ChatScreen() {
         <WelcomeScreen 
           onStartChat={handleStartChat}
           onShowFilters={() => setShowFilterModal(true)}
+          onToggleVideoChat={handleToggleVideoChat}
         />
       )}
       
@@ -148,6 +165,14 @@ export default function ChatScreen() {
           onTyping={chatService.setTyping}
           onDisconnect={handleDisconnect}
           onReport={() => setShowReportModal(true)}
+        />
+      )}
+      
+      {chatState === 'videochat' && (
+        <VideoCallInterface
+          messages={videoMessages}
+          onSendMessage={handleSendVideoMessage}
+          onDisconnect={handleDisconnect}
         />
       )}
       

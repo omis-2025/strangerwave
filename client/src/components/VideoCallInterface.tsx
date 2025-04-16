@@ -44,19 +44,20 @@ export default function VideoCallInterface({
           {/* Main video stream (partner) */}
           <div className="relative bg-gray-800 w-full h-full rounded-xl overflow-hidden">
             {/* This would be the partner's video stream */}
-            <img 
-              src="/assets/sample-video-2.jpg" 
-              alt="Partner video stream" 
-              className="w-full h-full object-cover"
-            />
+            <div className="w-full h-full bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center">
+              <div className="text-gray-500 flex flex-col items-center">
+                <Video className="h-16 w-16 mb-4" />
+                <p>Partner video will appear here</p>
+              </div>
+            </div>
             
             {/* Self-view (small overlay) */}
             <div className="absolute bottom-4 right-4 w-1/4 max-w-[160px] aspect-video rounded-lg overflow-hidden border-2 border-white shadow-lg">
-              <img 
-                src="/assets/sample-video-1.jpg" 
-                alt="Your video stream" 
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center">
+                <div className="text-gray-500 flex flex-col items-center">
+                  <Camera className="h-8 w-8" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
