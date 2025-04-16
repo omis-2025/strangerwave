@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.strangerwave.app',
   appName: 'StrangerWave',
-  webDir: 'dist',
+  webDir: 'dist/public',
   plugins: {
     // Camera permissions for video chat
     Camera: {
