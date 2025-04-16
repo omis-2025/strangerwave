@@ -3,10 +3,12 @@ import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input"; 
 import { ChatPreferences } from "@/lib/chatService";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Sliders, X, Users, Globe, UserCircle2, User, UsersRound, Heart
+  Sliders, X, Users, Globe, UserCircle2, User, UsersRound, Heart,
+  Search, CircleX
 } from "lucide-react";
 import 'flag-icons/css/flag-icons.min.css';
 
@@ -22,25 +24,72 @@ type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | '
 // Enhanced countries list with flag codes
 const countries = [
   { code: "any", name: "Any Country", flag: null },
+  // North America
   { code: "us", name: "United States", flag: "us" },
   { code: "ca", name: "Canada", flag: "ca" },
+  { code: "mx", name: "Mexico", flag: "mx" },
+  
+  // South America
+  { code: "ar", name: "Argentina", flag: "ar" },
+  { code: "br", name: "Brazil", flag: "br" },
+  { code: "cl", name: "Chile", flag: "cl" },
+  { code: "co", name: "Colombia", flag: "co" },
+  { code: "pe", name: "Peru", flag: "pe" },
+  { code: "ve", name: "Venezuela", flag: "ve" },
+  
+  // Europe
   { code: "gb", name: "United Kingdom", flag: "gb" },
-  { code: "au", name: "Australia", flag: "au" },
   { code: "de", name: "Germany", flag: "de" },
   { code: "fr", name: "France", flag: "fr" },
   { code: "es", name: "Spain", flag: "es" },
   { code: "it", name: "Italy", flag: "it" },
-  { code: "jp", name: "Japan", flag: "jp" },
-  { code: "cn", name: "China", flag: "cn" },
-  { code: "in", name: "India", flag: "in" },
-  { code: "br", name: "Brazil", flag: "br" },
-  { code: "mx", name: "Mexico", flag: "mx" },
-  { code: "ru", name: "Russia", flag: "ru" },
-  { code: "kr", name: "South Korea", flag: "kr" },
-  { code: "za", name: "South Africa", flag: "za" },
-  { code: "sg", name: "Singapore", flag: "sg" },
-  { code: "ae", name: "United Arab Emirates", flag: "ae" },
   { code: "nl", name: "Netherlands", flag: "nl" },
+  { code: "pl", name: "Poland", flag: "pl" },
+  { code: "pt", name: "Portugal", flag: "pt" },
+  { code: "se", name: "Sweden", flag: "se" },
+  { code: "no", name: "Norway", flag: "no" },
+  { code: "fi", name: "Finland", flag: "fi" },
+  { code: "dk", name: "Denmark", flag: "dk" },
+  { code: "ie", name: "Ireland", flag: "ie" },
+  { code: "ch", name: "Switzerland", flag: "ch" },
+  { code: "at", name: "Austria", flag: "at" },
+  { code: "be", name: "Belgium", flag: "be" },
+  { code: "gr", name: "Greece", flag: "gr" },
+  { code: "ru", name: "Russia", flag: "ru" },
+  { code: "ua", name: "Ukraine", flag: "ua" },
+  { code: "tr", name: "Turkey", flag: "tr" },
+  
+  // Africa
+  { code: "za", name: "South Africa", flag: "za" },
+  { code: "ng", name: "Nigeria", flag: "ng" },
+  { code: "eg", name: "Egypt", flag: "eg" },
+  { code: "ke", name: "Kenya", flag: "ke" },
+  { code: "ma", name: "Morocco", flag: "ma" },
+  { code: "gh", name: "Ghana", flag: "gh" },
+  { code: "et", name: "Ethiopia", flag: "et" },
+  
+  // Asia
+  { code: "cn", name: "China", flag: "cn" },
+  { code: "jp", name: "Japan", flag: "jp" },
+  { code: "kr", name: "South Korea", flag: "kr" },
+  { code: "in", name: "India", flag: "in" },
+  { code: "id", name: "Indonesia", flag: "id" },
+  { code: "ph", name: "Philippines", flag: "ph" },
+  { code: "sg", name: "Singapore", flag: "sg" },
+  { code: "my", name: "Malaysia", flag: "my" },
+  { code: "th", name: "Thailand", flag: "th" },
+  { code: "vn", name: "Vietnam", flag: "vn" },
+  { code: "ae", name: "United Arab Emirates", flag: "ae" },
+  { code: "sa", name: "Saudi Arabia", flag: "sa" },
+  { code: "il", name: "Israel", flag: "il" },
+  { code: "pk", name: "Pakistan", flag: "pk" },
+  { code: "kz", name: "Kazakhstan", flag: "kz" },
+  
+  // Oceania
+  { code: "au", name: "Australia", flag: "au" },
+  { code: "nz", name: "New Zealand", flag: "nz" },
+  { code: "fj", name: "Fiji", flag: "fj" },
+  { code: "pg", name: "Papua New Guinea", flag: "pg" }
 ];
 
 interface GenderOptionType {
@@ -105,12 +154,14 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
   const [preferredGender, setPreferredGender] = useState<GenderOption>(initialPreferences.preferredGender);
   const [country, setCountry] = useState<string | null>(initialPreferences.country);
   const [saving, setSaving] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   
   // Reset form when modal opens with initial preferences
   useEffect(() => {
     if (isOpen) {
       setPreferredGender(initialPreferences.preferredGender);
       setCountry(initialPreferences.country);
+      setCountrySearch("");
       setSaving(false);
     }
   }, [isOpen, initialPreferences]);
@@ -251,7 +302,149 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                           </div>
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-gray-700 text-white max-h-[300px]">
-                          {countries.map((country) => (
+                          {/* Search Input */}
+                          <div className="px-2 pt-1 pb-2 sticky top-0 bg-gray-800 z-10 border-b border-gray-700">
+                            <div className="relative">
+                              <Input
+                                placeholder="Search country..."
+                                value={countrySearch}
+                                onChange={(e) => setCountrySearch(e.target.value)}
+                                className="bg-gray-900 border-gray-700 text-white text-sm h-9"
+                              />
+                              <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-gray-400" />
+                              </div>
+                              {countrySearch && (
+                                <button
+                                  type="button"
+                                  onClick={() => setCountrySearch("")}
+                                  className="absolute inset-y-0 right-2 flex items-center"
+                                >
+                                  <CircleX className="h-4 w-4 text-gray-400 hover:text-white" />
+                                </button>
+                              )}
+                              <div className="absolute inset-y-0 left-0 w-8 flex items-center pointer-events-none"></div>
+                              <input
+                                className="pl-8 pr-8 py-2 w-full bg-gray-900 border border-gray-700 rounded-md text-white text-sm"
+                                placeholder="Search country..."
+                                value={countrySearch}
+                                onChange={(e) => setCountrySearch(e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Any Country Option */}
+                          <SelectItem 
+                            key="any" 
+                            value="any"
+                            className="focus:bg-primary/20 focus:text-white border-b border-gray-700 mb-2 pb-2"
+                          >
+                            <div className="flex items-center space-x-2 font-medium">
+                              <span className="mr-2 text-lg">🌎</span>
+                              <span>Any Country (Worldwide)</span>
+                            </div>
+                          </SelectItem>
+                          
+                          {/* North America Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mb-1">
+                            North America
+                          </div>
+                          {countries.slice(1, 4).map((country) => (
+                            <SelectItem 
+                              key={country.code} 
+                              value={country.code}
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {country.flag && (
+                                  <span className={`fi fi-${country.flag} text-base mr-2`}></span>
+                                )}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* South America Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mt-2 mb-1">
+                            South America
+                          </div>
+                          {countries.slice(4, 10).map((country) => (
+                            <SelectItem 
+                              key={country.code} 
+                              value={country.code}
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {country.flag && (
+                                  <span className={`fi fi-${country.flag} text-base mr-2`}></span>
+                                )}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Europe Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mt-2 mb-1">
+                            Europe
+                          </div>
+                          {countries.slice(10, 30).map((country) => (
+                            <SelectItem 
+                              key={country.code} 
+                              value={country.code}
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {country.flag && (
+                                  <span className={`fi fi-${country.flag} text-base mr-2`}></span>
+                                )}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Africa Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mt-2 mb-1">
+                            Africa
+                          </div>
+                          {countries.slice(30, 37).map((country) => (
+                            <SelectItem 
+                              key={country.code} 
+                              value={country.code}
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {country.flag && (
+                                  <span className={`fi fi-${country.flag} text-base mr-2`}></span>
+                                )}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Asia Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mt-2 mb-1">
+                            Asia
+                          </div>
+                          {countries.slice(37, 52).map((country) => (
+                            <SelectItem 
+                              key={country.code} 
+                              value={country.code}
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {country.flag && (
+                                  <span className={`fi fi-${country.flag} text-base mr-2`}></span>
+                                )}
+                                <span>{country.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Oceania Section */}
+                          <div className="px-2 py-1 text-xs uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700 mt-2 mb-1">
+                            Oceania
+                          </div>
+                          {countries.slice(52).map((country) => (
                             <SelectItem 
                               key={country.code} 
                               value={country.code}
