@@ -11,6 +11,7 @@ import {
 } from "@shared/schema";
 import paypalRoutes from "./routes/paypal";
 import profileRoutes from "./routes/profile";
+import adminRoutes from "./routes/admin";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {

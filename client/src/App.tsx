@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Admin from "@/pages/Admin";
+import EnhancedAdmin from "@/pages/EnhancedAdmin";
 import Payment from "@/pages/Payment";
 import LandingPage from "@/pages/LandingPage";
 import { AuthProvider, useAuth } from "./lib/useAuth";
@@ -77,6 +78,7 @@ function Router() {
         <Route path="/landing" component={LandingPage} />
         <Route path="/chat" component={Home} />
         <Route path="/admin" component={() => <AuthRoute component={Admin} adminOnly={true} />} />
+        <Route path="/enhanced-admin" component={() => <AuthRoute component={EnhancedAdmin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />
         <Route path="/payment-success">
           {() => (
