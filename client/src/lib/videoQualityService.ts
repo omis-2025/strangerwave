@@ -15,7 +15,7 @@
 
 export type VideoQuality = 'low' | 'medium' | 'high' | 'hd';
 
-type ConnectionType = 'slow-2g' | '2g' | '3g' | '4g' | '5g' | 'wifi' | 'ethernet' | 'unknown';
+type ConnectionType = 'slow-2g' | '2g' | '3g' | '4g' | '5g' | 'wifi' | 'ethernet' | 'cellular' | 'unknown';
 
 // Interface for NetworkInformation from Navigator API
 interface NetworkInformation extends EventTarget {
@@ -63,8 +63,14 @@ export function getNetworkQualityDescription(): string {
     description = 'WiFi';
   } else if (connection.type === 'ethernet') {
     description = 'Wired connection';
-  } else if (connection.type === 'cellular' || connection.effectiveType === '4g' || connection.effectiveType === '5g') {
+  } else if (connection.type === 'cellular') {
     description = 'Mobile data';
+  } else if (connection.effectiveType === '4g' || connection.effectiveType === '5g') {
+    description = 'Fast mobile data';
+  } else if (connection.effectiveType === '3g') {
+    description = 'Mobile data';
+  } else if (connection.effectiveType === '2g' || connection.effectiveType === 'slow-2g') {
+    description = 'Slow connection';
   } else {
     description = connection.effectiveType || 'Connection';
   }
@@ -220,10 +226,13 @@ export function estimateBandwidth(
   const estimateInterval = () => {
     try {
       // This access might throw an error due to cross-origin restrictions
-      // @ts-ignore - TypeScript doesn't know about these properties
+      // Using non-standard browser properties to estimate video bitrate
+      // @ts-ignore - TypeScript doesn't know about these browser-specific properties
       const videoFile = videoElement.webkitVideoDecodedByteCount || 
-                        videoElement.mozDecodedBytes ||
-                        videoElement.mozParsedBytes || 0;
+                        // @ts-ignore - Mozilla-specific properties
+                        (videoElement as any).mozDecodedBytes ||
+                        // @ts-ignore - Mozilla-specific properties
+                        (videoElement as any).mozParsedBytes || 0;
       
       if (lastLoadedBytes > 0) {
         const bytesDelta = videoFile - lastLoadedBytes;

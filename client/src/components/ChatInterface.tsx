@@ -485,25 +485,69 @@ export default function ChatInterface({
                           <div className="grid grid-cols-2 gap-1">
                             <button 
                               className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'low' ? 'bg-red-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
-                              onClick={() => setCurrentVideoQuality('low')}
+                              onClick={() => {
+                                setCurrentVideoQuality('low');
+                                // Apply the new constraints if we have an active stream
+                                if (localStream) {
+                                  const videoTracks = localStream.getVideoTracks();
+                                  if (videoTracks.length > 0) {
+                                    const constraints = getVideoConstraints('low');
+                                    videoTracks[0].applyConstraints(constraints)
+                                      .catch(err => console.error('Could not apply video constraints:', err));
+                                  }
+                                }
+                              }}
                             >
                               Low
                             </button>
                             <button 
                               className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'medium' ? 'bg-yellow-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
-                              onClick={() => setCurrentVideoQuality('medium')}
+                              onClick={() => {
+                                setCurrentVideoQuality('medium');
+                                // Apply the new constraints if we have an active stream
+                                if (localStream) {
+                                  const videoTracks = localStream.getVideoTracks();
+                                  if (videoTracks.length > 0) {
+                                    const constraints = getVideoConstraints('medium');
+                                    videoTracks[0].applyConstraints(constraints)
+                                      .catch(err => console.error('Could not apply video constraints:', err));
+                                  }
+                                }
+                              }}
                             >
                               Medium
                             </button>
                             <button 
                               className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'high' ? 'bg-green-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
-                              onClick={() => setCurrentVideoQuality('high')}
+                              onClick={() => {
+                                setCurrentVideoQuality('high');
+                                // Apply the new constraints if we have an active stream
+                                if (localStream) {
+                                  const videoTracks = localStream.getVideoTracks();
+                                  if (videoTracks.length > 0) {
+                                    const constraints = getVideoConstraints('high');
+                                    videoTracks[0].applyConstraints(constraints)
+                                      .catch(err => console.error('Could not apply video constraints:', err));
+                                  }
+                                }
+                              }}
                             >
                               High
                             </button>
                             <button 
                               className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'hd' ? 'bg-blue-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
-                              onClick={() => setCurrentVideoQuality('hd')}
+                              onClick={() => {
+                                setCurrentVideoQuality('hd');
+                                // Apply the new constraints if we have an active stream
+                                if (localStream) {
+                                  const videoTracks = localStream.getVideoTracks();
+                                  if (videoTracks.length > 0) {
+                                    const constraints = getVideoConstraints('hd');
+                                    videoTracks[0].applyConstraints(constraints)
+                                      .catch(err => console.error('Could not apply video constraints:', err));
+                                  }
+                                }
+                              }}
                             >
                               HD
                             </button>
@@ -519,10 +563,22 @@ export default function ChatInterface({
                         <div 
                           className={`ml-2 w-7 h-3.5 rounded-full relative transition-colors ${isBandwidthSavingMode ? 'bg-yellow-500' : 'bg-gray-600'}`}
                           onClick={() => {
-                            setIsBandwidthSavingMode(!isBandwidthSavingMode);
+                            const newMode = !isBandwidthSavingMode;
+                            setIsBandwidthSavingMode(newMode);
+                            
                             // If enabling bandwidth saving, drop quality to low
-                            if (!isBandwidthSavingMode) {
+                            if (newMode) {
                               setCurrentVideoQuality('low');
+                              
+                              // Apply the new constraints if we have an active stream
+                              if (localStream) {
+                                const videoTracks = localStream.getVideoTracks();
+                                if (videoTracks.length > 0) {
+                                  const constraints = getVideoConstraints('low');
+                                  videoTracks[0].applyConstraints(constraints)
+                                    .catch(err => console.error('Could not apply low quality constraints:', err));
+                                }
+                              }
                             }
                           }}
                           role="checkbox"
