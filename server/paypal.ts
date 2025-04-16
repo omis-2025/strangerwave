@@ -29,7 +29,14 @@ export const centsToDollars = (cents: number): string => {
 // Helper function to get PayPal SDK
 export const getPayPalSdk = async () => {
   try {
-    return await loadScript(PAYPAL_API_OPTIONS);
+    if (!PAYPAL_CLIENT_ID) {
+      throw new Error("PayPal Client ID is not set");
+    }
+    return await loadScript({
+      clientId: PAYPAL_CLIENT_ID,
+      currency: "USD",
+      intent: "capture"
+    });
   } catch (error) {
     console.error("Failed to load the PayPal JS SDK script", error);
     throw error;

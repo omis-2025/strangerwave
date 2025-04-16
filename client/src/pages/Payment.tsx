@@ -10,6 +10,9 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Shield, Lock, CreditCard, AlertTriangle, CheckCircle, RefreshCw, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import PayPalButton from "@/components/PayPalButton";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
@@ -301,20 +304,80 @@ export default function Payment() {
                   </div>
                   
                   <div className="mt-6">
-                    {!stripePromise ? (
+                    {(!stripePromise && !user) ? (
                       <div className="text-center p-5 bg-gray-900/80 rounded-lg border border-red-500/30">
                         <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
                         <p className="text-red-400 font-medium mb-1">Payment services unavailable</p>
                         <p className="text-gray-400 text-sm">Please try again later or contact support</p>
                       </div>
-                    ) : clientSecret ? (
-                      <Elements stripe={stripePromise} options={{ clientSecret }}>
-                        <PaymentForm />
-                      </Elements>
                     ) : (
-                      <div className="flex justify-center p-4">
-                        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-                      </div>
+                      <Tabs defaultValue="card" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-4">
+                          <TabsTrigger value="card" className="flex items-center justify-center">
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Credit Card
+                          </TabsTrigger>
+                          <TabsTrigger value="paypal" className="flex items-center justify-center">
+                            <img src="https://cdn.pixabay.com/photo/2015/05/26/09/37/paypal-784404_960_720.png" alt="PayPal" className="h-4 mr-2" />
+                            PayPal
+                          </TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="card" className="mt-0">
+                          {clientSecret ? (
+                            <Elements stripe={stripePromise} options={{ clientSecret }}>
+                              <PaymentForm />
+                            </Elements>
+                          ) : (
+                            <div className="flex justify-center p-4">
+                              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+                            </div>
+                          )}
+                        </TabsContent>
+                        
+                        <TabsContent value="paypal" className="mt-0">
+                          {user ? (
+                            <div className="space-y-6">
+                              <div className="flex items-center justify-center mb-4 bg-blue-500/10 p-2 rounded-lg border border-blue-500/20">
+                                <Lock className="h-4 w-4 mr-2 text-blue-500" />
+                                <span className="text-sm text-blue-500 font-medium">Secure PayPal Processing</span>
+                              </div>
+                              
+                              <PayPalButton 
+                                userId={user.userId}
+                                productType="unban"
+                                onSuccess={() => {
+                                  // Navigate back to the chat after successful payment
+                                  setTimeout(() => {
+                                    navigate('/chat');
+                                  }, 2000);
+                                }}
+                                onCancel={() => {
+                                  toast({
+                                    title: "Payment Cancelled",
+                                    description: "You have cancelled the payment process.",
+                                  });
+                                }}
+                              />
+                              
+                              <div className="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-gray-700">
+                                <div className="flex items-center text-xs text-gray-400">
+                                  <Shield className="h-4 w-4 mr-1 text-primary" />
+                                  <span>Buyer Protection</span>
+                                </div>
+                                <div className="flex items-center text-xs text-gray-400">
+                                  <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+                                  <span>No PayPal Account Required</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex justify-center p-4">
+                              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+                            </div>
+                          )}
+                        </TabsContent>
+                      </Tabs>
                     )}
                   </div>
                 </div>
