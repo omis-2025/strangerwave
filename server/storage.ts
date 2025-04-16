@@ -16,6 +16,12 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
   updateStripeCustomerId(id: number, stripeCustomerId: string): Promise<User | undefined>;
+  updateUserStripeInfo(id: number, data: {customerId: string, subscriptionId: string}): Promise<User | undefined>;
+  
+  // Subscription methods
+  activatePremium(userId: number, tier: string, expiryDate: Date): Promise<User | undefined>;
+  deactivatePremium(userId: number): Promise<User | undefined>;
+  getUserSubscriptionStatus(userId: number): Promise<{isActive: boolean, expiryDate?: Date, tier?: string}>;
   
   // Chat preferences methods
   getChatPreferences(userId: number): Promise<ChatPreferences | undefined>;
@@ -43,6 +49,7 @@ export interface IStorage {
   // Admin methods
   banUser(id: number): Promise<User | undefined>;
   unbanUser(id: number): Promise<User | undefined>;
+  incrementBanCount(userId: number): Promise<User | undefined>;
   getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]>;
 }
 
@@ -84,6 +91,52 @@ export class DatabaseStorage implements IStorage {
 
   async updateStripeCustomerId(id: number, stripeCustomerId: string): Promise<User | undefined> {
     return this.updateUser(id, { stripeCustomerId });
+  }
+  
+  async updateUserStripeInfo(id: number, data: {customerId: string, subscriptionId: string}): Promise<User | undefined> {
+    return this.updateUser(id, { 
+      stripeCustomerId: data.customerId,
+      stripeSubscriptionId: data.subscriptionId
+    });
+  }
+  
+  async activatePremium(userId: number, tier: string, expiryDate: Date): Promise<User | undefined> {
+    return this.updateUser(userId, {
+      isPremium: true,
+      premiumTier: tier,
+      premiumUntil: expiryDate
+    });
+  }
+  
+  async deactivatePremium(userId: number): Promise<User | undefined> {
+    return this.updateUser(userId, {
+      isPremium: false,
+      premiumUntil: null
+    });
+  }
+  
+  async getUserSubscriptionStatus(userId: number): Promise<{isActive: boolean, expiryDate?: Date, tier?: string}> {
+    const user = await this.getUser(userId);
+    
+    if (!user) {
+      return { isActive: false };
+    }
+    
+    const isActive = user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date();
+    
+    return {
+      isActive,
+      expiryDate: user.premiumUntil,
+      tier: user.premiumTier
+    };
+  }
+  
+  async incrementBanCount(userId: number): Promise<User | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    
+    const banCount = (user.banCount || 0) + 1;
+    return this.updateUser(userId, { banCount });
   }
 
   // Chat preferences methods

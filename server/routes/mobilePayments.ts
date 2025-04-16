@@ -10,7 +10,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2023-08-16",
 });
 
 // Product ids and prices for different platforms
@@ -161,13 +161,12 @@ router.post('/ios/purchase', authMiddleware, async (req: Request, res: Response)
     if (isVerified) {
       // Handle the purchase based on product type
       if (productId === PRODUCTS.SUBSCRIPTION_MONTHLY.ios) {
-        // Handle subscription
-        await storage.updateUser(userId, {
-          isPremium: true,
-          premiumUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-        });
+        // Handle subscription - premium for 30 days
+        const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        await storage.activatePremium(userId, 'standard', expiryDate);
       } else if (productId === PRODUCTS.UNBAN_FEE.ios) {
-        // Handle unban
+        // Handle unban and increment ban count for tracking
+        await storage.incrementBanCount(userId);
         await storage.unbanUser(userId);
       }
       
@@ -206,13 +205,12 @@ router.post('/android/purchase', authMiddleware, async (req: Request, res: Respo
     if (isVerified) {
       // Handle the purchase based on product type
       if (productId === PRODUCTS.SUBSCRIPTION_MONTHLY.android) {
-        // Handle subscription
-        await storage.updateUser(userId, {
-          isPremium: true,
-          premiumUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-        });
+        // Handle subscription - premium for 30 days
+        const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        await storage.activatePremium(userId, 'standard', expiryDate);
       } else if (productId === PRODUCTS.UNBAN_FEE.android) {
-        // Handle unban
+        // Handle unban and increment ban count for tracking
+        await storage.incrementBanCount(userId);
         await storage.unbanUser(userId);
       }
       
