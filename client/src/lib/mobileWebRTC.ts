@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraPermissionState } from '@capacitor/camera';
-import { Microphone, MicrophonePermissionState } from '@capacitor/microphone';
+import { Microphone, MicrophonePermissionState } from '@mozartec/capacitor-microphone';
 
 export interface MediaDeviceInfo {
   deviceId: string;
