@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.strangerwave.app',
   appName: 'StrangerWave',
-  webDir: 'build',
+  webDir: 'dist',
   bundledWebRuntime: false,
   plugins: {
     // Camera permissions for video chat
@@ -43,8 +43,7 @@ const config: CapacitorConfig = {
     contentInset: "always",
     backgroundColor: "#121212",
     allowsLinkPreview: false,
-    scrollEnabled: true,
-    webViewDecelerationSpeed: "normal"
+    scrollEnabled: true
   },
   server: {
     androidScheme: 'https',

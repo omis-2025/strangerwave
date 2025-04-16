@@ -12,6 +12,11 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").default(false).notNull(),
   isBanned: boolean("is_banned").default(false).notNull(),
   stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  isPremium: boolean("is_premium").default(false),
+  premiumUntil: timestamp("premium_until"),
+  premiumTier: text("premium_tier"),
+  banCount: integer("ban_count").default(0),
   lastActive: timestamp("last_active").defaultNow(),
   ipAddress: text("ip_address"),
 });
