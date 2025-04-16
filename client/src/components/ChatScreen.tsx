@@ -76,6 +76,10 @@ export default function ChatScreen() {
   }, [isBanned]);
   
   const handleStartChat = () => {
+    setChatState('gender-selection');
+  };
+  
+  const handleContinueToMatching = () => {
     setChatState('connecting');
     chatService.joinQueue(preferences);
   };
@@ -153,6 +157,15 @@ export default function ChatScreen() {
         />
       )}
       
+      {chatState === 'gender-selection' && (
+        <GenderSelectionScreen 
+          selectedGender={preferences.preferredGender}
+          onSelectGender={(gender) => setPreferences(prev => ({ ...prev, preferredGender: gender }))}
+          onContinue={handleContinueToMatching}
+          onCancel={() => setChatState('welcome')}
+        />
+      )}
+
       {chatState === 'connecting' && (
         <ConnectingScreen onCancel={handleCancelConnecting} />
       )}
