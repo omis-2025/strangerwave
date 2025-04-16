@@ -8,8 +8,16 @@ import { FlexContainer } from "@/components/ui/responsive-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Flag, LogOut, Send, Image, User, Shield, Lock, Info, AlertTriangle, 
-  MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff, SkipForward, RefreshCw, Crown
+  MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff, SkipForward, RefreshCw, Crown,
+  Wifi, WifiOff
 } from "lucide-react";
+import { 
+  determineOptimalVideoQuality, 
+  getVideoConstraints, 
+  setupQualityChangeListener,
+  getNetworkQualityDescription,
+  type VideoQuality
+} from "@/lib/videoQualityService";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatInterfaceProps {
@@ -49,13 +57,48 @@ export default function ChatInterface({
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   
+  // Video quality states
+  const [currentVideoQuality, setCurrentVideoQuality] = useState<VideoQuality>('medium');
+  const [networkQuality, setNetworkQuality] = useState<string>('Unknown connection');
+  const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
+  
+  // Get network info on component mount and setup quality listener
+  useEffect(() => {
+    // For demo purposes, we'll check if the user object has premium status
+    // In a real app, this would come from your subscription database
+    const userHasPremium = user?.userId === 1 || Math.random() > 0.7;
+    setIsPremiumUser(userHasPremium);
+    
+    // Setup quality change listener
+    const cleanupQualityListener = setupQualityChangeListener(
+      (quality) => {
+        setCurrentVideoQuality(quality);
+        setNetworkQuality(getNetworkQualityDescription());
+      },
+      userHasPremium
+    );
+    
+    return () => {
+      cleanupQualityListener();
+    };
+  }, [user]);
+
   // Video call functions
   const toggleVideoCall = async (active: boolean) => {
     if (active) {
       try {
-        // Get user media (camera and microphone)
+        // Determine optimal video quality based on network conditions
+        const quality = determineOptimalVideoQuality(isPremiumUser);
+        const videoConstraints = getVideoConstraints(quality);
+        
+        setCurrentVideoQuality(quality);
+        setNetworkQuality(getNetworkQualityDescription());
+        
+        console.log(`Starting video with quality: ${quality}`, videoConstraints);
+        
+        // Get user media with dynamic constraints
         const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
+          video: videoConstraints, 
           audio: true 
         });
         
@@ -78,6 +121,25 @@ export default function ChatInterface({
         }, 2000);
         
         setIsVideoCallActive(true);
+        
+        // Monitor network quality changes during call
+        const cleanupQualityListener = setupQualityChangeListener(
+          (newQuality) => {
+            if (newQuality !== quality) {
+              console.log(`Network conditions changed, quality updated to: ${newQuality}`);
+              setCurrentVideoQuality(newQuality);
+              setNetworkQuality(getNetworkQualityDescription());
+              
+              // In a real implementation, we would adjust the stream constraints dynamically
+              // This would involve renegotiating the WebRTC connection with new constraints
+            }
+          },
+          isPremiumUser
+        );
+        
+        return () => {
+          cleanupQualityListener();
+        };
       } catch (error) {
         console.error('Error accessing media devices:', error);
         alert('Could not access camera or microphone. Please check permissions.');
@@ -350,12 +412,48 @@ export default function ChatInterface({
                   {/* Connection quality indicator */}
                   <div className="absolute top-4 left-4 bg-black/40 rounded-full py-1 px-2 flex items-center">
                     <div className="flex space-x-0.5 mr-1">
-                      <div className="w-1 h-3 bg-green-500 rounded-full" />
-                      <div className="w-1 h-3 bg-green-500 rounded-full" />
-                      <div className="w-1 h-3 bg-green-500 rounded-full" />
-                      <div className="w-1 h-3 bg-green-500/40 rounded-full" />
+                      {/* Dynamic connection bars based on quality */}
+                      {currentVideoQuality === 'low' && (
+                        <>
+                          <div className="w-1 h-3 bg-red-500 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                        </>
+                      )}
+                      {currentVideoQuality === 'medium' && (
+                        <>
+                          <div className="w-1 h-3 bg-yellow-500 rounded-full" />
+                          <div className="w-1 h-3 bg-yellow-500 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                        </>
+                      )}
+                      {currentVideoQuality === 'high' && (
+                        <>
+                          <div className="w-1 h-3 bg-green-500 rounded-full" />
+                          <div className="w-1 h-3 bg-green-500 rounded-full" />
+                          <div className="w-1 h-3 bg-green-500 rounded-full" />
+                          <div className="w-1 h-3 bg-gray-600 rounded-full" />
+                        </>
+                      )}
+                      {currentVideoQuality === 'hd' && (
+                        <>
+                          <div className="w-1 h-3 bg-primary rounded-full" />
+                          <div className="w-1 h-3 bg-primary rounded-full" />
+                          <div className="w-1 h-3 bg-primary rounded-full" />
+                          <div className="w-1 h-3 bg-primary rounded-full" />
+                        </>
+                      )}
                     </div>
-                    <span className="text-xs text-white">Good</span>
+                    <span className="text-xs text-white flex items-center">
+                      {currentVideoQuality === 'low' && <WifiOff className="h-3 w-3 mr-1 text-red-400" />}
+                      {currentVideoQuality === 'medium' && <Wifi className="h-3 w-3 mr-1 text-yellow-400" />}
+                      {currentVideoQuality === 'high' && <Wifi className="h-3 w-3 mr-1 text-green-400" />}
+                      {currentVideoQuality === 'hd' && <Wifi className="h-3 w-3 mr-1 text-blue-400" />}
+                      {networkQuality}
+                      {isPremiumUser && <span className="ml-1 text-yellow-300">· Premium</span>}
+                    </span>
                   </div>
                 </>
               ) : (
