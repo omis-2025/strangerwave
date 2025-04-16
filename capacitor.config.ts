@@ -46,8 +46,11 @@ const config: CapacitorConfig = {
   },
   server: {
     androidScheme: 'https',
-    hostname: 'app.strangerwave.com',
-    cleartext: false
+    // For development purposes, use localhost
+    // For production, replace with your actual domain
+    hostname: process.env.NODE_ENV === 'development' ? 'localhost' : 'app.strangerwave.com',
+    cleartext: true, // Allow HTTP for development
+    url: process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : undefined
   }
 };
 
