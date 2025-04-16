@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConnectionStatus from "./ConnectionStatus";
 import ChatInterface from "./ChatInterface";
+import VideoCallInterface from "./VideoCallInterface";
 import WelcomeScreen from "./WelcomeScreen";
 import ConnectingScreen from "./ConnectingScreen";
 import DisconnectedScreen from "./DisconnectedScreen";
@@ -10,7 +11,7 @@ import BanPaymentModal from "./BanPaymentModal";
 import { useChatService, ChatPreferences } from "@/lib/chatService";
 import { useAuth } from "@/lib/useAuth";
 
-type ChatState = 'welcome' | 'connecting' | 'chatting' | 'disconnected';
+type ChatState = 'welcome' | 'connecting' | 'chatting' | 'videochat' | 'disconnected';
 
 export default function ChatScreen() {
   const [chatState, setChatState] = useState<ChatState>('welcome');
@@ -18,20 +19,60 @@ export default function ChatScreen() {
   const [showReportModal, setShowReportModal] = useState(false);
   const { isBanned } = useAuth();
   const [showBanModal, setShowBanModal] = useState(false);
+  const [useVideoChat, setUseVideoChat] = useState(false);
   
   const [preferences, setPreferences] = useState<ChatPreferences>({
     preferredGender: 'any',
     country: null
   });
   
+  const [videoMessages, setVideoMessages] = useState<Array<{
+    id: string;
+    sender: 'me' | 'partner';
+    content: string;
+    timestamp: Date;
+  }>>([
+    // Sample messages for demo
+    {
+      id: '1',
+      sender: 'partner',
+      content: 'La mejor fiesta de todas! 🎉🎊🎉',
+      timestamp: new Date(Date.now() - 60000 * 5)
+    },
+    {
+      id: '2',
+      sender: 'me',
+      content: 'Bailamos toda la noche! Fue muy divertido...',
+      timestamp: new Date(Date.now() - 60000 * 4)
+    },
+    {
+      id: '3',
+      sender: 'partner',
+      content: 'Fue muy divertido... 😊',
+      timestamp: new Date(Date.now() - 60000 * 3)
+    },
+    {
+      id: '4',
+      sender: 'partner',
+      content: 'Te veo mañana! 👋😄',
+      timestamp: new Date(Date.now() - 60000 * 2)
+    },
+    {
+      id: '5',
+      sender: 'me',
+      content: '¡Adiós, señorass! 👋',
+      timestamp: new Date(Date.now() - 60000 * 1)
+    }
+  ]);
+  
   const chatService = useChatService();
   
   // Show ban modal if user is banned
-  useState(() => {
+  useEffect(() => {
     if (isBanned) {
       setShowBanModal(true);
     }
-  });
+  }, [isBanned]);
   
   const handleStartChat = () => {
     setChatState('connecting');

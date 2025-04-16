@@ -5,10 +5,12 @@ import { MessageSquare, Users, Shield, Sliders, Play, Lock, Globe, Check, Video,
 interface WelcomeScreenProps {
   onStartChat: () => void;
   onShowFilters: () => void;
+  onToggleVideoChat?: (useVideo: boolean) => void;
 }
 
-export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVideoChat }: WelcomeScreenProps) {
   const [activeUsers] = useState(Math.floor(Math.random() * 200) + 150); // Mock user count between 150-350
+  const [chatType, setChatType] = useState<'text' | 'video'>('text');
   
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center py-6 sm:py-8 px-4">
@@ -104,6 +106,46 @@ export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScr
         </div>
       </motion.div>
       
+      {/* Chat type selector */}
+      <motion.div 
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="max-w-md w-full bg-gray-800/50 p-2 rounded-lg border border-gray-700 mb-6"
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              setChatType('text');
+              if (onToggleVideoChat) onToggleVideoChat(false);
+            }}
+            className={`flex items-center justify-center py-2 px-3 rounded-lg transition-all ${
+              chatType === 'text' 
+                ? 'bg-primary text-white' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <MessageSquare className="h-5 w-5 mr-2" />
+            <span>Text Chat</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              setChatType('video');
+              if (onToggleVideoChat) onToggleVideoChat(true);
+            }}
+            className={`flex items-center justify-center py-2 px-3 rounded-lg transition-all ${
+              chatType === 'video' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <Video className="h-5 w-5 mr-2" />
+            <span>Video Chat</span>
+          </button>
+        </div>
+      </motion.div>
+
       {/* Action buttons */}
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
@@ -114,11 +156,16 @@ export default function WelcomeScreen({ onStartChat, onShowFilters }: WelcomeScr
         <motion.button 
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
-          onClick={onStartChat}
-          className="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center shadow-lg shadow-primary/20"
+          onClick={() => {
+            if (onToggleVideoChat) onToggleVideoChat(chatType === 'video');
+            onStartChat();
+          }}
+          className={`${
+            chatType === 'video' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary hover:bg-primary/90'
+          } text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center shadow-lg flex-1`}
         >
           <Play className="h-5 w-5 mr-2" />
-          Start Chatting
+          Start {chatType === 'video' ? 'Video' : 'Text'} Chat
         </motion.button>
         
         <motion.button 

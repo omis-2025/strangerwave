@@ -305,15 +305,15 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                           {/* Search Input */}
                           <div className="px-2 pt-1 pb-2 sticky top-0 bg-gray-800 z-10 border-b border-gray-700">
                             <div className="relative">
-                              <Input
-                                placeholder="Search country..."
-                                value={countrySearch}
-                                onChange={(e) => setCountrySearch(e.target.value)}
-                                className="bg-gray-900 border-gray-700 text-white text-sm h-9"
-                              />
                               <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
                                 <Search className="h-4 w-4 text-gray-400" />
                               </div>
+                              <input
+                                className="pl-8 pr-8 py-2 w-full bg-gray-900 border border-gray-700 rounded-md text-white text-sm"
+                                placeholder="Search country..."
+                                value={countrySearch}
+                                onChange={(e) => setCountrySearch(e.target.value)}
+                              />
                               {countrySearch && (
                                 <button
                                   type="button"
@@ -323,13 +323,6 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                                   <CircleX className="h-4 w-4 text-gray-400 hover:text-white" />
                                 </button>
                               )}
-                              <div className="absolute inset-y-0 left-0 w-8 flex items-center pointer-events-none"></div>
-                              <input
-                                className="pl-8 pr-8 py-2 w-full bg-gray-900 border border-gray-700 rounded-md text-white text-sm"
-                                placeholder="Search country..."
-                                value={countrySearch}
-                                onChange={(e) => setCountrySearch(e.target.value)}
-                              />
                             </div>
                           </div>
 
