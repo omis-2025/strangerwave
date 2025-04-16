@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 
@@ -121,12 +122,11 @@ export default function PayPalButton({
   }
 
   return (
-    <PayPalScriptProvider options={{ clientId }}>
+    <PayPalScriptProvider options={{ clientId: clientId || '' }}>
       <div className="paypal-button-container">
         <PayPalButtons
           style={{ layout: "horizontal", label: "pay" }}
           disabled={loading}
-          forceReRender={[userId, productType, subscriptionType]}
           createOrder={createOrder}
           onApprove={onApprove}
           onCancel={() => {
