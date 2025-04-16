@@ -8,7 +8,7 @@ import { FlexContainer } from "@/components/ui/responsive-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Flag, LogOut, Send, Image, User, Shield, Lock, Info, AlertTriangle, 
-  MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff
+  MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff, SkipForward, RefreshCw, Crown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -180,6 +180,20 @@ export default function ChatInterface({
           </div>
         </div>
         <div className="flex">
+          {/* Next button */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <Button 
+              variant="ghost" 
+              size={isMobile ? "sm" : "default"}
+              onClick={onDisconnect} /* reusing onDisconnect to skip to next stranger */
+              className="text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors mr-1 p-1 sm:p-2"
+              title="Next Stranger"
+            >
+              <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
+              {!isMobile && <span className="ml-1 hidden sm:inline">Next</span>}
+            </Button>
+          </motion.div>
+          
           {/* Video call button */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
@@ -191,6 +205,20 @@ export default function ChatInterface({
             >
               <Video className="h-4 w-4 sm:h-5 sm:w-5" />
               {!isMobile && <span className="ml-1 hidden sm:inline">Video</span>}
+            </Button>
+          </motion.div>
+          
+          {/* Premium badge (placeholder for monetization) */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <Button 
+              variant="ghost" 
+              size={isMobile ? "sm" : "default"}
+              onClick={() => alert('Premium features coming soon!')}
+              className="text-gray-400 hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors mr-1 p-1 sm:p-2"
+              title="Premium Features"
+            >
+              <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
+              {!isMobile && <span className="ml-1 hidden sm:inline">Premium</span>}
             </Button>
           </motion.div>
           
@@ -224,15 +252,21 @@ export default function ChatInterface({
       
       {/* Security badge - provides trust element */}
       <div className="bg-gray-800 py-1 px-2 flex justify-center items-center border-b border-gray-700">
-        <div className="flex items-center space-x-1 text-xs text-gray-400">
+        <div className="flex items-center space-x-1 text-xs text-gray-400 flex-wrap justify-center">
           <Lock className="h-3 w-3 text-primary" />
-          <span>End-to-end encrypted chat</span>
+          <span>End-to-end encrypted</span>
           <span className="text-gray-500">•</span>
           <Shield className="h-3 w-3 text-green-500" />
           <span>AI moderated</span>
           <span className="text-gray-500">•</span>
           <Video className="h-3 w-3 text-blue-500" />
-          <span>Video available</span>
+          <span>Video chat</span>
+          <span className="text-gray-500">•</span>
+          <User className="h-3 w-3 text-yellow-500" />
+          <span>Username tags</span>
+          <span className="text-gray-500">•</span>
+          <Crown className="h-3 w-3 text-yellow-500" />
+          <span>Premium filters</span>
         </div>
       </div>
       
