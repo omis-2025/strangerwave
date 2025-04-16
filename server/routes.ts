@@ -374,6 +374,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register profile routes
   app.use('/api/user', profileRoutes);
+  
+  // Register admin routes
+  app.use('/api/admin', adminRoutes);
 
   return httpServer;
 }
