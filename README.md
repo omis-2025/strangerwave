@@ -13,6 +13,18 @@ StrangerWave is a modern anonymous chat platform that connects users for text an
 - **Premium Features**: Subscription options for enhanced capabilities
 - **AI Moderation**: Content filtering for a safer experience
 
+## What Makes StrangerWave Unique
+
+StrangerWave stands out from similar platforms with these key differentiators:
+
+- **Advanced Video Technology**: Adaptive quality with bandwidth optimization
+- **Inclusive Design**: Comprehensive gender options beyond binary choices
+- **Multi-Tier Monetization**: Premium subscriptions, unban system, and token economy
+- **Modern Architecture**: Built with cutting-edge technologies for performance and scalability
+- **Enhanced Safety**: AI-powered content moderation and robust reporting tools
+
+See the [Competitive Analysis](./docs/competitive-analysis.md) for a detailed comparison with similar platforms.
+
 ## Getting Started
 
 ### Quick Start
@@ -41,6 +53,7 @@ Comprehensive documentation is available in the `/docs` directory:
 - [Third-Party Services Setup](./docs/third-party-services-setup.md)
 - [Monetization Strategy & Payment Flows](./docs/monetization-and-payment-flows.md)
 - [Monthly Cost Breakdown](./docs/monthly-cost-breakdown.md)
+- [Competitive Analysis](./docs/competitive-analysis.md)
 - [Handover Checklist](./docs/handover-checklist.md)
 
 For a complete overview, see the [Documentation Index](./docs/README.md).

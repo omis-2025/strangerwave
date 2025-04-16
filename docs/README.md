@@ -12,6 +12,7 @@ Welcome to the StrangerWave documentation. This comprehensive set of guides will
 ### Business Documentation
 - [Monetization & Payment Flows](./monetization-and-payment-flows.md) - Detailed monetization strategy and payment implementation details
 - [Monthly Cost Breakdown](./monthly-cost-breakdown.md) - Estimated operating costs at different scale levels
+- [Competitive Analysis](./competitive-analysis.md) - How StrangerWave compares to similar products
 
 ### Handover Resources
 - [Handover Checklist](./handover-checklist.md) - Complete list of included items and buyer setup steps
