@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, pgEnum } fro
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const genderEnum = pgEnum('gender', ['male', 'female', 'any']);
+export const genderEnum = pgEnum('gender', ['male', 'female', 'non-binary', 'transgender', 'genderqueer', 'gender-fluid', 'other', 'any']);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -16,6 +16,7 @@ export const users = pgTable("users", {
   isPremium: boolean("is_premium").default(false),
   premiumUntil: timestamp("premium_until"),
   premiumTier: text("premium_tier"),
+  gender: genderEnum("gender").default('any'),
   banCount: integer("ban_count").default(0),
   lastActive: timestamp("last_active").defaultNow(),
   ipAddress: text("ip_address"),

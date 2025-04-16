@@ -10,6 +10,7 @@ import {
   insertMessageSchema 
 } from "@shared/schema";
 import paypalRoutes from "./routes/paypal";
+import profileRoutes from "./routes/profile";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -369,6 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register PayPal routes
   app.use('/api/paypal', paypalRoutes);
+  
+  // Register profile routes
+  app.use('/api/user', profileRoutes);
 
   return httpServer;
 }

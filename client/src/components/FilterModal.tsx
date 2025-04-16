@@ -17,7 +17,7 @@ interface FilterModalProps {
   initialPreferences: ChatPreferences;
 }
 
-type GenderOption = 'any' | 'male' | 'female';
+type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
 
 // Enhanced countries list with flag codes
 const countries = [
@@ -68,6 +68,36 @@ const genderOptions: GenderOptionType[] = [
     label: 'Females', 
     icon: <User className="h-6 w-6 text-pink-500" />,
     description: 'Chat with females only'
+  },
+  { 
+    value: 'non-binary', 
+    label: 'Non-Binary', 
+    icon: <User className="h-6 w-6 text-purple-500" />,
+    description: 'Chat with non-binary people only'
+  },
+  { 
+    value: 'transgender', 
+    label: 'Transgender', 
+    icon: <User className="h-6 w-6 text-indigo-500" />,
+    description: 'Chat with transgender people only'
+  },
+  { 
+    value: 'genderqueer', 
+    label: 'Genderqueer', 
+    icon: <User className="h-6 w-6 text-green-500" />,
+    description: 'Chat with genderqueer people only'
+  },
+  { 
+    value: 'gender-fluid', 
+    label: 'Gender-fluid', 
+    icon: <User className="h-6 w-6 text-teal-500" />,
+    description: 'Chat with gender-fluid people only'
+  },
+  { 
+    value: 'other', 
+    label: 'Other', 
+    icon: <User className="h-6 w-6 text-amber-500" />,
+    description: 'Chat with people of other gender identities'
   }
 ];
 
@@ -272,7 +302,7 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                       <span className="text-xs text-gray-400">
                         {preferredGender === 'any'
                           ? "Matching with all genders"
-                          : `Matching with ${preferredGender === 'male' ? 'males' : 'females'}`
+                          : `Matching with ${genderOptions.find(g => g.value === preferredGender)?.label || preferredGender}`
                         }
                         {country 
                           ? ` from ${getCurrentCountry().name}`

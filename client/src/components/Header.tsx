@@ -2,6 +2,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import ProfileSettings from "./ProfileSettings";
 
 interface HeaderProps {
   onFilterClick: () => void;
@@ -12,6 +13,7 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   // Only show admin button if user has admin rights
   const handleAdminClick = () => {
@@ -24,6 +26,10 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
     } else {
       onAdminClick();
     }
+  };
+  
+  const handleProfileClick = () => {
+    setProfileModalOpen(true);
   };
 
   return (
@@ -138,10 +144,15 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
           )}
           
           {user && (
-            <div className="flex items-center border border-gray-700 rounded-full px-3 py-1 bg-gray-800">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleProfileClick}
+              className="flex items-center border border-gray-700 rounded-full px-3 py-1 bg-gray-800 hover:bg-gray-700"
+            >
               <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
               <span className="text-sm font-medium text-gray-300">{user.username}</span>
-            </div>
+            </Button>
           )}
           
           {user && (
@@ -169,6 +180,16 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
                 <line x1="21" y1="12" x2="9" y2="12"></line>
               </svg>
             </Button>
+          )}
+          
+          {/* Profile Settings Modal */}
+          {user && (
+            <ProfileSettings
+              isOpen={profileModalOpen}
+              onClose={() => setProfileModalOpen(false)}
+              userId={user.userId}
+              initialGender={user.gender || 'any'}
+            />
           )}
         </div>
       </div>
@@ -220,6 +241,30 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
                   <path d="M12 8h.01"></path>
                 </svg>
                 Admin
+              </Button>
+            )}
+            
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleProfileClick}
+                className="justify-start"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 mr-2" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="8" r="5" />
+                  <path d="M20 21a8 8 0 0 0-16 0" />
+                </svg>
+                Profile Settings
               </Button>
             )}
             
