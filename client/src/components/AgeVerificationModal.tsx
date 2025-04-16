@@ -1,238 +1,168 @@
 import React, { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Capacitor } from '@capacitor/core';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { Shield, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-// Form schema with validation
-const formSchema = z.object({
-  age: z.string().min(1, "Please confirm your age"),
-  termsAccepted: z.boolean().refine(val => val === true, {
-    message: "You must accept the terms and privacy policy"
-  }),
-  region: z.string().min(1, "Please select your region")
-});
-
-// Component props
 interface AgeVerificationModalProps {
   isOpen: boolean;
   onVerified: () => void;
   onReject: () => void;
 }
 
-// Generate array of years (for age selection)
-const generateYears = () => {
-  const currentYear = new Date().getFullYear();
-  const years = [];
-  for (let i = currentYear; i >= currentYear - 100; i--) {
-    years.push(i);
-  }
-  return years;
-};
-
 export default function AgeVerificationModal({ 
   isOpen, 
   onVerified, 
   onReject 
 }: AgeVerificationModalProps) {
-  const [showDetails, setShowDetails] = useState(false);
-  const { toast } = useToast();
-  const years = generateYears();
-  const isNative = Capacitor.isNativePlatform();
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showError, setShowError] = useState(false);
   
-  // Get platform-specific information
-  const platform = Capacitor.getPlatform();
-  const isIOS = platform === 'ios';
-  const isAndroid = platform === 'android';
-  
-  // Set up form
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      age: '',
-      termsAccepted: false,
-      region: ''
-    },
-  });
-  
-  // Handle form submission
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Calculate if user is 18+
-    const birthYear = parseInt(values.age, 10);
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - birthYear;
+  // Calculate if user is 18+ based on birthdate
+  const isOver18 = (): boolean => {
+    if (!birthDate) return false;
     
-    if (age < 18) {
-      // User is under 18
-      toast({
-        variant: "destructive",
-        title: "Age Verification Failed",
-        description: "You must be at least 18 years old to use StrangerWave.",
-      });
-      
-      onReject();
-      return;
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // If birth month is later in the year or same month but birth day is later
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      return age - 1 >= 18;
     }
     
-    // Save verification status in localStorage
-    localStorage.setItem('age_verified', 'true');
-    localStorage.setItem('age_verified_date', new Date().toISOString());
-    localStorage.setItem('user_region', values.region);
-    
-    toast({
-      title: "Age Verified",
-      description: "Welcome to StrangerWave!",
-    });
-    
-    // Call the onVerified callback
-    onVerified();
+    return age >= 18;
   };
   
+  const handleVerify = () => {
+    if (isOver18() && termsAccepted) {
+      // Save age verification status in localStorage
+      localStorage.setItem('ageVerified', 'true');
+      localStorage.setItem('ageVerifiedDate', new Date().toISOString());
+      
+      // Call the onVerified callback
+      onVerified();
+      
+      // Reset state
+      setBirthDate(undefined);
+      setTermsAccepted(false);
+      setShowError(false);
+    } else {
+      setShowError(true);
+    }
+  };
+  
+  const handleReject = () => {
+    // Call the onReject callback
+    onReject();
+    
+    // Reset state
+    setBirthDate(undefined);
+    setTermsAccepted(false);
+    setShowError(false);
+  };
+  
+  // Return null if modal should not be shown
+  if (!isOpen) return null;
+  
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleReject()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Age Verification Required</DialogTitle>
-          <DialogDescription>
-            StrangerWave is strictly for users 18 years and older. Please verify your age to continue.
+          <div className="flex items-center justify-center mb-2">
+            <Shield className="h-8 w-8 text-blue-500" />
+          </div>
+          <DialogTitle className="text-center text-xl">Age Verification Required</DialogTitle>
+          <DialogDescription className="text-center">
+            StrangerWave is only for users 18 years and older. Please verify your age to continue.
           </DialogDescription>
         </DialogHeader>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Year of Birth</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select year of birth" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="max-h-[200px]">
-                      {years.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="region"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Region</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your region" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="us">United States</SelectItem>
-                      <SelectItem value="eu">Europe</SelectItem>
-                      <SelectItem value="asia">Asia</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="termsAccepted"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      I agree to the <a href="/terms.html" target="_blank" className="text-primary">Terms of Service</a> and <a href="/privacy.html" target="_blank" className="text-primary">Privacy Policy</a>
-                    </FormLabel>
-                    <FormMessage />
-                  </div>
-                </FormItem>
-              )}
-            />
-            
-            {showDetails && (
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-sm">
-                <h4 className="font-semibold mb-2">Important Information</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>StrangerWave is an anonymous chat platform for adults only (18+)</li>
-                  <li>All chats are moderated by AI to detect inappropriate content</li>
-                  <li>We don't store your personal information, but your IP address is logged for security</li>
-                  <li>Premium features require payment and subscription management is available in account settings</li>
-                  {isIOS && (
-                    <li>Subscriptions will be charged to your iTunes account and will automatically renew unless canceled at least 24 hours before the end of the current period</li>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="birthdate">When were you born?</Label>
+            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !birthDate && "text-muted-foreground"
                   )}
-                  {isAndroid && (
-                    <li>Subscriptions will be charged to your Google Play account and will automatically renew unless canceled at least 24 hours before the end of the current period</li>
-                  )}
-                </ul>
-              </div>
-            )}
-            
-            <Button 
-              type="button" 
-              variant="link" 
-              className="p-0 h-auto text-sm"
-              onClick={() => setShowDetails(!showDetails)}
-            >
-              {showDetails ? "Hide details" : "Show more details"}
-            </Button>
-            
-            <DialogFooter className="flex flex-col sm:flex-row gap-3">
-              <Button type="button" variant="outline" onClick={onReject} className="sm:w-1/2">
-                Decline
-              </Button>
-              <Button type="submit" className="sm:w-1/2">
-                Verify Age
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {birthDate ? format(birthDate, "PPP") : "Select your date of birth"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={birthDate}
+                  onSelect={(date) => {
+                    setBirthDate(date);
+                    setDatePickerOpen(false);
+                    setShowError(false);
+                  }}
+                  disabled={(date) => {
+                    // Disable future dates and dates less than 100 years ago
+                    return date > new Date() || date < new Date(new Date().setFullYear(new Date().getFullYear() - 100));
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="terms" 
+              checked={termsAccepted}
+              onCheckedChange={(checked) => {
+                setTermsAccepted(checked as boolean);
+                setShowError(false);
+              }} 
+            />
+            <Label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-400">
+              I confirm that I am at least 18 years old and I accept the&nbsp;
+              <a href="/terms" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                Terms of Service
+              </a>
+              &nbsp;and&nbsp;
+              <a href="/privacy" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </a>
+            </Label>
+          </div>
+          
+          {showError && (
+            <div className="flex items-center text-red-500 text-sm mt-2">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              <span>You must be at least 18 years old and accept the terms</span>
+            </div>
+          )}
+        </div>
+        
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleReject} className="sm:w-1/2">
+            Exit
+          </Button>
+          <Button onClick={handleVerify} className="sm:w-1/2">
+            Continue
+          </Button>
+        </DialogFooter>
+        
+        <div className="text-center text-xs text-gray-500 mt-4">
+          By using StrangerWave, you confirm that you are at least 18 years old. 
+          StrangerWave will collect and process your personal data in accordance with our Privacy Policy.
+        </div>
       </DialogContent>
     </Dialog>
   );

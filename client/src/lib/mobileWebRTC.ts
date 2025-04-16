@@ -1,231 +1,432 @@
 import { Capacitor } from '@capacitor/core';
-import { Camera, CameraPermissionState } from '@capacitor/camera';
-import { Microphone, MicrophonePermissionState } from '@mozartec/capacitor-microphone';
-
-export interface MediaDeviceInfo {
-  deviceId: string;
-  kind: string;
-  label: string;
-  groupId: string;
+import { Camera, CameraResultType } from '@capacitor/camera';
+// Import the microphone plugin this way to avoid type issues
+import '@mozartec/capacitor-microphone';
+// We'll access it through window
+declare global {
+  interface Window {
+    Microphone?: {
+      requestPermission: () => Promise<{ value: string }>;
+    };
+  }
 }
 
+// Constants for media constraints
+const DEFAULT_VIDEO_CONSTRAINTS = {
+  width: { ideal: 1280, max: 1920 },
+  height: { ideal: 720, max: 1080 },
+  frameRate: { ideal: 24, max: 30 },
+  facingMode: 'user',
+};
+
+const MOBILE_VIDEO_CONSTRAINTS = {
+  width: { ideal: 640, max: 1280 },
+  height: { ideal: 480, max: 720 },
+  frameRate: { ideal: 15, max: 24 },
+  facingMode: 'user',
+};
+
+const DEFAULT_AUDIO_CONSTRAINTS = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+};
+
+// WebRTC configuration for different networks
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+];
+
 /**
- * Mobile WebRTC helper to handle permissions and device access on mobile platforms
+ * Mobile WebRTC Manager
+ * Handles WebRTC connections with optimizations for mobile devices
  */
-export class MobileWebRTCHelper {
-  private static instance: MobileWebRTCHelper;
-  private cameraPermissionGranted = false;
-  private microphonePermissionGranted = false;
-  private isNative = Capacitor.isNativePlatform();
-
-  private constructor() {}
-
-  public static getInstance(): MobileWebRTCHelper {
-    if (!MobileWebRTCHelper.instance) {
-      MobileWebRTCHelper.instance = new MobileWebRTCHelper();
+export class MobileWebRTCManager {
+  private static instance: MobileWebRTCManager;
+  private isInitialized: boolean = false;
+  private peerConnection: RTCPeerConnection | null = null;
+  private localStream: MediaStream | null = null;
+  private remoteStream: MediaStream | null = null;
+  private isNative: boolean = false;
+  private dataChannel: RTCDataChannel | null = null;
+  
+  // Event callbacks
+  private onIceCandidateCallback: ((candidate: RTCIceCandidate) => void) | null = null;
+  private onTrackCallback: ((stream: MediaStream) => void) | null = null;
+  private onDataChannelMessageCallback: ((message: string) => void) | null = null;
+  private onConnectionStateChangeCallback: ((state: RTCPeerConnectionState) => void) | null = null;
+  
+  private constructor() {
+    this.isNative = Capacitor.isNativePlatform();
+  }
+  
+  /**
+   * Get the singleton instance
+   */
+  public static getInstance(): MobileWebRTCManager {
+    if (!MobileWebRTCManager.instance) {
+      MobileWebRTCManager.instance = new MobileWebRTCManager();
     }
-    return MobileWebRTCHelper.instance;
+    return MobileWebRTCManager.instance;
   }
-
+  
   /**
-   * Check if running on native mobile platform
+   * Initialize WebRTC
    */
-  public isNativeMobile(): boolean {
-    return this.isNative;
-  }
-
-  /**
-   * Request camera permission for video chat
-   */
-  public async requestCameraPermission(): Promise<boolean> {
-    if (!this.isNative) return true; // Web platform, no need for explicit permission
-
-    try {
-      const permission = await Camera.checkPermissions();
-      
-      if (permission.camera === 'granted') {
-        this.cameraPermissionGranted = true;
-        return true;
+  public async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+    
+    // Create peer connection with ICE servers
+    this.peerConnection = new RTCPeerConnection({
+      iceServers: ICE_SERVERS,
+      iceCandidatePoolSize: 10,
+    });
+    
+    // Set up event listeners
+    this.peerConnection.onicecandidate = (event) => {
+      if (event.candidate && this.onIceCandidateCallback) {
+        this.onIceCandidateCallback(event.candidate);
       }
-      
-      const requestResult = await Camera.requestPermissions();
-      this.cameraPermissionGranted = requestResult.camera === 'granted';
-      return this.cameraPermissionGranted;
-    } catch (error) {
-      console.error('Error requesting camera permission:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Request microphone permission for audio chat
-   */
-  public async requestMicrophonePermission(): Promise<boolean> {
-    if (!this.isNative) return true; // Web platform, no need for explicit permission
-
-    try {
-      const permission = await Microphone.checkPermissions();
-      
-      if (permission.microphone === 'granted') {
-        this.microphonePermissionGranted = true;
-        return true;
+    };
+    
+    this.peerConnection.ontrack = (event) => {
+      if (event.streams && event.streams[0] && this.onTrackCallback) {
+        this.remoteStream = event.streams[0];
+        this.onTrackCallback(event.streams[0]);
       }
-      
-      const requestResult = await Microphone.requestPermissions();
-      this.microphonePermissionGranted = requestResult.microphone === 'granted';
-      return this.microphonePermissionGranted;
-    } catch (error) {
-      console.error('Error requesting microphone permission:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Get available video devices (cameras)
-   * Handles differences between mobile and web platforms
-   */
-  public async getVideoDevices(): Promise<MediaDeviceInfo[]> {
-    if (!this.cameraPermissionGranted && this.isNative) {
-      const granted = await this.requestCameraPermission();
-      if (!granted) return [];
-    }
-
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(device => device.kind === 'videoinput');
-    } catch (error) {
-      console.error('Error enumerating video devices:', error);
-      // On mobile, if enumeration fails, return at least one generic device
-      if (this.isNative) {
-        return [{
-          deviceId: 'default',
-          kind: 'videoinput',
-          label: 'Default Camera',
-          groupId: 'default'
-        }];
-      }
-      return [];
-    }
-  }
-
-  /**
-   * Get available audio devices (microphones)
-   * Handles differences between mobile and web platforms
-   */
-  public async getAudioDevices(): Promise<MediaDeviceInfo[]> {
-    if (!this.microphonePermissionGranted && this.isNative) {
-      const granted = await this.requestMicrophonePermission();
-      if (!granted) return [];
-    }
-
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(device => device.kind === 'audioinput');
-    } catch (error) {
-      console.error('Error enumerating audio devices:', error);
-      // On mobile, if enumeration fails, return at least one generic device
-      if (this.isNative) {
-        return [{
-          deviceId: 'default',
-          kind: 'audioinput',
-          label: 'Default Microphone',
-          groupId: 'default'
-        }];
-      }
-      return [];
-    }
-  }
-
-  /**
-   * Initialize media stream with mobile optimizations
-   */
-  public async initializeMediaStream(
-    videoEnabled: boolean = true,
-    audioEnabled: boolean = true,
-    videoDeviceId?: string,
-    audioDeviceId?: string
-  ): Promise<MediaStream | null> {
-    // Request permissions first if on native platform
-    if (this.isNative) {
-      if (videoEnabled) await this.requestCameraPermission();
-      if (audioEnabled) await this.requestMicrophonePermission();
-    }
-
-    try {
-      // Mobile-optimized constraints
-      const constraints: MediaStreamConstraints = {
-        video: videoEnabled ? {
-          deviceId: videoDeviceId ? { exact: videoDeviceId } : undefined,
-          width: { ideal: 640 }, // Lower resolution for mobile
-          height: { ideal: 480 },
-          frameRate: { ideal: 24 } // Lower framerate to save battery
-        } : false,
-        audio: audioEnabled ? {
-          deviceId: audioDeviceId ? { exact: audioDeviceId } : undefined,
-          echoCancellation: true, // Important for mobile
-          noiseSuppression: true,
-          autoGainControl: true
-        } : false
+    };
+    
+    this.peerConnection.ondatachannel = (event) => {
+      const dataChannel = event.channel;
+      dataChannel.onmessage = (e) => {
+        if (this.onDataChannelMessageCallback) {
+          this.onDataChannelMessageCallback(e.data);
+        }
       };
-
-      return await navigator.mediaDevices.getUserMedia(constraints);
+    };
+    
+    this.peerConnection.onconnectionstatechange = () => {
+      if (this.onConnectionStateChangeCallback) {
+        this.onConnectionStateChangeCallback(this.peerConnection!.connectionState);
+      }
+    };
+    
+    this.isInitialized = true;
+  }
+  
+  /**
+   * Get local media stream with device-specific optimizations
+   */
+  public async getLocalStream(videoEnabled: boolean = true, audioEnabled: boolean = true): Promise<MediaStream> {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    
+    // If we already have a stream, stop all tracks
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+      this.localStream = null;
+    }
+    
+    try {
+      // For native platforms, use platform-specific APIs
+      if (this.isNative) {
+        this.localStream = new MediaStream();
+        
+        // Handle video track for native platforms
+        if (videoEnabled) {
+          try {
+            // Request camera permission using Capacitor Camera API
+            const cameraPermission = await Camera.checkPermissions();
+            if (cameraPermission.camera !== 'granted') {
+              await Camera.requestPermissions();
+            }
+            
+            // For a real implementation, we would use a more direct camera API
+            // This is a simplified example - in a real app, you'd use a proper 
+            // camera implementation for Capacitor that provides a MediaStream
+            const videoTrack = await this.getNativeVideoTrack();
+            if (videoTrack) {
+              this.localStream.addTrack(videoTrack);
+            }
+          } catch (error) {
+            console.error('Error getting native video track:', error);
+          }
+        }
+        
+        // Handle audio track for native platforms
+        if (audioEnabled) {
+          try {
+            // Request microphone permission using Capacitor Microphone plugin via window object
+            if (window.Microphone) {
+              const micPermission = await window.Microphone.requestPermission();
+              if (micPermission.value === 'granted') {
+                const audioTrack = await this.getNativeAudioTrack();
+                if (audioTrack) {
+                  this.localStream.addTrack(audioTrack);
+                }
+              }
+            } else {
+              // Fallback if plugin is not available
+              const audioTrack = await this.getNativeAudioTrack();
+              if (audioTrack) {
+                this.localStream.addTrack(audioTrack);
+              }
+            }
+          } catch (error) {
+            console.error('Error getting native audio track:', error);
+            
+            // Fallback to default audio track acquisition
+            try {
+              const audioTrack = await this.getNativeAudioTrack();
+              if (audioTrack && this.localStream) {
+                this.localStream.addTrack(audioTrack);
+              }
+            } catch (fallbackError) {
+              console.error('Error getting fallback audio track:', fallbackError);
+            }
+          }
+        }
+      } else {
+        // For web, use standard getUserMedia
+        const constraints: MediaStreamConstraints = {
+          video: videoEnabled ? 
+            (this.isMobileDevice() ? MOBILE_VIDEO_CONSTRAINTS : DEFAULT_VIDEO_CONSTRAINTS) : 
+            false,
+          audio: audioEnabled ? DEFAULT_AUDIO_CONSTRAINTS : false,
+        };
+        
+        this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+      }
+      
+      // Add tracks to peer connection
+      if (this.localStream && this.peerConnection) {
+        this.localStream.getTracks().forEach(track => {
+          if (this.peerConnection && this.localStream) {
+            this.peerConnection.addTrack(track, this.localStream);
+          }
+        });
+      }
+      
+      return this.localStream || new MediaStream();
     } catch (error) {
-      console.error('Error initializing media stream:', error);
+      console.error('Error getting local stream:', error);
+      // Return empty stream as fallback
+      return new MediaStream();
+    }
+  }
+  
+  /**
+   * Create and send an offer
+   */
+  public async createOffer(): Promise<RTCSessionDescriptionInit> {
+    if (!this.isInitialized || !this.peerConnection) {
+      await this.initialize();
+    }
+    
+    // Create data channel
+    this.dataChannel = this.peerConnection!.createDataChannel('chat');
+    this.setupDataChannel(this.dataChannel);
+    
+    // Create offer
+    const offer = await this.peerConnection!.createOffer({
+      offerToReceiveAudio: true,
+      offerToReceiveVideo: true,
+    });
+    
+    // Set local description
+    await this.peerConnection!.setLocalDescription(offer);
+    
+    return offer;
+  }
+  
+  /**
+   * Accept an offer and create an answer
+   */
+  public async acceptOffer(offer: RTCSessionDescriptionInit): Promise<RTCSessionDescriptionInit> {
+    if (!this.isInitialized || !this.peerConnection) {
+      await this.initialize();
+    }
+    
+    // Set remote description
+    await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(offer));
+    
+    // Create answer
+    const answer = await this.peerConnection!.createAnswer();
+    
+    // Set local description
+    await this.peerConnection!.setLocalDescription(answer);
+    
+    return answer;
+  }
+  
+  /**
+   * Accept an answer
+   */
+  public async acceptAnswer(answer: RTCSessionDescriptionInit): Promise<void> {
+    if (!this.isInitialized || !this.peerConnection) {
+      await this.initialize();
+    }
+    
+    // Set remote description
+    await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(answer));
+  }
+  
+  /**
+   * Add ICE candidate
+   */
+  public async addIceCandidate(candidate: RTCIceCandidate): Promise<void> {
+    if (!this.isInitialized || !this.peerConnection) {
+      await this.initialize();
+    }
+    
+    await this.peerConnection!.addIceCandidate(candidate);
+  }
+  
+  /**
+   * Send message via data channel
+   */
+  public sendMessage(message: string): boolean {
+    if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+      return false;
+    }
+    
+    try {
+      this.dataChannel.send(message);
+      return true;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Close connection and clean up
+   */
+  public close(): void {
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+      this.localStream = null;
+    }
+    
+    if (this.dataChannel) {
+      this.dataChannel.close();
+      this.dataChannel = null;
+    }
+    
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+    
+    this.isInitialized = false;
+  }
+  
+  /**
+   * Set callback for ICE candidates
+   */
+  public onIceCandidate(callback: (candidate: RTCIceCandidate) => void): void {
+    this.onIceCandidateCallback = callback;
+  }
+  
+  /**
+   * Set callback for tracks
+   */
+  public onTrack(callback: (stream: MediaStream) => void): void {
+    this.onTrackCallback = callback;
+  }
+  
+  /**
+   * Set callback for data channel messages
+   */
+  public onDataChannelMessage(callback: (message: string) => void): void {
+    this.onDataChannelMessageCallback = callback;
+  }
+  
+  /**
+   * Set callback for connection state changes
+   */
+  public onConnectionStateChange(callback: (state: RTCPeerConnectionState) => void): void {
+    this.onConnectionStateChangeCallback = callback;
+  }
+  
+  /**
+   * Get connection state
+   */
+  public getConnectionState(): RTCPeerConnectionState | null {
+    return this.peerConnection?.connectionState || null;
+  }
+  
+  /**
+   * Check if device is mobile
+   */
+  private isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+  
+  /**
+   * Get video track for native platforms
+   * This is a mock implementation - in a real app, you'd use a proper
+   * camera implementation for Capacitor that provides a MediaTrack
+   */
+  private async getNativeVideoTrack(): Promise<MediaStreamTrack | null> {
+    try {
+      // For demo purposes, we'll fall back to web implementation
+      const tempStream = await navigator.mediaDevices.getUserMedia({
+        video: MOBILE_VIDEO_CONSTRAINTS,
+      });
+      
+      return tempStream.getVideoTracks()[0] || null;
+    } catch (error) {
+      console.error('Error getting native video track:', error);
       return null;
     }
   }
-
+  
   /**
-   * Handle mobile-specific WebRTC connection optimization
+   * Get audio track for native platforms
+   * This is a mock implementation - in a real app, you'd use a proper
+   * microphone implementation for Capacitor that provides a MediaTrack
    */
-  public getOptimizedRTCConfiguration(): RTCConfiguration {
-    return {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' }
-      ],
-      iceTransportPolicy: 'all',
-      bundlePolicy: 'max-bundle',
-      rtcpMuxPolicy: 'require',
-      // Mobile-specific optimizations
-      iceCandidatePoolSize: 2, // Smaller pool for mobile
-    };
-  }
-
-  /**
-   * Handle device orientation changes for video
-   */
-  public setupOrientationHandler(videoElement: HTMLVideoElement): void {
-    if (!this.isNative) return;
-
-    const handleOrientationChange = () => {
-      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+  private async getNativeAudioTrack(): Promise<MediaStreamTrack | null> {
+    try {
+      // For demo purposes, we'll fall back to web implementation
+      const tempStream = await navigator.mediaDevices.getUserMedia({
+        audio: DEFAULT_AUDIO_CONSTRAINTS,
+      });
       
-      if (videoElement) {
-        // Adjust video layout based on orientation
-        if (isPortrait) {
-          videoElement.style.transform = 'rotate(0deg)';
-          videoElement.style.maxHeight = '40vh';
-        } else {
-          videoElement.style.transform = 'rotate(0deg)';
-          videoElement.style.maxHeight = '80vh';
-        }
+      return tempStream.getAudioTracks()[0] || null;
+    } catch (error) {
+      console.error('Error getting native audio track:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Setup data channel
+   */
+  private setupDataChannel(dataChannel: RTCDataChannel): void {
+    dataChannel.onopen = () => {
+      console.log('Data channel opened');
+    };
+    
+    dataChannel.onclose = () => {
+      console.log('Data channel closed');
+    };
+    
+    dataChannel.onmessage = (event) => {
+      if (this.onDataChannelMessageCallback) {
+        this.onDataChannelMessageCallback(event.data);
       }
     };
-
-    // Initial setup
-    handleOrientationChange();
     
-    // Listen for orientation changes
-    window.addEventListener('orientationchange', handleOrientationChange);
-  }
-
-  /**
-   * Clean up resources specific to mobile
-   */
-  public cleanup(): void {
-    // Remove any event listeners or resources specific to mobile
-    window.removeEventListener('orientationchange', () => {});
+    dataChannel.onerror = (error) => {
+      console.error('Data channel error:', error);
+    };
   }
 }
+
+// Export a default instance
+export default MobileWebRTCManager.getInstance();
