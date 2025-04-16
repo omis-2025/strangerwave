@@ -8,10 +8,11 @@ import DisconnectedScreen from "./DisconnectedScreen";
 import FilterModal from "./FilterModal";
 import ReportModal from "./ReportModal";
 import BanPaymentModal from "./BanPaymentModal";
+import GenderSelectionScreen from "./GenderSelectionScreen";
 import { useChatService, ChatPreferences } from "@/lib/chatService";
 import { useAuth } from "@/lib/useAuth";
 
-type ChatState = 'welcome' | 'connecting' | 'chatting' | 'videochat' | 'disconnected';
+type ChatState = 'welcome' | 'gender-selection' | 'connecting' | 'chatting' | 'videochat' | 'disconnected';
 
 export default function ChatScreen() {
   const [chatState, setChatState] = useState<ChatState>('welcome');
