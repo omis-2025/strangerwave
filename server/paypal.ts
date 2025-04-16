@@ -10,7 +10,7 @@ if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
 
 // PayPal API options
 export const PAYPAL_API_OPTIONS = {
-  "client-id": PAYPAL_CLIENT_ID,
+  clientId: PAYPAL_CLIENT_ID,
   currency: "USD",
   intent: "capture",
 };

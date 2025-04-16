@@ -9,10 +9,16 @@ import {
   insertReportSchema, 
   insertMessageSchema 
 } from "@shared/schema";
+import paypalRoutes from "./routes/paypal";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('STRIPE_SECRET_KEY is not set. Payment features will not work.');
+  console.warn('STRIPE_SECRET_KEY is not set. Stripe payment features will not work.');
+}
+
+// Check PayPal credentials
+if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+  console.warn('PayPal credentials missing. PayPal payment features will not work.');
 }
 
 // Use the most recent API version for Stripe
@@ -360,6 +366,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to process webhook" });
     }
   });
+  
+  // Register PayPal routes
+  app.use('/api/paypal', paypalRoutes);
 
   return httpServer;
 }
