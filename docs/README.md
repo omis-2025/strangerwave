@@ -7,9 +7,15 @@ Welcome to the StrangerWave documentation. This comprehensive set of guides will
 ### Setup & Configuration
 - [Technical Setup Guide](./technical-setup-guide.md) - Complete instructions for installing and configuring the application
 - [Third-Party Services Setup](./third-party-services-setup.md) - How to set up Firebase, Stripe, PayPal, and other external services
+- [Demo & Test Accounts](./demo-test-accounts.md) - Pre-configured test accounts for immediate application testing
 
 ### Business Documentation
 - [Monetization & Payment Flows](./monetization-and-payment-flows.md) - Detailed monetization strategy and payment implementation details
+- [Monthly Cost Breakdown](./monthly-cost-breakdown.md) - Estimated operating costs at different scale levels
+
+### Handover Resources
+- [Handover Checklist](./handover-checklist.md) - Complete list of included items and buyer setup steps
+- [Environment Variables Template](../.env.sample) - Sample configuration file with required environment variables
 
 ## StrangerWave Features
 
