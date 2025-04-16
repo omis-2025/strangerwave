@@ -122,12 +122,12 @@ export class DatabaseStorage implements IStorage {
       return { isActive: false };
     }
     
-    const isActive = user.isPremium && user.premiumUntil && new Date(user.premiumUntil) > new Date();
+    const isActive = user.isPremium === true && user.premiumUntil && new Date(user.premiumUntil) > new Date();
     
     return {
-      isActive,
-      expiryDate: user.premiumUntil,
-      tier: user.premiumTier
+      isActive: isActive || false,
+      expiryDate: user.premiumUntil || undefined,
+      tier: user.premiumTier || undefined
     };
   }
   

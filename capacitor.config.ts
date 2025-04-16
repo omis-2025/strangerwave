@@ -4,7 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.strangerwave.app',
   appName: 'StrangerWave',
   webDir: 'dist',
-  bundledWebRuntime: false,
   plugins: {
     // Camera permissions for video chat
     Camera: {
