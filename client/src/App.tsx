@@ -74,6 +74,7 @@ function Router() {
     <AnimatePresence mode="wait">
       <Switch>
         <Route path="/" component={LandingPage} />
+        <Route path="/landing" component={LandingPage} />
         <Route path="/chat" component={Home} />
         <Route path="/admin" component={() => <AuthRoute component={Admin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />

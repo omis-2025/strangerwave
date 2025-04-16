@@ -49,12 +49,36 @@ Full details in [Demo & Test Accounts](./docs/demo-test-accounts.md)
 
 Comprehensive documentation is available in the `/docs` directory:
 
+### Technical Documentation
 - [Technical Setup Guide](./docs/technical-setup-guide.md)
 - [Third-Party Services Setup](./docs/third-party-services-setup.md)
+- [Scalable Infrastructure](./docs/scalable-infrastructure.md)
+- [Code Documentation Guide](./docs/code-documentation-guide.md)
+
+### Business Documentation
 - [Monetization Strategy & Payment Flows](./docs/monetization-and-payment-flows.md)
+- [Enhanced Monetization Strategy](./docs/enhanced-monetization-strategy.md)
 - [Monthly Cost Breakdown](./docs/monthly-cost-breakdown.md)
 - [Competitive Analysis](./docs/competitive-analysis.md)
+- [Valuation & Sales Guide](./docs/valuation-and-sales-guide.md)
+- [Product Roadmap & Acquisition](./docs/product-roadmap-acquisition.md)
+
+### Experience Enhancement
+- [User Engagement & Rewards](./docs/engagement-rewards-system.md)
+- [Mobile UX Enhancements](./docs/mobile-ux-enhancements.md)
+- [Security & Privacy Compliance](./docs/security-privacy-compliance.md)
+- [Analytics & Performance](./docs/analytics-performance-strategy.md)
+
+### Marketing & Presentation
+- [Press & Influencer Strategy](./docs/press-influencer-strategy.md)
+- [Pitch Deck](./docs/pitch-deck.md) (Run `./generate-pitch-deck.sh` to create PDF)
+- [Demo Video Script](./docs/demo-video-script.md)
+- [Demo Sandbox Access](./docs/demo-sandbox.md)
+- [App Store Preparation](./docs/app-store-preparation.md)
+
+### Handover Resources
 - [Handover Checklist](./docs/handover-checklist.md)
+- [Demo & Test Accounts](./docs/demo-test-accounts.md)
 
 For a complete overview, see the [Documentation Index](./docs/README.md).
 
