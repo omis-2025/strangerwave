@@ -61,6 +61,8 @@ export default function ChatInterface({
   const [currentVideoQuality, setCurrentVideoQuality] = useState<VideoQuality>('medium');
   const [networkQuality, setNetworkQuality] = useState<string>('Unknown connection');
   const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
+  const [isManualQualityMode, setIsManualQualityMode] = useState<boolean>(false);
+  const [isBandwidthSavingMode, setIsBandwidthSavingMode] = useState<boolean>(false);
   
   // Get network info on component mount and setup quality listener
   useEffect(() => {
@@ -455,6 +457,86 @@ export default function ChatInterface({
                       {isPremiumUser && <span className="ml-1 text-yellow-300">· Premium</span>}
                     </span>
                   </div>
+                  
+                  {/* Video quality controls for premium users */}
+                  {isPremiumUser && (
+                    <div className="absolute top-4 right-4 bg-black/60 rounded-lg px-2 py-1.5 text-xs text-white">
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="font-medium flex items-center">
+                          <Video className="h-3 w-3 mr-1 text-primary" /> Quality Settings
+                        </span>
+                        <div 
+                          className={`ml-2 w-7 h-3.5 rounded-full relative transition-colors ${isManualQualityMode ? 'bg-primary' : 'bg-gray-600'}`}
+                          onClick={() => setIsManualQualityMode(!isManualQualityMode)}
+                          role="checkbox"
+                          aria-checked={isManualQualityMode}
+                          tabIndex={0}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div 
+                            className={`absolute top-[-1px] w-4 h-4 rounded-full shadow transition-transform ${isManualQualityMode ? 'bg-white translate-x-3.5' : 'bg-gray-400 translate-x-0'}`} 
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Manual quality selector for premium users */}
+                      {isManualQualityMode && (
+                        <div className="flex flex-col gap-1 mt-2">
+                          <div className="grid grid-cols-2 gap-1">
+                            <button 
+                              className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'low' ? 'bg-red-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
+                              onClick={() => setCurrentVideoQuality('low')}
+                            >
+                              Low
+                            </button>
+                            <button 
+                              className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'medium' ? 'bg-yellow-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
+                              onClick={() => setCurrentVideoQuality('medium')}
+                            >
+                              Medium
+                            </button>
+                            <button 
+                              className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'high' ? 'bg-green-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
+                              onClick={() => setCurrentVideoQuality('high')}
+                            >
+                              High
+                            </button>
+                            <button 
+                              className={`py-1 px-1.5 rounded text-center text-[10px] ${currentVideoQuality === 'hd' ? 'bg-blue-500/80 text-white' : 'bg-gray-700/80 hover:bg-gray-600/80'}`}
+                              onClick={() => setCurrentVideoQuality('hd')}
+                            >
+                              HD
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Bandwidth saving toggle */}
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="flex items-center">
+                          <WifiOff className="h-3 w-3 mr-1 text-yellow-400" /> Save Bandwidth
+                        </span>
+                        <div 
+                          className={`ml-2 w-7 h-3.5 rounded-full relative transition-colors ${isBandwidthSavingMode ? 'bg-yellow-500' : 'bg-gray-600'}`}
+                          onClick={() => {
+                            setIsBandwidthSavingMode(!isBandwidthSavingMode);
+                            // If enabling bandwidth saving, drop quality to low
+                            if (!isBandwidthSavingMode) {
+                              setCurrentVideoQuality('low');
+                            }
+                          }}
+                          role="checkbox"
+                          aria-checked={isBandwidthSavingMode}
+                          tabIndex={0}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div 
+                            className={`absolute top-[-1px] w-4 h-4 rounded-full shadow transition-transform ${isBandwidthSavingMode ? 'bg-white translate-x-3.5' : 'bg-gray-400 translate-x-0'}`} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="text-center p-4">
