@@ -8,7 +8,7 @@ import { ChatPreferences } from "@/lib/chatService";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sliders, X, Users, Globe, UserCircle2, User, UsersRound, Heart,
-  Search, CircleX
+  Search, CircleX, Play
 } from "lucide-react";
 import 'flag-icons/css/flag-icons.min.css';
 
@@ -154,6 +154,7 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
   const [preferredGender, setPreferredGender] = useState<GenderOption>(initialPreferences.preferredGender);
   const [country, setCountry] = useState<string | null>(initialPreferences.country);
   const [saving, setSaving] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
   
   // Reset form when modal opens with initial preferences
@@ -163,6 +164,7 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
       setCountry(initialPreferences.country);
       setCountrySearch("");
       setSaving(false);
+      setStarting(false);
     }
   }, [isOpen, initialPreferences]);
   
@@ -176,6 +178,20 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
         country
       });
       setSaving(false);
+    }, 300);
+  };
+  
+  const handleStartChat = () => {
+    setStarting(true);
+    
+    // Save preferences and close the modal to start chat
+    setTimeout(() => {
+      onSave({
+        preferredGender,
+        country
+      });
+      setStarting(false);
+      onClose(); // Close modal to start chat
     }, 300);
   };
   
@@ -498,31 +514,56 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                     </div>
                   </motion.div>
                   
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-3">
+                    {/* Main "Start Chat" button */}
                     <Button 
-                      type="submit" 
-                      className="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg transition-all shadow-lg relative"
-                      disabled={saving}
+                      type="button" 
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:bg-gradient-to-r hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-4 h-auto rounded-lg transition-all shadow-lg relative flex items-center justify-center"
+                      disabled={starting}
+                      onClick={handleStartChat}
                     >
-                      {saving ? (
+                      {starting ? (
                         <>
-                          <span className="opacity-0">Save Preferences</span>
+                          <span className="opacity-0">Start Chat Now</span>
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           </div>
                         </>
                       ) : (
-                        <>Save Preferences</>
+                        <>
+                          <Play className="h-5 w-5 mr-2" />
+                          Start Chat Now
+                        </>
                       )}
                     </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      className="flex-shrink-0 border-gray-700 hover:bg-gray-800 text-gray-300"
-                      onClick={onClose}
-                    >
-                      Cancel
-                    </Button>
+                    
+                    {/* Secondary buttons */}
+                    <div className="flex gap-3">
+                      <Button 
+                        type="submit" 
+                        className="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-lg transition-all shadow-lg relative"
+                        disabled={saving}
+                      >
+                        {saving ? (
+                          <>
+                            <span className="opacity-0">Save Preferences</span>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          </>
+                        ) : (
+                          <>Save Preferences</>
+                        )}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="flex-shrink-0 border-gray-700 hover:bg-gray-800 text-gray-300"
+                        onClick={onClose}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="mt-4 text-center">
