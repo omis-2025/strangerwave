@@ -9,6 +9,7 @@ export interface User {
   uid: string;
   isAdmin?: boolean;
   isBanned?: boolean;
+  gender?: string;
 }
 
 interface AuthContextType {

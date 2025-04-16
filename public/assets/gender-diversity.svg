@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#0EA5E9" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EF4444" />
+    </linearGradient>
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Male symbol -->
+  <circle cx="200" cy="200" r="60" fill="none" stroke="url(#gradient1)" stroke-width="8" />
+  <line x1="200" y1="260" x2="200" y2="350" stroke="url(#gradient1)" stroke-width="8" />
+  <line x1="150" y1="300" x2="250" y2="300" stroke="url(#gradient1)" stroke-width="8" />
+  
+  <!-- Female symbol -->
+  <circle cx="600" cy="200" r="60" fill="none" stroke="url(#gradient2)" stroke-width="8" />
+  <line x1="600" y1="260" x2="600" y2="350" stroke="url(#gradient2)" stroke-width="8" />
+  
+  <!-- Non-binary symbol -->
+  <circle cx="200" cy="450" r="60" fill="none" stroke="url(#gradient3)" stroke-width="8" />
+  <line x1="200" y1="390" x2="200" y2="320" stroke="url(#gradient3)" stroke-width="8" />
+  <line x1="150" y1="420" x2="250" y2="480" stroke="url(#gradient3)" stroke-width="8" />
+  <line x1="150" y1="480" x2="250" y2="420" stroke="url(#gradient3)" stroke-width="8" />
+  
+  <!-- Gender-fluid symbol -->
+  <circle cx="600" cy="450" r="60" fill="none" stroke="url(#gradient4)" stroke-width="8" />
+  <path d="M600,390 C550,390 550,510 600,510 C650,510 650,390 600,390" fill="none" stroke="url(#gradient4)" stroke-width="8" />
+  
+  <!-- Connecting lines -->
+  <path d="M260,200 C350,200 350,200 450,200 C550,200 550,200 540,200" fill="none" stroke="url(#gradient5)" stroke-width="4" stroke-dasharray="10,10" />
+  <path d="M260,450 C350,450 350,450 450,450 C550,450 550,450 540,450" fill="none" stroke="url(#gradient5)" stroke-width="4" stroke-dasharray="10,10" />
+  <path d="M200,260 C200,300 200,300 200,390" fill="none" stroke="url(#gradient5)" stroke-width="4" stroke-dasharray="10,10" />
+  <path d="M600,260 C600,300 600,350 600,390" fill="none" stroke="url(#gradient5)" stroke-width="4" stroke-dasharray="10,10" />
+  
+  <!-- Circles representing diversity -->
+  <circle cx="400" cy="300" r="80" fill="none" stroke="url(#gradient5)" stroke-width="8" stroke-dasharray="15,10" />
+  <circle cx="400" cy="300" r="100" fill="none" stroke="url(#gradient1)" stroke-width="4" stroke-dasharray="5,10" opacity="0.7" />
+  <circle cx="400" cy="300" r="120" fill="none" stroke="url(#gradient2)" stroke-width="3" stroke-dasharray="2,8" opacity="0.5" />
+</svg>

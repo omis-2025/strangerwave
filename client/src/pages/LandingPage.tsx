@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FlexContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/lib/useAuth';
-import { MessageSquare, Shield, Zap, Globe, Users, Check } from 'lucide-react';
+import { MessageSquare, Shield, Zap, Globe, Users, Check, Heart, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const testimonials = [
@@ -158,11 +158,11 @@ export default function LandingPage() {
               <div className="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -left-[17px] top-[124px] rounded-l-lg"></div>
               <div className="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -left-[17px] top-[178px] rounded-l-lg"></div>
               <div className="h-[64px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
-              <div className="rounded-[2rem] overflow-hidden h-full w-full bg-white">
+              <div className="rounded-[2rem] overflow-hidden h-full w-full bg-gray-900">
                 <img 
-                  src="/assets/phone-mockup.png" 
+                  src="/assets/chat-mockup.svg" 
                   className="h-full w-full object-cover"
-                  alt="StrangerChat mobile preview" 
+                  alt="StrangerWave chat with inclusive gender options" 
                 />
               </div>
             </div>
@@ -305,6 +305,80 @@ export default function LandingPage() {
               <h3 className="text-xl font-bold mb-2">Total Privacy</h3>
               <p className="text-gray-400">Your identity remains completely anonymous. We don't store personal information or chat histories.</p>
             </motion.div>
+          </div>
+        </ResponsiveContainer>
+      </section>
+      
+      {/* Gender Inclusivity Section */}
+      <section className="py-20 md:py-28 bg-gray-900/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-primary/20 opacity-90 z-0"></div>
+        
+        {/* Decorative elements */}
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+        
+        <ResponsiveContainer className="relative z-10 px-6 mx-auto max-w-7xl">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="lg:w-1/2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">Inclusive Gender Options</h2>
+                <p className="text-lg text-gray-300 mb-8">
+                  We embrace diversity and respect all identities. StrangerWave provides a wide range of gender options, allowing every user to express themselves authentically.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-gray-200">Multiple gender identity options</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-gray-200">Customizable gender preferences</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-gray-200">Chat with people who match your preferences</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Heart className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-gray-200">Safe, respectful environment for all identities</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+            
+            <div className="lg:w-1/2">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="relative"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-3xl blur-xl transform -rotate-3"></div>
+                <img 
+                  src="/assets/gender-diversity.svg" 
+                  alt="Gender diversity illustration" 
+                  className="relative z-10 rounded-xl mx-auto max-w-md w-full"
+                />
+              </motion.div>
+            </div>
           </div>
         </ResponsiveContainer>
       </section>
