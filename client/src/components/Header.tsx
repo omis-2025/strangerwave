@@ -31,7 +31,26 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-xl font-bold flex items-center">
-            <img src="/logo.svg" alt="StrangerWave Logo" className="h-8 w-8 mr-2" />
+            <svg width="32" height="32" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2">
+              <circle cx="100" cy="100" r="95" fill="url(#paint0_linear)" />
+              <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+                    stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.3" fill="none"
+                    transform="translate(0, 15)"/>
+              <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+                    stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeOpacity="0.6" fill="none"
+                    transform="translate(0, 30)"/>
+              <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+                    stroke="#ffffff" strokeWidth="5" strokeLinecap="round" fill="none"
+                    transform="translate(0, 45)"/>
+              <path d="M85 95H115V125C115 125 105 115 95 115H85V95Z" fill="white"/>
+              <path d="M65 65H135V105C135 105 120 90 105 90H65V65Z" fill="white" fillOpacity="0.9"/>
+              <defs>
+                <linearGradient id="paint0_linear" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#4F46E5"/>
+                  <stop offset="100%" stopColor="#0EA5E9"/>
+                </linearGradient>
+              </defs>
+            </svg>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400">StrangerWave</span>
           </h1>
         </div>
