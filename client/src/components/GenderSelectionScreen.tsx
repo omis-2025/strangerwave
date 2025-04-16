@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { User, UsersRound, ArrowRight, X } from "lucide-react";
+import { User, UsersRound, ArrowRight, X, MessageSquare } from "lucide-react";
 
 type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
 
@@ -79,10 +79,12 @@ export default function GenderSelectionScreen({
 
   return (
     <div className="flex flex-col h-full bg-gray-900">
-      {/* Header with logo and title */}
+      {/* Header with title */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <div className="flex items-center">
-          <img src="/logo.svg" alt="StrangerWave" className="h-8 w-8 mr-2" />
+          <div className="h-8 w-8 mr-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+            <MessageSquare className="h-4 w-4 text-white" />
+          </div>
           <span className="text-xl font-semibold text-white">StrangerWave</span>
         </div>
         <Button 
@@ -99,15 +101,13 @@ export default function GenderSelectionScreen({
       <div className="flex-1 overflow-y-auto p-4">
         <div className="grid grid-cols-1 gap-3">
           {genderOptions.map((option) => (
-            <motion.div
+            <div
               key={option.value}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
               className={`
-                p-3 rounded-lg flex items-center cursor-pointer transition-all border
+                p-3 rounded-lg flex items-center cursor-pointer border
                 ${selectedGender === option.value 
-                  ? 'bg-primary/10 border-primary/30 shadow-sm shadow-primary/10' 
-                  : 'bg-gray-800/70 border-gray-700 hover:border-gray-600'}
+                  ? 'bg-primary/10 border-primary/30' 
+                  : 'bg-gray-800/70 border-gray-700'}
               `}
               onClick={() => onSelectGender(option.value)}
             >
@@ -128,14 +128,10 @@ export default function GenderSelectionScreen({
                   : 'border-gray-600'}
               `}>
                 {selectedGender === option.value && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-full h-full rounded-full bg-primary scale-50"
-                  />
+                  <div className="w-full h-full rounded-full bg-primary scale-50" />
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -151,7 +147,7 @@ export default function GenderSelectionScreen({
             Cancel
           </Button>
           <Button 
-            className="flex-1 bg-primary hover:bg-primary/90 text-white font-medium transition-all shadow-lg"
+            className="flex-1 bg-primary hover:bg-primary/90 text-white font-medium shadow-lg"
             onClick={onContinue}
             disabled={!selectedGender}
           >

@@ -223,7 +223,7 @@ export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVide
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="flex flex-col sm:flex-row gap-4 mt-2 w-full max-w-md"
+        className="flex mt-2 w-full max-w-md"
       >
         <motion.button 
           whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(124,58,237,0.7)" }}
@@ -232,7 +232,7 @@ export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVide
             if (onToggleVideoChat) onToggleVideoChat(chatType === 'video');
             onStartChat();
           }}
-          className={`relative group overflow-hidden text-white font-medium py-4 px-6 rounded-2xl transition-all flex items-center justify-center shadow-lg flex-1 ${
+          className={`relative group overflow-hidden text-white font-medium py-4 px-6 rounded-2xl transition-all flex items-center justify-center shadow-lg w-full ${
             chatType === 'video' 
               ? 'bg-gradient-to-r from-blue-600 to-cyan-600' 
               : 'bg-gradient-to-r from-purple-600 to-indigo-600'
@@ -250,18 +250,6 @@ export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVide
               <span className="text-xs opacity-80">{chatType === 'video' ? 'Face-to-face' : 'Text messaging'}</span>
             </div>
           </div>
-        </motion.button>
-        
-        <motion.button 
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onShowFilters}
-          className="backdrop-blur-lg bg-white/10 text-white font-medium py-4 px-6 rounded-2xl transition-all flex items-center justify-center shadow-lg border border-white/10 hover:bg-white/20"
-        >
-          <div className="rounded-full bg-white/10 p-2 mr-3">
-            <Sliders className="h-5 w-5" />
-          </div>
-          <span>Filters</span>
         </motion.button>
       </motion.div>
       
