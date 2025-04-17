@@ -11,6 +11,9 @@ import StaticImage from '@/components/StaticImage';
 // Import images directly
 import heroImage from '@/assets/hero-image.png';
 import phoneMockup from '@/assets/phone-mockup.png';
+import sarahProfile from '@/assets/profiles/sarah.png';
+import miguelProfile from '@/assets/profiles/miguel.png';
+import aidenProfile from '@/assets/profiles/aiden.png';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
@@ -291,21 +294,21 @@ export default function LandingPage() {
             author="Sarah K."
             location="United States"
             rating={5}
-            imageSrc="/images/profiles/sarah.png"
+            imageSrc={sarahProfile}
           />
           <TestimonialCard 
             quote="As a language learner, I use StrangerWave to practice with native speakers. The country filter is perfect for finding people from specific regions."
             author="Miguel R."
             location="Spain"
             rating={5}
-            imageSrc="/images/profiles/miguel.png"
+            imageSrc={miguelProfile}
           />
           <TestimonialCard 
             quote="The premium features are actually worth it. Priority matching means I spend less time waiting and more time having great conversations."
             author="Aiden T."
             location="Australia"
             rating={4}
-            imageSrc="/images/profiles/aiden.png"
+            imageSrc={aidenProfile}
           />
         </div>
       </section>
