@@ -123,28 +123,45 @@ export default function PayPalButton({
 
   return (
     <PayPalScriptProvider options={{ clientId: clientId || '' }}>
-      <div className="paypal-button-container">
-        <PayPalButtons
-          style={{ layout: "horizontal", label: "pay" }}
-          disabled={loading}
-          createOrder={createOrder}
-          onApprove={onApprove}
-          onCancel={() => {
-            toast({
-              title: 'Payment Cancelled',
-              description: 'You have cancelled the payment process.',
-            });
-            onCancel();
-          }}
-          onError={(err) => {
-            console.error('PayPal Error:', err);
-            toast({
-              title: 'PayPal Error',
-              description: 'There was an issue with the PayPal payment. Please try another method.',
-              variant: 'destructive',
-            });
-          }}
-        />
+      <div className="paypal-button-container relative">
+        {/* Attention-grabbing overlay for PayPal button */}
+        <div className="absolute -top-4 -right-4 z-10 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+          Fast & Secure
+        </div>
+        
+        {/* Light glow effect behind the button */}
+        <div className="absolute inset-0 bg-blue-500 opacity-20 blur-xl rounded-lg transform scale-105"></div>
+        
+        {/* Custom styling wrapper */}
+        <div className="relative bg-gray-800 p-3 rounded-lg border-2 border-blue-500/30 shadow-lg">
+          <PayPalButtons
+            style={{ 
+              layout: "horizontal", 
+              label: "pay",
+              color: "gold",
+              shape: "pill",
+              height: 45
+            }}
+            disabled={loading}
+            createOrder={createOrder}
+            onApprove={onApprove}
+            onCancel={() => {
+              toast({
+                title: 'Payment Cancelled',
+                description: 'You have cancelled the payment process.',
+              });
+              onCancel();
+            }}
+            onError={(err) => {
+              console.error('PayPal Error:', err);
+              toast({
+                title: 'PayPal Error',
+                description: 'There was an issue with the PayPal payment. Please try another method.',
+                variant: 'destructive',
+              });
+            }}
+          />
+        </div>
       </div>
     </PayPalScriptProvider>
   );
