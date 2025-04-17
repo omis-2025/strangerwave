@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import 'flag-icons/css/flag-icons.min.css';
 
 interface CountryDisplayProps {
@@ -10,13 +11,15 @@ interface CountryDisplayProps {
   label?: string;
   size?: 'sm' | 'md' | 'lg';
   position?: 'top-left' | 'top-right';
+  animate?: boolean;
 }
 
 export default function CountryDisplay({ 
   country, 
   label, 
   size = 'md',
-  position = 'top-right'
+  position = 'top-right',
+  animate = false
 }: CountryDisplayProps) {
   // Size classes for different display sizes
   const sizeClasses = {

@@ -6,6 +6,7 @@ import PermissionErrorModal from './PermissionErrorModal';
 import ConnectionStatusToast from './ConnectionStatusToast';
 import CountryDisplay from './CountryDisplay';
 import TranslationTooltip from './TranslationTooltip';
+import TranslationShimmer from './TranslationShimmer';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;
@@ -44,6 +45,8 @@ export default function VideoCallInterface({
   const [micEnabled, setMicEnabled] = useState(true);
   const [showOriginalText, setShowOriginalText] = useState<{[key: string]: boolean}>({});
   const [isInputRTL, setIsInputRTL] = useState(false);
+  const [translatingMessages, setTranslatingMessages] = useState<{[key: string]: boolean}>({});
+  const [showTranslationPref, setShowTranslationPref] = useState(true); // Default to showing translations
   
   // Media stream refs
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -78,6 +81,35 @@ export default function VideoCallInterface({
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+  
+  // Load translation preferences from localStorage
+  useEffect(() => {
+    try {
+      const savedPref = localStorage.getItem('sw_show_translations');
+      if (savedPref !== null) {
+        setShowTranslationPref(savedPref === 'true');
+      }
+    } catch (error) {
+      console.warn('Could not load translation preferences from localStorage:', error);
+    }
+  }, []);
+  
+  // Flag animation state for new match
+  const [showFlagAnimation, setShowFlagAnimation] = useState(false);
+  
+  // Trigger flag animation when connection is established
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      setShowFlagAnimation(true);
+      
+      // Reset flag animation after it plays
+      const timer = setTimeout(() => {
+        setShowFlagAnimation(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [connectionStatus]);
   
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -256,6 +288,7 @@ export default function VideoCallInterface({
                   label="Partner"
                   position="top-right"
                   size={isMobile ? "sm" : "md"}
+                  animate={showFlagAnimation}
                 />
                 
                 {/* My country display in top left */}
@@ -264,6 +297,7 @@ export default function VideoCallInterface({
                   label="You"
                   position="top-left"
                   size={isMobile ? "sm" : "md"}
+                  animate={false}
                 />
               </>
             )}
