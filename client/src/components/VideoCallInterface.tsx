@@ -53,9 +53,28 @@ export default function VideoCallInterface({
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [remoteCameraActive, setRemoteCameraActive] = useState(false);
   
-  // UI state
+  // UI state - never hide controls on mobile
   const [hideControls, setHideControls] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'partner-left' | null>(null);
+  
+  // Check if device is mobile for better UI handling
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      
+      // On mobile, make sure controls are always visible
+      if (mobile) {
+        setHideControls(false);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -175,9 +194,9 @@ export default function VideoCallInterface({
           className="w-full md:w-1/2 h-full relative bg-black cursor-pointer" 
           onClick={() => setHideControls(!hideControls)}
         >
-          {/* Country flags display */}
+          {/* Country flags display - always visible on mobile */}
           <AnimatePresence>
-            {!hideControls && (
+            {(!hideControls || isMobile) && (
               <motion.div 
                 className="absolute top-2 left-0 right-0 flex justify-center items-center z-20"
                 initial={{ opacity: 0, y: -10 }}
@@ -275,9 +294,9 @@ export default function VideoCallInterface({
             )}
           </div>
 
-          {/* Self-view (bottom right) */}
+          {/* Self-view (bottom right) - always visible on mobile */}
           <AnimatePresence>
-            {!hideControls && (
+            {(!hideControls || isMobile) && (
               <motion.div 
                 className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800 shadow-lg z-20"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -306,9 +325,9 @@ export default function VideoCallInterface({
             )}
           </AnimatePresence>
 
-          {/* Video controls overlay (bottom center) */}
+          {/* Video controls overlay (bottom center) - always visible on mobile */}
           <AnimatePresence>
-            {!hideControls && (
+            {(!hideControls || isMobile) && (
               <motion.div 
                 className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-900/70 backdrop-blur-lg px-4 py-2 rounded-full shadow-lg z-20 border border-gray-800/30"
                 initial={{ opacity: 0, y: 20 }}

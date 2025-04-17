@@ -148,19 +148,48 @@ export class MobileWebRTCManager {
    * Get local media stream with device-specific optimizations
    */
   public async getLocalStream(videoEnabled: boolean = true, audioEnabled: boolean = true): Promise<MediaStream> {
+    console.log(`Initializing media stream - video: ${videoEnabled}, audio: ${audioEnabled}, native: ${this.isNative}`);
+    
     if (!this.isInitialized) {
       await this.initialize();
     }
     
-    // If we already have a stream, stop all tracks
+    // If we already have a stream, check if we need to update it
     if (this.localStream) {
+      const videoTracks = this.localStream.getVideoTracks();
+      const audioTracks = this.localStream.getAudioTracks();
+      
+      const hasVideo = videoTracks.length > 0;
+      const hasAudio = audioTracks.length > 0;
+      
+      // If the requirements match what we already have, return the existing stream
+      if (hasVideo === videoEnabled && hasAudio === audioEnabled) {
+        console.log('Using existing media stream with matching requirements');
+        return this.localStream;
+      }
+      
+      // Otherwise, stop existing tracks
+      console.log('Stream requirements changed, creating new stream');
       this.localStream.getTracks().forEach(track => track.stop());
       this.localStream = null;
     }
     
     try {
+      // Log device info to help with debugging
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        console.log(`Found ${videoInputs.length} video input devices`);
+        videoInputs.forEach((device, i) => {
+          console.log(`Video device ${i + 1}: ${device.label || 'unnamed'}`);
+        });
+      } catch (err) {
+        console.error('Failed to enumerate devices:', err);
+      }
+      
       // For native platforms, use platform-specific APIs
       if (this.isNative) {
+        console.log('Using native platform camera access methods');
         this.localStream = new MediaStream();
         
         // Handle video track for native platforms
@@ -168,19 +197,31 @@ export class MobileWebRTCManager {
           try {
             // Request camera permission using Capacitor Camera API
             const cameraPermission = await Camera.checkPermissions();
+            console.log('Camera permission status:', cameraPermission.camera);
+            
             if (cameraPermission.camera !== 'granted') {
-              await Camera.requestPermissions();
+              console.log('Requesting camera permission');
+              const result = await Camera.requestPermissions();
+              console.log('Camera permission request result:', result);
             }
             
-            // For a real implementation, we would use a more direct camera API
-            // This is a simplified example - in a real app, you'd use a proper 
-            // camera implementation for Capacitor that provides a MediaStream
+            console.log('Getting native video track');
             const videoTrack = await this.getNativeVideoTrack();
             if (videoTrack) {
+              console.log('Successfully created video track, adding to stream');
               this.localStream.addTrack(videoTrack);
+            } else {
+              console.warn('Failed to get video track');
+              if (this.onPermissionErrorCallback) {
+                this.onPermissionErrorCallback('camera', new Error('Failed to get video track'));
+              }
             }
           } catch (error) {
             console.error('Error getting native video track:', error);
+            // Handle camera permission error
+            if (this.onPermissionErrorCallback) {
+              this.onPermissionErrorCallback('camera', error);
+            }
           }
         }
         
