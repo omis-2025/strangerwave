@@ -20,20 +20,20 @@ const RewardsPage: React.FC = () => {
   
   // Fetch streaks data
   const { data: streaks, isLoading: streaksLoading, error: streaksError } = useQuery({
-    queryKey: ['/api/users', user?.id, 'streaks'],
+    queryKey: ['/api/users', user?.userId, 'streaks'],
     queryFn: () => 
-      apiRequest('GET', `/api/users/${user?.id}/streaks`)
+      apiRequest('GET', `/api/users/${user?.userId}/streaks`)
         .then(res => res.json()),
-    enabled: !!user?.id
+    enabled: !!user?.userId
   });
 
   // Fetch achievements data
   const { data: achievements, isLoading: achievementsLoading, error: achievementsError } = useQuery({
-    queryKey: ['/api/users', user?.id, 'achievements'],
+    queryKey: ['/api/users', user?.userId, 'achievements'],
     queryFn: () => 
-      apiRequest('GET', `/api/users/${user?.id}/achievements`)
+      apiRequest('GET', `/api/users/${user?.userId}/achievements`)
         .then(res => res.json()),
-    enabled: !!user?.id
+    enabled: !!user?.userId
   });
   
   // Fetch all possible achievements for the "Locked" tab
@@ -42,7 +42,7 @@ const RewardsPage: React.FC = () => {
     queryFn: () => 
       apiRequest('GET', '/api/achievements')
         .then(res => res.json()),
-    enabled: !!user?.id
+    enabled: !!user?.userId
   });
   
   // Filter achievements by category
@@ -54,15 +54,15 @@ const RewardsPage: React.FC = () => {
   const getLockedAchievements = () => {
     if (!allAchievements || !achievements) return [];
     
-    const earnedIds = achievements.map(a => a.achievementId);
-    return allAchievements.filter(a => !earnedIds.includes(a.id));
+    const earnedIds = achievements.map((a: AchievementWithUserData) => a.achievementId);
+    return allAchievements.filter((a: Achievement) => !earnedIds.includes(a.id));
   };
   
   // Calculate total achievement points
   const getTotalPoints = () => {
     if (!achievements) return 0;
     
-    return achievements.reduce((total, achievement) => {
+    return achievements.reduce((total: number, achievement: AchievementWithUserData) => {
       return total + achievement.achievement.points;
     }, 0);
   };

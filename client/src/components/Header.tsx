@@ -156,6 +156,32 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
             <span>Demo</span>
           </Button>
           
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/rewards')}
+              className="text-gray-300 hover:text-white px-3 py-1 rounded-full flex items-center gap-1 hover:bg-gray-800 transition-all"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M12 15c3 0 6-2 6-5s-3-5-6-5-6 2-6 5 3 5 6 5Z"></path>
+                <path d="M3 16v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path>
+                <path d="M12 13v8"></path>
+                <path d="m8 21 4-4 4 4"></path>
+              </svg>
+              <span>Rewards</span>
+            </Button>
+          )}
+          
           <Button
             variant="ghost"
             size="sm"
@@ -315,6 +341,32 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
               </svg>
               Demo
             </Button>
+            
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/rewards')}
+                className="justify-start"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 mr-2" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 15c3 0 6-2 6-5s-3-5-6-5-6 2-6 5 3 5 6 5Z"></path>
+                  <path d="M3 16v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path>
+                  <path d="M12 13v8"></path>
+                  <path d="m8 21 4-4 4 4"></path>
+                </svg>
+                Rewards
+              </Button>
+            )}
             
             <Button
               variant="ghost"
