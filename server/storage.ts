@@ -10,7 +10,11 @@ import {
   userInterests, type UserInterests, type InsertUserInterests,
   matchingFeedback, type MatchingFeedback, type InsertMatchingFeedback,
   matchingAlgorithmConfig, type MatchingAlgorithmConfig, type InsertMatchingAlgorithmConfig,
-  userAlgorithmAssignment, type UserAlgorithmAssignment, type InsertUserAlgorithmAssignment
+  userAlgorithmAssignment, type UserAlgorithmAssignment, type InsertUserAlgorithmAssignment,
+  // Achievement and streak system imports
+  achievements, type Achievement, type InsertAchievement,
+  userAchievements, type UserAchievement, type InsertUserAchievement,
+  userStreaks, type UserStreak, type InsertUserStreak
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, isNull, or } from "drizzle-orm";
@@ -85,6 +89,28 @@ export interface IStorage {
   getUserAlgorithmAssignment(userId: number): Promise<UserAlgorithmAssignment | undefined>;
   createUserAlgorithmAssignment(assignment: InsertUserAlgorithmAssignment): Promise<UserAlgorithmAssignment>;
   updateUserAlgorithmAssignment(userId: number, algorithmId: number): Promise<UserAlgorithmAssignment | undefined>;
+  
+  // Achievement methods
+  getAchievement(id: number): Promise<Achievement | undefined>;
+  getAllAchievements(): Promise<Achievement[]>;
+  getAchievementsByCategory(category: string): Promise<Achievement[]>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  updateAchievement(id: number, updates: Partial<Achievement>): Promise<Achievement | undefined>;
+  
+  // User Achievement methods
+  getUserAchievements(userId: number): Promise<UserAchievement[]>;
+  getUserAchievement(userId: number, achievementId: number): Promise<UserAchievement | undefined>;
+  earnAchievement(userId: number, achievementId: number): Promise<UserAchievement>;
+  markAchievementDisplayed(id: number): Promise<UserAchievement | undefined>;
+  getUndisplayedAchievements(userId: number): Promise<Array<{ achievement: Achievement, userAchievement: UserAchievement }>>;
+  
+  // User Streak methods
+  getUserStreak(userId: number, streakType: string): Promise<UserStreak | undefined>;
+  getUserStreaks(userId: number): Promise<UserStreak[]>;
+  createUserStreak(streak: InsertUserStreak): Promise<UserStreak>;
+  updateUserStreak(id: number, updates: Partial<UserStreak>): Promise<UserStreak | undefined>;
+  updateLoginStreak(userId: number): Promise<UserStreak>;
+  updateChatStreak(userId: number): Promise<UserStreak>;
 }
 
 export class DatabaseStorage implements IStorage {

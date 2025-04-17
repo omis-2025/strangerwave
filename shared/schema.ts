@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, pgEnum, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, pgEnum, real, date } from "drizzle-orm/pg-core";
 import { PgArray as array } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -165,6 +165,48 @@ export const userAlgorithmAssignment = pgTable("user_algorithm_assignment", {
   assignedAt: timestamp("assigned_at").defaultNow().notNull(),
 });
 
+// --- ACHIEVEMENT AND STREAK SYSTEM TABLES ---
+
+// Achievement types for better organization
+export const achievementTypeEnum = pgEnum('achievement_type', ['streak', 'milestone', 'quality', 'special', 'onboarding', 'engagement']);
+
+// Achievements table - defines available achievements
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: achievementTypeEnum("category").notNull(),
+  iconUrl: text("icon_url"),
+  points: integer("points").default(0).notNull(),
+  requirements: jsonb("requirements").notNull(), // e.g. { type: "LOGIN_STREAK", threshold: 7 }
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User achievements - tracks which achievements users have earned
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  achievementId: integer("achievement_id").references(() => achievements.id).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+  displayed: boolean("displayed").default(false).notNull(), // Whether it's been shown to user
+});
+
+// User streaks - tracks consecutive usage patterns
+export const userStreaks = pgTable("user_streaks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  streakType: text("streak_type").notNull(), // e.g. "login", "chat", "video"
+  currentStreak: integer("current_streak").default(0).notNull(),
+  longestStreak: integer("longest_streak").default(0).notNull(),
+  lastUpdateDate: date("last_update_date").notNull(),
+  streakStartDate: date("streak_start_date"),
+  protectionUsed: boolean("protection_used").default(false).notNull(), // For streak protection feature
+  streakData: jsonb("streak_data").$type<{
+    history: { date: string, count: number }[],
+    milestones: { days: number, achievedAt: string }[]
+  }>(),
+});
+
 // --- SCHEMA INSERTION HELPERS ---
 
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -249,6 +291,21 @@ export const insertUserAlgorithmAssignmentSchema = createInsertSchema(userAlgori
   assignedAt: true
 });
 
+// Achievement system insert schemas
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true
+});
+
+export const insertUserStreakSchema = createInsertSchema(userStreaks).omit({
+  id: true
+});
+
 // --- TYPE EXPORTS ---
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -294,3 +351,13 @@ export type MatchingAlgorithmConfig = typeof matchingAlgorithmConfig.$inferSelec
 
 export type InsertUserAlgorithmAssignment = z.infer<typeof insertUserAlgorithmAssignmentSchema>;
 export type UserAlgorithmAssignment = typeof userAlgorithmAssignment.$inferSelect;
+
+// Achievement system types
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+
+export type InsertUserStreak = z.infer<typeof insertUserStreakSchema>;
+export type UserStreak = typeof userStreaks.$inferSelect;
