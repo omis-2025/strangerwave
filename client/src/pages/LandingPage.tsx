@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,6 +85,10 @@ export default function LandingPage() {
               src="/attached_assets/image_1744729674145.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
+              onError={(e) => {
+                console.log("Image failed to load, falling back");
+                e.currentTarget.src = "/assets/fallback-image.jpg";
+              }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
               <div className="flex items-center gap-2 text-white">

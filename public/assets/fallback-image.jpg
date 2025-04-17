@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <circle cx="100" cy="100" r="95" fill="url(#paint0_linear)" />
+  
+  <!-- Outer wave effect -->
+  <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+        stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.3" fill="none"
+        transform="translate(0, 15)"/>
+  
+  <!-- Middle wave effect -->
+  <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+        stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-opacity="0.6" fill="none"
+        transform="translate(0, 30)"/>
+  
+  <!-- Inner wave effect (main wave) -->
+  <path d="M30 100C30 95 32 90 35 85C38 80 42 75 47 70C52 65 58 60 65 55C72 50 80 45 90 40C100 35 110 30 120 25C130 20 140 15 150 10"
+        stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none"
+        transform="translate(0, 45)"/>
+  
+  <!-- Chat bubble icon -->
+  <path d="M85 95H115V125C115 125 105 115 95 115H85V95Z" fill="white"/>
+  <path d="M65 65H135V105C135 105 120 90 105 90H65V65Z" fill="white" fill-opacity="0.9"/>
+  
+  <!-- Definitions for gradients and filters -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+  </defs>
+</svg>
