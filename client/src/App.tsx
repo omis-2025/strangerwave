@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Admin from "@/pages/Admin";
 import EnhancedAdmin from "@/pages/EnhancedAdmin";
 import Payment from "@/pages/Payment";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import LandingPage from "@/pages/LandingPage";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";

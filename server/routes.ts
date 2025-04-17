@@ -12,6 +12,7 @@ import {
 import paypalRoutes from "./routes/paypal";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
+import stripeRoutes from "./routes/stripe";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -377,6 +378,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register admin routes
   app.use('/api/admin', adminRoutes);
+  
+  // Register Stripe routes
+  app.use('/api/stripe', stripeRoutes);
 
   return httpServer;
 }
