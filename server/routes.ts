@@ -7,7 +7,8 @@ import Stripe from "stripe";
 import { 
   insertChatPreferencesSchema, 
   insertReportSchema, 
-  insertMessageSchema 
+  insertMessageSchema,
+  insertAchievementSchema
 } from "@shared/schema";
 import { calculateCompatibilityScore, extractInterestsFromMessage, handleChatEnd } from "./ai-matching";
 import { processNewMessage, updateUserLanguagePreference, getSupportedLanguages, translateMessage } from "./translation";
@@ -131,6 +132,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         uid,
         ipAddress: ipAddress as string || null
       });
+      
+      // Initialize login streak for new user
+      await storage.updateLoginStreak(newUser.id);
       
       res.json({ 
         userId: newUser.id, 

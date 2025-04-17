@@ -556,6 +556,338 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedAssignment;
   }
+
+  // Achievement methods
+  async getAchievement(id: number): Promise<Achievement | undefined> {
+    const [achievement] = await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.id, id));
+    return achievement;
+  }
+
+  async getAllAchievements(): Promise<Achievement[]> {
+    return db
+      .select()
+      .from(achievements)
+      .orderBy(achievements.id);
+  }
+
+  async getAchievementsByCategory(category: string): Promise<Achievement[]> {
+    return db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.category, category as any))
+      .orderBy(achievements.id);
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [newAchievement] = await db
+      .insert(achievements)
+      .values(achievement)
+      .returning();
+    return newAchievement;
+  }
+
+  async updateAchievement(id: number, updates: Partial<Achievement>): Promise<Achievement | undefined> {
+    const [updatedAchievement] = await db
+      .update(achievements)
+      .set(updates)
+      .where(eq(achievements.id, id))
+      .returning();
+    return updatedAchievement;
+  }
+
+  // User Achievement methods
+  async getUserAchievements(userId: number): Promise<UserAchievement[]> {
+    return db
+      .select()
+      .from(userAchievements)
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+  }
+
+  async getUserAchievement(userId: number, achievementId: number): Promise<UserAchievement | undefined> {
+    const [userAchievement] = await db
+      .select()
+      .from(userAchievements)
+      .where(
+        and(
+          eq(userAchievements.userId, userId),
+          eq(userAchievements.achievementId, achievementId)
+        )
+      );
+    return userAchievement;
+  }
+
+  async earnAchievement(userId: number, achievementId: number): Promise<UserAchievement> {
+    // Check if the user already has this achievement
+    const existingAchievement = await this.getUserAchievement(userId, achievementId);
+    
+    if (existingAchievement) {
+      return existingAchievement; // User already has this achievement
+    }
+    
+    // Create a new user achievement
+    const [newUserAchievement] = await db
+      .insert(userAchievements)
+      .values({
+        userId,
+        achievementId,
+        displayed: false
+      })
+      .returning();
+    
+    return newUserAchievement;
+  }
+
+  async markAchievementDisplayed(id: number): Promise<UserAchievement | undefined> {
+    const [updatedUserAchievement] = await db
+      .update(userAchievements)
+      .set({ displayed: true })
+      .where(eq(userAchievements.id, id))
+      .returning();
+    return updatedUserAchievement;
+  }
+
+  async getUndisplayedAchievements(userId: number): Promise<Array<{ achievement: Achievement, userAchievement: UserAchievement }>> {
+    // First get all undisplayed user achievements
+    const userAchievementsList = await db
+      .select()
+      .from(userAchievements)
+      .where(
+        and(
+          eq(userAchievements.userId, userId),
+          eq(userAchievements.displayed, false)
+        )
+      );
+    
+    // Then get the actual achievement data for each one
+    const result = await Promise.all(
+      userAchievementsList.map(async (ua) => {
+        const achievement = await this.getAchievement(ua.achievementId);
+        return {
+          achievement: achievement!,
+          userAchievement: ua
+        };
+      })
+    );
+    
+    return result.filter(item => item.achievement); // Filter out any null achievements
+  }
+
+  // User Streak methods
+  async getUserStreak(userId: number, streakType: string): Promise<UserStreak | undefined> {
+    const [streak] = await db
+      .select()
+      .from(userStreaks)
+      .where(
+        and(
+          eq(userStreaks.userId, userId),
+          eq(userStreaks.streakType, streakType)
+        )
+      );
+    return streak;
+  }
+
+  async getUserStreaks(userId: number): Promise<UserStreak[]> {
+    return db
+      .select()
+      .from(userStreaks)
+      .where(eq(userStreaks.userId, userId));
+  }
+
+  async createUserStreak(streak: InsertUserStreak): Promise<UserStreak> {
+    const [newStreak] = await db
+      .insert(userStreaks)
+      .values(streak)
+      .returning();
+    return newStreak;
+  }
+
+  async updateUserStreak(id: number, updates: Partial<UserStreak>): Promise<UserStreak | undefined> {
+    const [updatedStreak] = await db
+      .update(userStreaks)
+      .set(updates)
+      .where(eq(userStreaks.id, id))
+      .returning();
+    return updatedStreak;
+  }
+
+  async updateLoginStreak(userId: number): Promise<UserStreak> {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    // Get the existing login streak or create a new one
+    let streak = await this.getUserStreak(userId, 'login');
+    
+    if (!streak) {
+      // Create a new streak
+      return this.createUserStreak({
+        userId,
+        streakType: 'login',
+        currentStreak: 1,
+        longestStreak: 1,
+        lastUpdateDate: today,
+        streakStartDate: today,
+        protectionUsed: false,
+        streakData: {
+          history: [{ date: todayStr, count: 1 }],
+          milestones: [{ days: 1, achievedAt: todayStr }]
+        }
+      });
+    }
+    
+    // Check if the streak was already updated today
+    const lastUpdateDateStr = new Date(streak.lastUpdateDate).toISOString().split('T')[0];
+    if (lastUpdateDateStr === todayStr) {
+      return streak; // Already updated today
+    }
+    
+    // Calculate the difference in days
+    const lastUpdate = new Date(streak.lastUpdateDate);
+    const diffTime = Math.abs(today.getTime() - lastUpdate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    let newCurrentStreak: number;
+    let newLongestStreak: number = streak.longestStreak;
+    let protectionUsed: boolean = streak.protectionUsed;
+    let streakStartDate: Date | null = streak.streakStartDate;
+    
+    if (diffDays === 1) {
+      // Consecutive day
+      newCurrentStreak = streak.currentStreak + 1;
+      if (newCurrentStreak > streak.longestStreak) {
+        newLongestStreak = newCurrentStreak;
+      }
+    } else if (diffDays === 2 && !streak.protectionUsed) {
+      // Missed one day but can use streak protection
+      newCurrentStreak = streak.currentStreak + 1;
+      protectionUsed = true;
+      if (newCurrentStreak > streak.longestStreak) {
+        newLongestStreak = newCurrentStreak;
+      }
+    } else {
+      // Streak broken
+      newCurrentStreak = 1;
+      protectionUsed = false;
+      streakStartDate = today;
+    }
+    
+    // Update streak history
+    const history = streak.streakData?.history || [];
+    const milestones = streak.streakData?.milestones || [];
+    
+    history.push({ date: todayStr, count: newCurrentStreak });
+    
+    // Add milestone if it's a significant number
+    if ([3, 7, 14, 21, 30, 60, 90, 180, 365].includes(newCurrentStreak)) {
+      milestones.push({ days: newCurrentStreak, achievedAt: todayStr });
+    }
+    
+    // Update the streak
+    const updatedStreak = await this.updateUserStreak(streak.id, {
+      currentStreak: newCurrentStreak,
+      longestStreak: newLongestStreak,
+      lastUpdateDate: today,
+      streakStartDate,
+      protectionUsed,
+      streakData: {
+        history,
+        milestones
+      }
+    });
+    
+    return updatedStreak!;
+  }
+
+  async updateChatStreak(userId: number): Promise<UserStreak> {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    // Get the existing chat streak or create a new one
+    let streak = await this.getUserStreak(userId, 'chat');
+    
+    if (!streak) {
+      // Create a new streak
+      return this.createUserStreak({
+        userId,
+        streakType: 'chat',
+        currentStreak: 1,
+        longestStreak: 1,
+        lastUpdateDate: today,
+        streakStartDate: today,
+        protectionUsed: false,
+        streakData: {
+          history: [{ date: todayStr, count: 1 }],
+          milestones: [{ days: 1, achievedAt: todayStr }]
+        }
+      });
+    }
+    
+    // Check if the streak was already updated today
+    const lastUpdateDateStr = new Date(streak.lastUpdateDate).toISOString().split('T')[0];
+    if (lastUpdateDateStr === todayStr) {
+      return streak; // Already updated today
+    }
+    
+    // The logic for chat streaks is the same as login streaks
+    // Calculate the difference in days
+    const lastUpdate = new Date(streak.lastUpdateDate);
+    const diffTime = Math.abs(today.getTime() - lastUpdate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    let newCurrentStreak: number;
+    let newLongestStreak: number = streak.longestStreak;
+    let protectionUsed: boolean = streak.protectionUsed;
+    let streakStartDate: Date | null = streak.streakStartDate;
+    
+    if (diffDays === 1) {
+      // Consecutive day
+      newCurrentStreak = streak.currentStreak + 1;
+      if (newCurrentStreak > streak.longestStreak) {
+        newLongestStreak = newCurrentStreak;
+      }
+    } else if (diffDays === 2 && !streak.protectionUsed) {
+      // Missed one day but can use streak protection
+      newCurrentStreak = streak.currentStreak + 1;
+      protectionUsed = true;
+      if (newCurrentStreak > streak.longestStreak) {
+        newLongestStreak = newCurrentStreak;
+      }
+    } else {
+      // Streak broken
+      newCurrentStreak = 1;
+      protectionUsed = false;
+      streakStartDate = today;
+    }
+    
+    // Update streak history
+    const history = streak.streakData?.history || [];
+    const milestones = streak.streakData?.milestones || [];
+    
+    history.push({ date: todayStr, count: newCurrentStreak });
+    
+    // Add milestone if it's a significant number
+    if ([3, 7, 14, 21, 30, 60, 90, 180, 365].includes(newCurrentStreak)) {
+      milestones.push({ days: newCurrentStreak, achievedAt: todayStr });
+    }
+    
+    // Update the streak
+    const updatedStreak = await this.updateUserStreak(streak.id, {
+      currentStreak: newCurrentStreak,
+      longestStreak: newLongestStreak,
+      lastUpdateDate: today,
+      streakStartDate,
+      protectionUsed,
+      streakData: {
+        history,
+        milestones
+      }
+    });
+    
+    return updatedStreak!;
+  }
 }
 
 export const storage = new DatabaseStorage();
