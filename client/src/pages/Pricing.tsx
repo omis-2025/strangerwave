@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star } from 'lucide-react';
+import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star, Timer } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -98,6 +98,29 @@ export default function Pricing() {
     price: number;
     interval: string;
   } | null>(null);
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 47,
+    minutes: 59,
+    seconds: 59
+  });
+  
+  // Countdown timer for limited time offer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        }
+        return prev;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
   
   // Define a type for plan structure
   type PricingPlan = {
@@ -226,15 +249,25 @@ export default function Pricing() {
   
   return (
     <div className="container mx-auto py-16 px-4">
-      {/* Limited Time Offer Banner */}
+      {/* Limited Time Offer Banner with Countdown Timer */}
       <div className="max-w-5xl mx-auto -mt-8 mb-12">
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3 flex items-center justify-center">
           <span className="animate-pulse inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/20 text-amber-600 mr-3">
-            <Clock className="h-4 w-4" />
+            <Timer className="h-4 w-4" />
           </span>
-          <p className="text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
-            <span className="font-bold">Limited Time Offer:</span> 30% off yearly VIP plan for the next <span className="font-bold">48 hours</span>! Use code <span className="font-mono bg-amber-500/20 px-2 py-0.5 rounded">WAVE30</span> at checkout.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-center">
+            <p className="text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
+              <span className="font-bold">Limited Time Offer:</span> 30% off yearly VIP plan ending in 
+            </p>
+            <div className="flex items-center mt-1 sm:mt-0 sm:ml-2">
+              <div className="bg-amber-500/20 text-amber-700 dark:text-amber-500 font-mono rounded px-2 py-0.5 text-sm sm:text-base font-bold flex items-center">
+                {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+              </div>
+              <span className="ml-2 text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
+                Use code <span className="font-mono bg-amber-500/20 px-2 py-0.5 rounded">WAVE30</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -618,7 +651,27 @@ export default function Pricing() {
             </div>
           )}
           
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+          {/* Customer Testimonial in Payment Dialog */}
+          <div className="mt-6 p-4 border rounded-lg bg-muted/30">
+            <div className="flex items-start">
+              <Quote className="h-10 w-10 text-primary/40 mr-3 flex-shrink-0" />
+              <div>
+                <div className="flex items-center mb-1">
+                  <span className="font-semibold text-sm">Sophia K.</span>
+                  <div className="flex ml-2 text-amber-500">
+                    <Star className="h-3 w-3 fill-current" />
+                    <Star className="h-3 w-3 fill-current" />
+                    <Star className="h-3 w-3 fill-current" />
+                    <Star className="h-3 w-3 fill-current" />
+                    <Star className="h-3 w-3 fill-current" />
+                  </div>
+                </div>
+                <p className="text-xs italic text-muted-foreground">"Upgrading to premium was the best decision I made. The ad-free experience and extended video time made all the difference!"</p>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2 mt-4">
             <Button 
               type="button" 
               variant="outline" 
