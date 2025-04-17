@@ -303,9 +303,9 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
                   
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button 
-                      variant="outline" 
+                      variant="destructive" 
                       onClick={onCancel}
-                      className="flex items-center justify-center gap-2"
+                      className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"
                     >
                       <X className="h-4 w-4" />
                       Stop
@@ -541,7 +541,7 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={onCancel}
-              className="bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
             >
               <X className="h-5 w-5 mr-2" />
               Stop
