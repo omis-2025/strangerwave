@@ -300,13 +300,10 @@ router.post('/webhook', async (req, res) => {
             if (user.isBanned) {
               console.log(`Auto-unbanning user ${userId} after subscription purchase`);
               await storage.unbanUser(userId);
-              await storage.updateUser(userId, { 
-                // Store metadata about the unban event without explicitly adding new schema fields
-                metadata: JSON.stringify({
-                  unbannedAt: new Date().toISOString(),
-                  unbannedViaSubscription: true
-                })
-              });
+              
+              // Log unban event information for audit purposes
+              console.log(`User ${userId} unbanned at ${new Date().toISOString()} via subscription purchase`);
+              // We'd store this in a separate audit log table in production
             }
           } else {
             console.error(`Failed to activate ${planType} for user ${userId}, user not found`);
