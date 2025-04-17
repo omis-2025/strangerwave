@@ -12,6 +12,27 @@ import GenderSelectionScreen from "./GenderSelectionScreen";
 import { useChatService, ChatPreferences } from "@/lib/chatService";
 import { useAuth } from "@/lib/useAuth";
 
+// Country data helper
+interface CountryData {
+  name: string;
+  code: string;
+  flag: string;
+}
+
+const countries: {[key: string]: CountryData} = {
+  "us": { name: "United States", code: "us", flag: "us" },
+  "gb": { name: "United Kingdom", code: "gb", flag: "gb" },
+  "fr": { name: "France", code: "fr", flag: "fr" },
+  "de": { name: "Germany", code: "de", flag: "de" },
+  "es": { name: "Spain", code: "es", flag: "es" },
+  "it": { name: "Italy", code: "it", flag: "it" },
+  "jp": { name: "Japan", code: "jp", flag: "jp" },
+  "kr": { name: "South Korea", code: "kr", flag: "kr" },
+  "br": { name: "Brazil", code: "br", flag: "br" },
+  "mx": { name: "Mexico", code: "mx", flag: "mx" },
+  "default": { name: "United States", code: "us", flag: "us" }
+};
+
 type ChatState = 'welcome' | 'gender-selection' | 'connecting' | 'chatting' | 'videochat' | 'disconnected';
 
 export default function ChatScreen() {
@@ -106,6 +127,12 @@ export default function ChatScreen() {
     setUseVideoChat(useVideo);
   };
   
+  // Get country data from code
+  const getCountryData = (countryCode: string | null): CountryData => {
+    if (!countryCode) return countries["default"];
+    return countries[countryCode] || countries["default"];
+  };
+  
   const handleSendVideoMessage = (message: string) => {
     const newMessage = {
       id: crypto.randomUUID(),
@@ -114,6 +141,9 @@ export default function ChatScreen() {
       timestamp: new Date()
     };
     setVideoMessages(prev => [...prev, newMessage]);
+    
+    // In a real implementation, this is where we would send the message to the translation service
+    // and then update the message with translation when it comes back
   };
   
   const handleNewChat = () => {
@@ -196,12 +226,8 @@ export default function ChatScreen() {
           onSendMessage={handleSendVideoMessage}
           onDisconnect={handleDisconnect}
           onFindNext={handleNewChat}
-          myCountry={preferences.country ? {
-            name: preferences.country.name,
-            code: preferences.country.code,
-            flag: preferences.country.flag
-          } : { name: 'United States', code: 'us', flag: 'us' }}
-          partnerCountry={{ name: 'Spain', code: 'es', flag: 'es' }}
+          myCountry={getCountryData(preferences.country)}
+          partnerCountry={{ name: 'Spain', code: 'es', flag: 'es' }} // In real app, this would come from chat service
         />
       )}
       
