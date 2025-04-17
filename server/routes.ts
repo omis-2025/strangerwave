@@ -153,12 +153,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user profile
   app.get("/api/users/:uid", async (req, res) => {
     try {
+      console.log(`Getting user by UID: ${req.params.uid}`);
       const user = await storage.getUserByUid(req.params.uid);
       
       if (!user) {
+        console.log(`User not found for UID: ${req.params.uid}`);
         return res.status(404).json({ error: "User not found" });
       }
       
+      console.log(`Found user for UID ${req.params.uid}:`, user.id);
       res.json({
         userId: user.id,
         username: user.username,
@@ -166,6 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isBanned: user.isBanned
       });
     } catch (error) {
+      console.error(`Error getting user for UID ${req.params.uid}:`, error);
       res.status(500).json({ error: "Failed to get user" });
     }
   });
