@@ -66,7 +66,7 @@ export default function LandingPage() {
                 Start Chatting
               </Button>
             </Link>
-            <Link href="/premium">
+            <Link href="/chat">
               <Button size="lg" variant="outline" className="gap-2">
                 <FaCoins className="h-4 w-4" />
                 Go Premium
@@ -247,7 +247,7 @@ export default function LandingPage() {
                   "HD video quality"
                 ]}
                 buttonText="Go Premium"
-                buttonLink="/premium"
+                buttonLink="/chat"
                 popular={true}
               />
               <PricingCard 
@@ -264,7 +264,7 @@ export default function LandingPage() {
                   "Read receipts"
                 ]}
                 buttonText="Upgrade to VIP"
-                buttonLink="/premium/vip"
+                buttonLink="/chat"
                 popular={false}
               />
             </div>
@@ -305,10 +305,10 @@ export default function LandingPage() {
             Join thousands of users already making meaningful connections on StrangerWave. Start chatting for free today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
+            <Link href="/chat">
               <Button size="lg" className="w-full sm:w-auto">Create Account</Button>
             </Link>
-            <Link href="/app">
+            <Link href="/chat">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Explore Features
               </Button>
@@ -328,10 +328,10 @@ export default function LandingPage() {
               <span className="font-semibold">StrangerWave</span>
             </div>
             <div className="flex gap-8">
-              <Link href="/about">About</Link>
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/terms">Terms</Link>
-              <Link href="/support">Support</Link>
+              <Link href="/chat">About</Link>
+              <Link href="/chat">Privacy</Link>
+              <Link href="/chat">Terms</Link>
+              <Link href="/chat">Support</Link>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t text-center text-muted-foreground text-sm">
