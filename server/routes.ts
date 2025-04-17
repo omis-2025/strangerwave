@@ -10,7 +10,7 @@ import {
   insertMessageSchema 
 } from "@shared/schema";
 import { calculateCompatibilityScore, extractInterestsFromMessage, handleChatEnd } from "./ai-matching";
-import { processNewMessage, updateUserLanguagePreference, getSupportedLanguages } from "./translation";
+import { processNewMessage, updateUserLanguagePreference, getSupportedLanguages, translateMessage } from "./translation";
 import paypalRoutes from "./routes/paypal";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
@@ -383,6 +383,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Stripe routes
   app.use('/api/stripe', stripeRoutes);
+  
+  // Translation related routes
+  
+  // Get all supported languages
+  app.get('/api/languages', async (req, res) => {
+    try {
+      const languages = await getSupportedLanguages();
+      res.json(languages);
+    } catch (error) {
+      console.error('Error getting supported languages:', error);
+      res.status(500).json({ error: 'Failed to get supported languages' });
+    }
+  });
+  
+  // Set user language preference
+  app.post('/api/users/:id/language', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { language } = req.body;
+      
+      if (!language || typeof language !== 'string' || language.length > 10) {
+        return res.status(400).json({ error: 'Invalid language code' });
+      }
+      
+      const success = await updateUserLanguagePreference(userId, language);
+      
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(500).json({ error: 'Failed to update language preference' });
+      }
+    } catch (error) {
+      console.error('Error setting language preference:', error);
+      res.status(500).json({ error: 'Failed to set language preference' });
+    }
+  });
+  
+  // Translate a message
+  app.post('/api/messages/:id/translate', async (req, res) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      const { targetLanguage } = req.body;
+      
+      if (!targetLanguage || typeof targetLanguage !== 'string' || targetLanguage.length > 10) {
+        return res.status(400).json({ error: 'Invalid target language' });
+      }
+      
+      const translatedText = await translateMessage(messageId, targetLanguage);
+      
+      if (translatedText) {
+        res.json({ translatedText });
+      } else {
+        res.status(500).json({ error: 'Failed to translate message' });
+      }
+    } catch (error) {
+      console.error('Error translating message:', error);
+      res.status(500).json({ error: 'Failed to translate message' });
+    }
+  });
 
   return httpServer;
 }

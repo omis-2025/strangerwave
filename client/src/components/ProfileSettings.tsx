@@ -4,15 +4,23 @@ import { Dialog } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { User, X, Sliders, UserRound } from 'lucide-react';
+import { User, X, Sliders, UserRound, Globe, Languages } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 interface ProfileSettingsProps {
   isOpen: boolean;
   onClose: () => void;
   userId: number;
   initialGender: string;
+  initialLanguage?: string;
+}
+
+interface LanguageOption {
+  code: string;
+  name: string;
+  nativeName: string;
 }
 
 type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
@@ -75,37 +83,74 @@ const genderOptions: GenderOptionType[] = [
   }
 ];
 
-export default function ProfileSettings({ isOpen, onClose, userId, initialGender }: ProfileSettingsProps) {
+export default function ProfileSettings({ isOpen, onClose, userId, initialGender, initialLanguage = 'en' }: ProfileSettingsProps) {
   const [gender, setGender] = useState<GenderOption>(initialGender as GenderOption || 'any');
+  const [language, setLanguage] = useState<string>(initialLanguage);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  
+  // Fetch available languages
+  const { data: languages, isLoading: loadingLanguages } = useQuery({
+    queryKey: ['/api/languages'],
+    queryFn: async () => {
+      const response = await fetch('/api/languages');
+      if (!response.ok) {
+        throw new Error('Failed to fetch languages');
+      }
+      return response.json() as Promise<LanguageOption[]>;
+    },
+    // Provide some default common languages if API fails
+    placeholderData: [
+      { code: 'en', name: 'English', nativeName: 'English' },
+      { code: 'es', name: 'Spanish', nativeName: 'Español' },
+      { code: 'fr', name: 'French', nativeName: 'Français' },
+      { code: 'de', name: 'German', nativeName: 'Deutsch' },
+      { code: 'zh', name: 'Chinese', nativeName: '中文' },
+      { code: 'ja', name: 'Japanese', nativeName: '日本語' },
+      { code: 'ko', name: 'Korean', nativeName: '한국어' },
+      { code: 'ru', name: 'Russian', nativeName: 'Русский' },
+      { code: 'ar', name: 'Arabic', nativeName: 'العربية' },
+      { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+    ]
+  });
   
   // Reset form when modal opens with initial preferences
   useEffect(() => {
     if (isOpen) {
       setGender(initialGender as GenderOption || 'any');
+      setLanguage(initialLanguage || 'en');
       setSaving(false);
     }
-  }, [isOpen, initialGender]);
+  }, [isOpen, initialGender, initialLanguage]);
   
   const handleSave = async () => {
     setSaving(true);
     
     try {
-      const response = await apiRequest('POST', '/api/user/update-profile', {
+      // Update profile with gender
+      const profileResponse = await apiRequest('POST', '/api/user/update-profile', {
         userId,
         gender
       });
       
-      if (response.ok) {
-        toast({
-          title: 'Profile Updated',
-          description: 'Your profile settings have been saved successfully.',
-        });
-        onClose();
-      } else {
+      if (!profileResponse.ok) {
         throw new Error('Failed to update profile');
       }
+      
+      // Update language preference
+      const languageResponse = await apiRequest('POST', `/api/users/${userId}/language`, {
+        language
+      });
+      
+      if (!languageResponse.ok) {
+        throw new Error('Failed to update language preference');
+      }
+      
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile settings have been saved successfully.',
+      });
+      onClose();
     } catch (error) {
       toast({
         title: 'Update Failed',
@@ -201,6 +246,48 @@ export default function ProfileSettings({ isOpen, onClose, userId, initialGender
                           </div>
                         </motion.div>
                       ))}
+                    </div>
+                  </div>
+                  
+                  {/* Language Selection */}
+                  <div className="mb-6">
+                    <div className="flex items-center mb-3">
+                      <Globe className="h-4 w-4 text-primary mr-2" />
+                      <Label className="text-white font-medium">Preferred Language:</Label>
+                    </div>
+                    
+                    <div className="relative">
+                      <Select
+                        value={language}
+                        onValueChange={setLanguage}
+                      >
+                        <SelectTrigger className="w-full bg-gray-800 border-gray-700 focus:ring-primary text-white">
+                          <div className="flex items-center gap-2">
+                            <Languages className="h-4 w-4 text-primary" />
+                            <SelectValue placeholder="Select language" />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                          {loadingLanguages ? (
+                            <div className="flex items-center justify-center py-2">
+                              <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                            </div>
+                          ) : (
+                            languages?.map((lang) => (
+                              <SelectItem key={lang.code} value={lang.code}>
+                                <div className="flex justify-between items-center w-full">
+                                  <span>{lang.name}</span>
+                                  <span className="text-xs text-gray-400">{lang.nativeName}</span>
+                                </div>
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      
+                      <div className="mt-2 text-xs text-gray-400 px-1">
+                        Your preferred language will be used for chat translations.
+                      </div>
                     </div>
                   </div>
                   

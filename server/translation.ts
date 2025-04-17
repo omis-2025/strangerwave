@@ -337,7 +337,7 @@ export async function processNewMessage(
     // Translate message
     const translatedContent = await translationProvider.translate(
       messageContent,
-      detectedLanguage,
+      detectedLanguage || 'en',
       recipientLanguage
     );
 
