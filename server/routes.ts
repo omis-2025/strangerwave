@@ -388,6 +388,160 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Stripe routes
   app.use('/api/stripe', stripeRoutes);
   
+  // Streak and Achievement routes
+
+  // Get user streaks
+  app.get('/api/users/:id/streaks', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const streaks = await storage.getUserStreaks(userId);
+      res.json(streaks);
+    } catch (error) {
+      console.error('Error getting user streaks:', error);
+      res.status(500).json({ error: 'Failed to get user streaks' });
+    }
+  });
+  
+  // Get user's specific streak type
+  app.get('/api/users/:id/streaks/:type', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const streakType = req.params.type;
+      
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      if (!['login', 'chat'].includes(streakType)) {
+        return res.status(400).json({ error: 'Invalid streak type' });
+      }
+      
+      const streak = await storage.getUserStreak(userId, streakType);
+      if (!streak) {
+        return res.status(404).json({ error: 'Streak not found' });
+      }
+      
+      res.json(streak);
+    } catch (error) {
+      console.error('Error getting user streak:', error);
+      res.status(500).json({ error: 'Failed to get user streak' });
+    }
+  });
+  
+  // Update login streak (manual trigger for testing)
+  app.post('/api/users/:id/streaks/login/update', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const streak = await storage.updateLoginStreak(userId);
+      await checkLoginAchievements(userId);
+      
+      res.json(streak);
+    } catch (error) {
+      console.error('Error updating login streak:', error);
+      res.status(500).json({ error: 'Failed to update login streak' });
+    }
+  });
+  
+  // Update chat streak (manual trigger for testing)
+  app.post('/api/users/:id/streaks/chat/update', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const streak = await storage.updateChatStreak(userId);
+      await checkChatAchievements(userId);
+      
+      res.json(streak);
+    } catch (error) {
+      console.error('Error updating chat streak:', error);
+      res.status(500).json({ error: 'Failed to update chat streak' });
+    }
+  });
+  
+  // Get user achievements
+  app.get('/api/users/:id/achievements', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const achievements = await storage.getUserAchievements(userId);
+      res.json(achievements);
+    } catch (error) {
+      console.error('Error getting user achievements:', error);
+      res.status(500).json({ error: 'Failed to get user achievements' });
+    }
+  });
+  
+  // Get undisplayed achievements (new achievements to show to the user)
+  app.get('/api/users/:id/achievements/new', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const newAchievements = await storage.getUndisplayedAchievements(userId);
+      res.json(newAchievements);
+    } catch (error) {
+      console.error('Error getting undisplayed achievements:', error);
+      res.status(500).json({ error: 'Failed to get undisplayed achievements' });
+    }
+  });
+  
+  // Mark an achievement as displayed
+  app.post('/api/users/:userId/achievements/:achievementId/display', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const achievementId = parseInt(req.params.achievementId);
+      
+      if (isNaN(userId) || isNaN(achievementId)) {
+        return res.status(400).json({ error: 'Invalid IDs' });
+      }
+      
+      const userAchievement = await storage.getUserAchievement(userId, achievementId);
+      if (!userAchievement) {
+        return res.status(404).json({ error: 'Achievement not found for this user' });
+      }
+      
+      await storage.markAchievementDisplayed(userAchievement.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking achievement as displayed:', error);
+      res.status(500).json({ error: 'Failed to mark achievement as displayed' });
+    }
+  });
+  
+  // Get all achievements (for admin or achievement page)
+  app.get('/api/achievements', async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      let achievements;
+      
+      if (category) {
+        achievements = await storage.getAchievementsByCategory(category);
+      } else {
+        achievements = await storage.getAllAchievements();
+      }
+      
+      res.json(achievements);
+    } catch (error) {
+      console.error('Error getting achievements:', error);
+      res.status(500).json({ error: 'Failed to get achievements' });
+    }
+  });
+
   // Translation related routes
   
   // Get all supported languages
@@ -451,6 +605,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 // Helper functions
+
+/**
+ * Checks achievements related to login streaks
+ */
+async function checkLoginAchievements(userId: number) {
+  try {
+    // Get the user's login streak
+    const loginStreak = await storage.getUserStreak(userId, 'login');
+    if (!loginStreak) return;
+    
+    // Achievement checks based on login streak
+    if (loginStreak.currentStreak >= 3) {
+      // 3-day login streak achievement
+      await earnAchievementIfNotExists(userId, 'login_streak_3');
+    }
+    
+    if (loginStreak.currentStreak >= 7) {
+      // 7-day login streak achievement
+      await earnAchievementIfNotExists(userId, 'login_streak_7');
+    }
+    
+    if (loginStreak.currentStreak >= 30) {
+      // 30-day login streak achievement
+      await earnAchievementIfNotExists(userId, 'login_streak_30');
+    }
+    
+    // Check for longest streak achievements
+    if (loginStreak.longestStreak >= 60) {
+      await earnAchievementIfNotExists(userId, 'login_streak_60');
+    }
+    
+    if (loginStreak.longestStreak >= 100) {
+      await earnAchievementIfNotExists(userId, 'login_streak_100');
+    }
+  } catch (error) {
+    console.error('Error checking login achievements:', error);
+  }
+}
+
+/**
+ * Checks achievements related to chat streaks
+ */
+async function checkChatAchievements(userId: number) {
+  try {
+    // Get the user's chat streak
+    const chatStreak = await storage.getUserStreak(userId, 'chat');
+    if (!chatStreak) return;
+    
+    // Achievement checks based on chat streak
+    if (chatStreak.currentStreak >= 3) {
+      // 3-day chat streak achievement
+      await earnAchievementIfNotExists(userId, 'chat_streak_3');
+    }
+    
+    if (chatStreak.currentStreak >= 7) {
+      // 7-day chat streak achievement
+      await earnAchievementIfNotExists(userId, 'chat_streak_7');
+    }
+    
+    if (chatStreak.currentStreak >= 14) {
+      // 14-day chat streak achievement
+      await earnAchievementIfNotExists(userId, 'chat_streak_14');
+    }
+    
+    // Also check session count achievements
+    const user = await storage.getUser(userId);
+    if (user && user.sessionCount) {
+      if (user.sessionCount >= 10) {
+        await earnAchievementIfNotExists(userId, 'sessions_10');
+      }
+      
+      if (user.sessionCount >= 50) {
+        await earnAchievementIfNotExists(userId, 'sessions_50');
+      }
+      
+      if (user.sessionCount >= 100) {
+        await earnAchievementIfNotExists(userId, 'sessions_100');
+      }
+    }
+  } catch (error) {
+    console.error('Error checking chat achievements:', error);
+  }
+}
+
+/**
+ * Grants an achievement to a user if they don't already have it
+ */
+async function earnAchievementIfNotExists(userId: number, achievementCode: string) {
+  try {
+    // Find the achievement by code
+    const allAchievements = await storage.getAllAchievements();
+    const achievement = allAchievements.find(a => a.code === achievementCode);
+    
+    if (!achievement) {
+      console.warn(`Achievement with code ${achievementCode} not found`);
+      return;
+    }
+    
+    // Check if user already has this achievement
+    const userAchievement = await storage.getUserAchievement(userId, achievement.id);
+    
+    if (!userAchievement) {
+      // If not, grant it
+      await storage.earnAchievement(userId, achievement.id);
+      console.log(`User ${userId} earned achievement: ${achievement.name}`);
+    }
+  } catch (error) {
+    console.error(`Error earning achievement ${achievementCode} for user ${userId}:`, error);
+  }
+}
 
 function getUserIdFromRequest(req: any): number | null {
   const uid = new URL(req.url, "http://localhost").searchParams.get("uid");
@@ -778,6 +1042,17 @@ async function handleDisconnect(userId: number) {
       try {
         await handleChatEnd(userId, sessionId, durationSeconds);
         await handleChatEnd(partnerId, sessionId, durationSeconds);
+        
+        // Only update chat streaks for chats that last longer than 30 seconds
+        if (durationSeconds >= 30) {
+          // Update chat streaks for both users
+          await storage.updateChatStreak(userId);
+          await storage.updateChatStreak(partnerId);
+          
+          // Check for any achievements that might be earned for these chat sessions
+          await checkChatAchievements(userId);
+          await checkChatAchievements(partnerId);
+        }
       } catch (metricsError) {
         console.error("Error updating chat metrics:", metricsError);
       }

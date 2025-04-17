@@ -1,158 +1,168 @@
-# StrangerWave: User Engagement & Rewards System
+# Engagement Rewards System
 
-This document outlines StrangerWave's comprehensive engagement and rewards system, designed to increase user retention, session length, and platform stickiness.
+The StrangerWave Engagement Rewards System is designed to encourage continued user interaction with the platform and promote desired behaviors. This document outlines how the daily rewards, points system, and trust levels work together to create a compelling engagement loop.
+
+## Daily Login Rewards
+
+The daily login rewards system provides escalating benefits for consistent platform usage.
+
+### Implementation
+
+- **Daily Token Rewards**: Users receive virtual tokens each day they log in
+- **Escalating Value**: Rewards increase based on login streak length
+- **Streak Protection**: Premium users receive streak protection to prevent breaks
+
+### Reward Structure
+
+| Streak Length | Daily Tokens | Premium Bonus |
+|---------------|--------------|--------------|
+| Day 1-3       | 5 tokens     | +3 tokens    |
+| Day 4-7       | 10 tokens    | +5 tokens    |
+| Day 8-14      | 15 tokens    | +8 tokens    |
+| Day 15-30     | 25 tokens    | +15 tokens   |
+| Day 31+       | 40 tokens    | +25 tokens   |
+
+### Special Milestone Bonuses
+
+| Milestone | Bonus Tokens | Achievement |
+|-----------|--------------|------------|
+| 7 days    | 50 tokens    | "Weekly Devotion" |
+| 30 days   | 200 tokens   | "Monthly Dedication" |
+| 100 days  | 1000 tokens  | "Centurion" |
+| 365 days  | 5000 tokens  | "Annual Champion" |
 
 ## Achievement System
 
+Achievements are specific milestones or behaviors that earn users recognition and rewards.
+
 ### Achievement Categories
 
-#### Onboarding Achievements
-- **First Contact**: Complete your first chat
-- **Face to Face**: Complete your first video chat
-- **Profile Builder**: Fill out your complete profile
-- **Preference Master**: Set all your matching preferences
+1. **Onboarding Achievements**
+   - Completing profile setup
+   - Verifying account
+   - Setting chat preferences
 
-#### Engagement Achievements
-- **Social Butterfly**: Connect with 10/50/100/500 users
-- **Conversation King/Queen**: Maintain a chat for 10/30/60 minutes
-- **Daily Connector**: Use the app for 3/5/7 consecutive days
-- **Global Explorer**: Chat with users from 5/15/30/50 different countries
+2. **Engagement Achievements**
+   - Login streaks (3, 7, 30, 60, 100 days)
+   - Chat streaks (3, 7, 14 days)
+   - Session counts (10, 50, 100 sessions)
 
-#### Quality Achievements
-- **Highly Rated**: Receive 10/50/100 positive ratings
-- **Good Citizen**: No reports for 30/90/180 days
-- **Helpful Friend**: Provide assistance to 5/15/30 users
-- **Community Guardian**: Report inappropriate content that leads to action
+3. **Quality Achievements**
+   - Positive feedback from other users
+   - Long conversations (5+ min, 10+ min)
+   - Using advanced features
 
-#### Premium Achievements
-- **Premium Supporter**: Subscribe to Premium for 1/3/6/12 months
-- **VIP Status**: Maintain VIP subscription for 3/6/12 months
-- **Token Collector**: Accumulate 1,000/5,000/10,000 tokens lifetime
-- **Generous Gifter**: Gift tokens to 5/15/30 different users
+4. **Premium Achievements**
+   - Special achievements for premium subscribers
+   - Exclusive milestone tracking
+   - VIP-only challenges
 
 ### Achievement Rewards
-- Badge/icon display on profile
-- Token bonuses (50-500 tokens)
-- Exclusive features unlocked
-- Special profile customizations
-- Achievement point accumulation
-- Achievement level progression (Bronze → Silver → Gold → Platinum → Diamond)
 
-## Reputation & Trust System
+Each achievement grants:
+- Fixed token amount based on difficulty
+- Achievement points that contribute to trust level
+- Visual badge displayed on profile
+- Sometimes special features or privileges
 
-### Trust Score Components
-- Positive ratings percentage
-- Chat completion rate
-- Account age/activity
-- Report history
-- Consistency of behavior
-- Identity verification level
+## Trust Level System
 
-### Trust Level Benefits
-- **Level 1 (New User)**: Basic features
-- **Level 2 (Trusted)**: Additional matching preference options
-- **Level 3 (Established)**: Priority in queue over lower levels
-- **Level 4 (Respected)**: Ability to host group chats
-- **Level 5 (Exemplary)**: Special profile badges, matching with other high-trust users
+Trust levels represent a user's standing in the community based on their engagement and behavior.
 
-## Daily Rewards & Streak System
+### Trust Level Tiers
 
-### Daily Login Rewards
-- Day 1: 10 tokens
-- Day 2: 20 tokens
-- Day 3: 30 tokens
-- Day 4: 40 tokens
-- Day 5: 50 tokens + Profile Highlight (24h)
-- Day 6: 60 tokens
-- Day 7: 100 tokens + 1-day Premium Pass
+| Level | Name | Points Required | Benefits |
+|-------|------|-----------------|----------|
+| 1 | New User | 0 | Basic functionality |
+| 2 | Trusted | 51 | Queue priority, more match filters |
+| 3 | Established | 201 | Higher match quality, reduced ads |
+| 4 | Respected | 501 | Early access to new features, special themes |
+| 5 | Exemplary | 1001 | Exclusive content, influence on development |
 
-### Streak Bonuses
-- 7-day streak: 150 bonus tokens
-- 14-day streak: 300 bonus tokens
-- 30-day streak: 750 bonus tokens + exclusive badge
-- 90-day streak: 2,500 bonus tokens + 1-week Premium
+### Trust Level Mechanics
 
-### Streak Protection
-- Premium users: 1-day streak protection per week
-- VIP users: 2-day streak protection per week
-- Ultimate users: 3-day streak protection per week
+- Points accumulate through achievements, daily logins, and positive interactions
+- Trust levels cannot decrease (except for punitive actions)
+- Higher trust levels improve matchmaking priority
+- Premium users gain trust points at an accelerated rate
 
-## Seasonal Events & Challenges
+## Token Economy
 
-### Temporary Events
-- **Global Chat Day**: Earn double tokens for international matches
-- **Video Weekend**: Bonus achievements for video chat participation
-- **Language Exchange Week**: Rewards for multi-language interactions
-- **Holiday Specials**: Themed challenges during major holidays
+Tokens earned through the engagement system can be used for:
 
-### Weekly Challenges
-- Connect with users from 3 different continents
-- Maintain 5 conversations of at least 15 minutes
-- Receive positive ratings from 10 different users
-- Complete 5 video chats with good connection quality
+1. **Customization Options**
+   - Profile themes and backgrounds
+   - Chat interface personalization
+   - Special animations and effects
 
-### Monthly Tournaments
-- Most positive ratings received
-- Most countries connected with
-- Longest average conversation time
-- Most consistent daily usage
+2. **Feature Access**
+   - Extended chat filters
+   - Special matching algorithms
+   - Priority in matching queue
 
-## Friend & Referral Systems
+3. **Premium Discounts**
+   - Token-based discounts on premium subscriptions
+   - Seasonal offers and bundles
+   - Special event access
 
-### Friend System
-- Add users to favorites for future matching
-- Scheduled conversations with favorites
-- Friend activity notifications
-- Special achievements for maintaining friendships
+4. **Streak Protection**
+   - Using tokens to protect streaks from breaking
+   - Retroactive streak recovery
+   - Extended streak protection periods
 
-### Referral Program
-- Generate unique referral codes/links
-- 500 tokens for each new user who joins and completes onboarding
-- 10% token bonus on referral's first purchase
-- Tiered referral rewards (more referrals = bigger rewards)
-- Special "Influencer" status for 10+ successful referrals
+## Technical Architecture
 
-## UI Integration
+### Data Model Integration
 
-### Visibility Elements
-- Achievement popup notifications
-- Progress bars for ongoing achievements
-- Daily reward calendar
-- Streak counter
-- Trust level indicator
-- Reward history log
+- User profile stores current token balance, achievement points, and trust level
+- Streak tracking system maintains current and historical streak data
+- Achievement system checks for achievement conditions at relevant interaction points
+- Trust level calculated from achievement points and other engagement metrics
 
-### Engagement Opportunities
-- Achievement showcase on profile
-- Leaderboards for challenges and tournaments
-- Collection display for badges and rewards
-- Notification center for upcoming events
+### Client-Server Interaction
 
-## Implementation Strategy
+- Daily login tracked on server side to prevent manipulation
+- Achievement unlocks processed server-side with real-time notifications
+- Token balance and transactions secured with server validation
+- Trust level calculated server-side based on verified metrics
 
-### Phase 1: Core Systems
-- Basic achievements
-- Daily rewards
-- Trust level foundation
+## Analytics and Optimization
 
-### Phase 2: Advanced Features
-- Challenges and events
-- Streak system
-- Expanded achievements
+The engagement rewards system captures data for platform optimization:
 
-### Phase 3: Social Elements
-- Referral program
-- Tournaments
-- Leaderboards
+- Achievement completion rates by user segment
+- Value of different rewards based on user behavior changes
+- Conversion impact of trust levels on premium purchases
+- Retention correlation with streak length and achievement count
 
-## Analytics & Optimization
+This data is used to:
+- Optimize reward structures
+- Create more engaging achievement opportunities
+- Balance the token economy
+- Improve overall user retention and satisfaction
 
-- Track which achievements drive most engagement
-- Monitor reward redemption patterns
-- Analyze achievement completion funnels
-- A/B test reward values and distribution
-- Measure impact on retention and monetization
+## Implementation Roadmap
 
----
+1. **Phase 1** (Completed)
+   - Basic streak tracking infrastructure
+   - Achievement database schema
+   - Trust level definition and calculation
+   - API endpoints for accessing streak and achievement data
 
-This comprehensive engagement system is designed to provide multiple touchpoints for user motivation, creating both short-term incentives and long-term progression paths. The system complements the monetization strategy while providing value to both free and premium users.
+2. **Phase 2** (In Progress)
+   - UI components for displaying achievements
+   - Real-time notifications for earned achievements
+   - Profile integration of badges and trust levels
+   - Daily login reward distribution
+
+3. **Phase 3** (Planned)
+   - Token economy implementation
+   - Customization options purchasable with tokens
+   - Advanced analytics dashboard
+   - A/B testing of reward structures
+
+4. **Phase 4** (Future)
+   - Social sharing of achievements
+   - Competitive leaderboards
+   - Limited-time events with special rewards
+   - Community challenges with shared goals
