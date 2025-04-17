@@ -5,6 +5,7 @@ import webRTC from '@/lib/mobileWebRTC';
 import PermissionErrorModal from './PermissionErrorModal';
 import ConnectionStatusToast from './ConnectionStatusToast';
 import CountryDisplay from './CountryDisplay';
+import TranslationTooltip from './TranslationTooltip';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;
@@ -42,6 +43,7 @@ export default function VideoCallInterface({
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [micEnabled, setMicEnabled] = useState(true);
   const [showOriginalText, setShowOriginalText] = useState<{[key: string]: boolean}>({});
+  const [isInputRTL, setIsInputRTL] = useState(false);
   
   // Media stream refs
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -457,7 +459,10 @@ export default function VideoCallInterface({
         <div className="w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800">
           {/* Chat header with language toggle */}
           <div className="p-3 border-b border-gray-800 flex justify-between items-center">
-            <h3 className="text-sm font-medium text-white">Messages</h3>
+            <div className="flex items-center">
+              <h3 className="text-sm font-medium text-white mr-2">Messages</h3>
+              <TranslationTooltip />
+            </div>
             
             {/* Global translation toggle */}
             <button
@@ -505,42 +510,70 @@ export default function VideoCallInterface({
                       : 'bg-gray-800 text-white mr-auto'
                   }`}
                 >
-                  {/* Display translated content if available and not showing original */}
-                  {message.translatedContent && !showOriginalText[message.id] ? (
-                    <div>
-                      <p className="text-sm">{message.translatedContent}</p>
-                      {message.detectedLanguage && (
-                        <div className="flex items-center justify-between mt-1.5 border-t border-white/10 pt-1">
-                          <span className="text-xs text-gray-300">
-                            <span className="inline-flex items-center">
-                              <Globe className="w-3 h-3 mr-1 text-blue-300" /> 
-                              {message.detectedLanguage}
-                            </span>
-                          </span>
-                          <button 
-                            onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: true}))}
-                            className="text-xs px-2 py-0.5 bg-gray-700/50 hover:bg-gray-700 rounded text-blue-300 hover:text-blue-200 transition-colors"
-                          >
-                            Original
-                          </button>
+                  {/* Helper function to detect RTL language */}
+                  {(() => {
+                    // Function to detect RTL languages like Arabic, Hebrew, Persian, etc.
+                    const isRTL = (text: string) => {
+                      const rtlChars = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+                      return rtlChars.test(text);
+                    };
+                    
+                    // Check if current message is in RTL language
+                    const isMessageRTL = message.detectedLanguage && 
+                      ['ar', 'he', 'fa', 'ur'].includes(message.detectedLanguage.toLowerCase().split('-')[0]);
+                    
+                    // Or detect RTL directly from text if language is not specified
+                    const contentRTL = isMessageRTL || isRTL(message.content);
+                    
+                    // Display translated content if available and not showing original
+                    if (message.translatedContent && !showOriginalText[message.id]) {
+                      return (
+                        <div>
+                          <p className="text-sm">{message.translatedContent}</p>
+                          {message.detectedLanguage && (
+                            <div className="flex items-center justify-between mt-1.5 border-t border-white/10 pt-1">
+                              <span className="text-xs text-gray-300">
+                                <span className="inline-flex items-center">
+                                  <Globe className="w-3 h-3 mr-1 text-blue-300" /> 
+                                  {message.detectedLanguage}
+                                </span>
+                              </span>
+                              <button 
+                                onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: true}))}
+                                className="text-xs px-2 py-0.5 bg-gray-700/50 hover:bg-gray-700 rounded text-blue-300 hover:text-blue-200 transition-colors"
+                              >
+                                Original
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm">{message.content}</p>
-                      {message.translatedContent && (
-                        <div className="flex justify-end mt-1.5 border-t border-white/10 pt-1">
-                          <button 
-                            onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: false}))}
-                            className="text-xs px-2 py-0.5 bg-blue-600/50 hover:bg-blue-600 rounded text-white transition-colors flex items-center"
+                      );
+                    } else {
+                      return (
+                        <div>
+                          {/* Apply RTL text direction if needed */}
+                          <p 
+                            className="text-sm" 
+                            dir={contentRTL ? "rtl" : "ltr"}
+                            style={{ textAlign: contentRTL ? "right" : "left" }}
                           >
-                            <Globe className="w-3 h-3 mr-1" /> Translated
-                          </button>
+                            {message.content}
+                          </p>
+                          
+                          {message.translatedContent && (
+                            <div className="flex justify-end mt-1.5 border-t border-white/10 pt-1">
+                              <button 
+                                onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: false}))}
+                                className="text-xs px-2 py-0.5 bg-blue-600/50 hover:bg-blue-600 rounded text-white transition-colors flex items-center"
+                              >
+                                <Globe className="w-3 h-3 mr-1" /> Translated
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  )}
+                      );
+                    }
+                  })()}
                   <p className="text-xs opacity-70 mt-1 text-right">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -555,14 +588,27 @@ export default function VideoCallInterface({
               <input
                 type="text"
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setInputMessage(newValue);
+
+                  // Detect RTL text
+                  const rtlChars = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+                  setIsInputRTL(rtlChars.test(newValue));
+                }}
                 onKeyDown={handleKeyPress}
                 placeholder="Type a message..."
-                className="w-full bg-gray-800 text-white rounded-full py-3 pl-4 pr-12 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                dir={isInputRTL ? "rtl" : "ltr"}
+                style={{ 
+                  textAlign: isInputRTL ? "right" : "left",
+                  paddingLeft: isInputRTL ? "3rem" : "1rem",
+                  paddingRight: isInputRTL ? "1rem" : "3rem"
+                }}
+                className="w-full bg-gray-800 text-white rounded-full py-3 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button 
                 onClick={handleSendMessage}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-blue-600 rounded-full text-white"
+                className={`absolute ${isInputRTL ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-blue-600 rounded-full text-white`}
               >
                 <Send className="h-4 w-4" />
               </button>
