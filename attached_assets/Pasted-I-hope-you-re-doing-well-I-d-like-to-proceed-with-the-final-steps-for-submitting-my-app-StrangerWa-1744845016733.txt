@@ -1,0 +1,68 @@
+I hope you're doing well! I’d like to proceed with the final steps for submitting my app, StrangerWave - Anonymous Chat & Video, to both the Google Play Store and Apple App Store. Could you please help me with the following tasks?
+
+For Google Play Store Submission:
+Build the APK/AAB: Please ensure the latest version of the app is built correctly and the APK/AAB file is generated. Make sure all dependencies and configurations are up-to-date.
+
+Upload AAB to Google Play Console: Kindly upload the AAB file to my Google Play Console and add release notes for this version.
+
+Store Listing: Please complete the store listing with the necessary information, including:
+
+App name, description, and keywords
+
+Uploading required screenshots (at least 2 for each device type)
+
+Uploading a feature graphic (1024x500) and app icon (512x512 PNG)
+
+Set Up In-App Purchases: Configure the in-app purchases for the following subscriptions and one-time purchase:
+
+Premium ($5.99/month)
+
+VIP ($9.99/month)
+
+Ultimate ($12.99/month)
+
+Unban Fee ($10.99 one-time)
+
+Content Rating: Complete the content rating questionnaire and classify the app as "Mature 17+".
+
+Data Safety: Fill out the Data Safety section with the necessary details about data collection and sharing.
+
+Final Review and Rollout: Once everything is completed, please ensure all sections are reviewed, and initiate a staged rollout of 20%.
+
+For Apple App Store Submission:
+Build the iOS App: Please confirm that the iOS app has been built and archived in Xcode, and is ready for upload to App Store Connect.
+
+App Store Connect Metadata: Complete the app’s metadata, including:
+
+App name, description, keywords, and privacy policy URL
+
+Uploading required screenshots (6.5" iPhone, 5.5" iPhone, iPad Pro if applicable)
+
+Configure In-App Purchases: Set up the same in-app purchase options as in Google Play, with correct pricing:
+
+Premium ($5.99/month)
+
+VIP ($9.99/month)
+
+Ultimate ($12.99/month)
+
+Unban Fee ($10.99 one-time)
+
+App Review Information: Complete the "App Review Information" section, providing contact information, demo account details, and notes for the reviewer.
+
+Submit for Review: Once everything is ready, please submit the app for review through App Store Connect.
+
+TestFlight Testing: Make sure the app has gone through TestFlight testing and that IAPs work in sandbox mode.
+
+General Tasks:
+Privacy Policy URL: Please ensure my privacy policy URL is live and up-to-date for both platforms.
+
+Age Verification: Make sure the age verification feature works properly to comply with app store policies.
+
+Post-Launch Setup: Set up crash monitoring, performance tracking, and a system to handle user feedback and issues.
+
+Once these tasks are completed, we’ll be ready to submit the app to both stores. Please let me know if you need any further details or if you have any questions.
+
+Thank you for your help!
+
+Best regards,

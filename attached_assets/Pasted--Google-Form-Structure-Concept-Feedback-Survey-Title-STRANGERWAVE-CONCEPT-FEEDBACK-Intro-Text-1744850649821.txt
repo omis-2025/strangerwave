@@ -1,0 +1,149 @@
+ Google Form Structure – Concept Feedback Survey
+Title:
+🧠 STRANGERWAVE CONCEPT FEEDBACK
+
+Intro Text:
+Thank you for participating in our concept testing! Your feedback will help shape the future of StrangerWave. Be honest — there are no wrong answers.
+
+PART 1: FIRST IMPRESSIONS
+
+Repeat this block for all 3 concepts: “Mysterious Fun,” “Safe & Smart,” and “Instant Connection”.
+
+In one word, what was your first impression of this concept?
+[Short Answer]
+
+On a scale of 1–10, how interested are you in trying this app based on the concept?
+[Linear scale 1–10]
+
+What do you think this app is for?
+[Short Answer]
+
+What feature seems most interesting to you?
+[Short Answer]
+
+What questions or concerns do you have after seeing this concept?
+[Paragraph]
+
+PART 2: COMPARATIVE ASSESSMENT
+
+Which concept did you find most appealing?
+( ) Mysterious Fun
+( ) Safe & Smart
+( ) Instant Connection
+
+Please explain why you preferred this concept.
+[Paragraph]
+
+Which concept best communicated what the app does?
+( ) Mysterious Fun
+( ) Safe & Smart
+( ) Instant Connection
+
+Was anything confusing or unclear in any concept?
+[Paragraph]
+
+Would you download this app based on what you’ve seen?
+( ) Definitely would download
+( ) Probably would download
+( ) Not sure
+( ) Probably would not download
+( ) Definitely would not download
+
+What would make you more likely to download this app?
+[Paragraph]
+
+PART 3: ABOUT YOU
+
+Age range:
+( ) 18–24
+( ) 25–34
+( ) 35–44
+( ) 45+
+
+Have you used similar anonymous chat apps before?
+( ) Yes, regularly
+( ) Yes, occasionally
+( ) Tried them once or twice
+( ) Never
+
+What are your main concerns about using anonymous chat apps?
+[Paragraph]
+
+✅ Notion Board Layout – Marketing Testing Tracker
+Board Title:
+📊 StrangerWave – Concept Testing Tracker
+
+Columns:
+
+✅ To Do
+
+Create Google Form
+
+Finalize mockups
+
+Set up participant recruitment message
+
+Draft follow-up script
+
+Upload concept slides
+
+🔄 In Progress
+
+Mockup refinement
+
+Form testing
+
+Participant scheduling
+
+🧪 Testing
+
+[Name] – Scheduled [Date]
+
+[Name] – Feedback received
+
+[Name] – Needs follow-up call
+
+🧠 Analysis
+
+Quantitative data input
+
+Qualitative notes review
+
+Concept performance comparison
+
+🎯 Final Recommendations
+
+Concept adjustments
+
+Revisions to scripts/CTAs
+
+Ready for production testing
+
+✅ Follow-Up Interview Script – 1:1 Video Call (15–20 mins)
+Intro (2 mins)
+
+“Thanks again for making time! I’ll walk you through a few quick questions about the three concepts you saw. Just share whatever comes to mind — there are no wrong answers.”
+
+Concept-Specific Questions (Repeat for all 3)
+
+What was your gut reaction to this concept?
+
+Did anything stand out to you in a good or bad way?
+
+What did you think this app would be like based on the concept?
+
+Would you try it — why or why not?
+
+Anything that confused or turned you off?
+
+Comparative Wrap-Up (5 mins)
+
+Which concept was your favorite overall — and why?
+
+Which one explained the app the best?
+
+Did any concept feel unclear or misleading?
+
+What would make you more likely to actually download the app?
+
+Let me know if you’d like me to turn this into a formatted Google Doc or pre-build the Form for you!
