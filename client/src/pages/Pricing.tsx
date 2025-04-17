@@ -58,7 +58,8 @@ const pricingPlans = [
     popular: false,
     color: 'bg-blue-500',
     highlight: 'Most Affordable',
-    buttonText: 'Subscribe Now'
+    trial: '7-day free trial',
+    buttonText: 'Start Free Trial'
   },
   {
     id: 'vip',
@@ -79,6 +80,7 @@ const pricingPlans = [
     popular: true,
     color: 'bg-purple-600',
     highlight: 'Most Popular',
+    discount: '16% discount on yearly',
     buttonText: 'Subscribe Now'
   }
 ];
@@ -280,6 +282,16 @@ export default function Pricing() {
                     </>
                   )}
                 </div>
+                {plan.trial && (
+                  <div className="mt-2 inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
+                    <span className="mr-1">✦</span> {plan.trial}
+                  </div>
+                )}
+                {plan.discount && (
+                  <div className="mt-2 inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600">
+                    <span className="mr-1">★</span> {plan.discount}
+                  </div>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -305,7 +317,7 @@ export default function Pricing() {
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full"
+                className={`w-full ${plan.id === 'vip' ? 'bg-primary hover:bg-primary/90' : ''} ${plan.id === 'premium' ? 'bg-blue-500 hover:bg-blue-600 text-white' : ''}`}
                 size="lg"
                 variant={plan.id === 'free' ? 'outline' : 'default'}
                 onClick={() => plan.id !== 'free' ? openConfirmDialog(plan) : null}
@@ -314,12 +326,113 @@ export default function Pricing() {
                 {loading === plan.id ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  plan.buttonText || 'Subscribe Now'
+                  <>
+                    {plan.buttonText || 'Subscribe Now'}
+                    {plan.id !== 'free' && <CreditCard className="ml-2 h-4 w-4" />}
+                  </>
                 )}
               </Button>
             </CardFooter>
           </Card>
         ))}
+      </div>
+      
+      {/* Side-by-Side Plan Comparison */}
+      <div className="mt-20 mb-10 max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-10">Plan Comparison</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="py-4 px-6 text-left">Features</th>
+                <th className="py-4 px-6 text-center">Free</th>
+                <th className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Premium</th>
+                <th className="py-4 px-6 text-center bg-primary/10">VIP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Video chat duration</td>
+                <td className="py-4 px-6 text-center">5 minutes</td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">30 minutes</td>
+                <td className="py-4 px-6 text-center bg-primary/10">Unlimited</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Matching speed</td>
+                <td className="py-4 px-6 text-center">Standard</td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Priority</td>
+                <td className="py-4 px-6 text-center bg-primary/10">Highest priority</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Profile customization</td>
+                <td className="py-4 px-6 text-center"><X className="h-5 w-5 text-muted-foreground mx-auto" /></td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
+                <td className="py-4 px-6 text-center bg-primary/10"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Ad experience</td>
+                <td className="py-4 px-6 text-center">With ads</td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Ad-free</td>
+                <td className="py-4 px-6 text-center bg-primary/10">Ad-free</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Customer support</td>
+                <td className="py-4 px-6 text-center">Standard</td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Priority</td>
+                <td className="py-4 px-6 text-center bg-primary/10">VIP (24/7)</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-4 px-6 font-medium">Advanced filters</td>
+                <td className="py-4 px-6 text-center">Basic only</td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Most filters</td>
+                <td className="py-4 px-6 text-center bg-primary/10">All filters</td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6"></td>
+                <td className="py-4 px-6 text-center">
+                  <span className="inline-block font-medium">Current Plan</span>
+                </td>
+                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">
+                  <Button 
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => openConfirmDialog(pricingPlans[1])}
+                    disabled={loading !== null}
+                  >
+                    Start Free Trial
+                  </Button>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10">
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 text-white"
+                    onClick={() => openConfirmDialog(pricingPlans[2])}
+                    disabled={loading !== null}
+                  >
+                    Subscribe Now
+                  </Button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="mt-10 flex justify-center items-center space-x-8">
+          <span className="flex items-center text-sm">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-visa-3-226460.png" alt="Visa" className="h-6 w-auto mr-2" />
+            Visa
+          </span>
+          <span className="flex items-center text-sm">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-mastercard-3-226462.png" alt="Mastercard" className="h-6 w-auto mr-2" />
+            Mastercard
+          </span>
+          <span className="flex items-center text-sm">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-paypal-10-226455.png" alt="PayPal" className="h-6 w-auto mr-2" />
+            PayPal
+          </span>
+          <span className="flex items-center text-sm">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-apple-pay-282059.png" alt="Apple Pay" className="h-6 w-auto mr-2" />
+            Apple Pay
+          </span>
+        </div>
       </div>
       
       {user?.isBanned && (
@@ -405,7 +518,8 @@ export default function Pricing() {
               type="button" 
               onClick={handleSubscribe}
               disabled={loading !== null}
-              className="sm:ml-4"
+              className="sm:ml-4 bg-primary hover:bg-primary/90 text-white font-semibold"
+              size="lg"
             >
               {loading ? (
                 <>
@@ -413,7 +527,10 @@ export default function Pricing() {
                   Processing...
                 </>
               ) : (
-                'Proceed to Payment'
+                <>
+                  <CreditCard className="mr-2 h-5 w-5" />
+                  Proceed to Payment
+                </>
               )}
             </Button>
           </DialogFooter>
