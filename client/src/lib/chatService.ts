@@ -12,6 +12,9 @@ export interface Message {
   content: string;
   senderId: number;
   timestamp: Date;
+  isTranslated?: boolean;
+  originalContent?: string;
+  detectedLanguage?: string;
 }
 
 export interface ChatService {
@@ -89,7 +92,10 @@ export function useChatService(): ChatService {
               id: data.message.id,
               content: data.message.content,
               senderId: data.message.senderId,
-              timestamp: new Date(data.message.timestamp)
+              timestamp: new Date(data.message.timestamp),
+              isTranslated: data.message.isTranslated || false,
+              originalContent: data.message.originalContent,
+              detectedLanguage: data.message.detectedLanguage
             }]);
             break;
             

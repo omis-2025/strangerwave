@@ -45,6 +45,7 @@ export default function ChatInterface({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const [viewingOriginalMessages, setViewingOriginalMessages] = useState<Set<number>>(new Set());
   
   // Video chat state
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
@@ -233,6 +234,19 @@ export default function ChatInterface({
   const formatMessageTime = (timestamp: Date) => {
     const date = new Date(timestamp);
     return format(date, 'h:mm a');
+  };
+  
+  // Toggle viewing original content
+  const toggleOriginalContent = (messageId: number) => {
+    setViewingOriginalMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
   };
   
   return (
