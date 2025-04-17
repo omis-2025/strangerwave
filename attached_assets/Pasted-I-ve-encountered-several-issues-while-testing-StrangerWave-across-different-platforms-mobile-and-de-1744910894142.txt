@@ -1,0 +1,47 @@
+I’ve encountered several issues while testing StrangerWave across different platforms (mobile and desktop), and I need these addressed for the app to function smoothly for all users. Here’s a comprehensive list of the issues that need fixing:
+
+Video Call Display Issue:
+
+When connecting two devices (Android, iOS, or desktop) for a video call, the users can’t see each other. This is a core functionality issue that needs urgent attention.
+
+There is no option to skip to another user in real-time, which should be available during the call.
+
+Camera Switching:
+
+There is no option to switch between the front and back cameras during a video call. This feature should be added to all devices (mobile and desktop).
+
+Text and Video Call Integration:
+
+The app should allow both camera and text chat in real-time during a video call. Users should be able to send and receive text messages while having a video call.
+
+Video Call View Size:
+
+The video call view size should be set to 5/5, meaning both users' videos should be displayed with equal and full screen space for a balanced experience.
+
+Messaging System:
+
+The messaging system needs to be updated to resemble MiniChat but with a modern design. The current chat interface is too basic and could be improved.
+
+Visible “Stop” and “Next” Buttons:
+
+The “Stop” and “Next” buttons during chats should always be visible for easy access. This will improve user experience, particularly during video chat transitions.
+
+Automatic Translation of Messages:
+
+Implement automatic translation of text messages. This will allow users to chat with others in different languages without barriers.
+
+Gender Identification:
+
+The gender of the user should be automatically identified and displayed in the chat (male or female). This will enhance the user experience and make the platform more engaging.
+
+Country Identification:
+
+The country of the user should also be identified and displayed in the chat. This feature should be visually modern and clear to users, providing additional context for their chat experience.
+
+Audio Issue:
+
+The audio quality and functionality during the video call should be addressed. Users should be able to hear each other clearly, with automatic adjustments for audio clarity based on network conditions.
+
+Can you please prioritize fixing these issues across all devices (mobile, desktop, and tablet)? Let me know if you need further details or if there’s anything I can clarify.
+
+Thanks!
