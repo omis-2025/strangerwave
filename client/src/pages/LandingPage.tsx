@@ -8,6 +8,10 @@ import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alt
 import { motion } from 'framer-motion';
 import StaticImage from '@/components/StaticImage';
 
+// Import images directly
+import heroImage from '@/assets/hero-image.png';
+import phoneMockup from '@/assets/phone-mockup.png';
+
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
@@ -86,11 +90,10 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
-            <StaticImage 
-              src="/images/hero-image.png" 
+            <img 
+              src={heroImage} 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
-              fallbackSrc="/images/phone-mockup.png"
               onLoad={() => setHeroImageLoaded(true)}
               />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
