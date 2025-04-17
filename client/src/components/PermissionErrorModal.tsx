@@ -1,157 +1,95 @@
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Camera, Mic, AlertTriangle } from 'lucide-react';
 
 interface PermissionErrorModalProps {
-  type: "camera" | "microphone" | "both";
   isOpen: boolean;
   onClose: () => void;
+  type: 'camera' | 'microphone' | 'both';
 }
 
-export default function PermissionErrorModal({ type, isOpen, onClose }: PermissionErrorModalProps) {
-  const [platform, setPlatform] = useState<"ios" | "android" | "desktop">("desktop");
-  
-  useEffect(() => {
-    // Detect platform
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      setPlatform("ios");
-    } else if (/Android/i.test(navigator.userAgent)) {
-      setPlatform("android");
-    } else {
-      setPlatform("desktop");
-    }
-  }, []);
-  
-  const getInstructions = (): { title: string, steps: string[] } => {
-    if (type === "camera") {
-      if (platform === "ios") {
+export default function PermissionErrorModal({ isOpen, onClose, type }: PermissionErrorModalProps) {
+  const getPermissionDetails = () => {
+    switch (type) {
+      case 'camera':
         return {
-          title: "Camera Access Required",
-          steps: [
-            "Go to your device Settings",
-            "Scroll down and tap on Safari (or the browser you're using)",
-            "Tap on Camera",
-            "Enable camera access for this website",
-            "Return to the app and refresh the page"
+          title: 'Camera Access Required',
+          description: 'StrangerWave needs access to your camera to connect with other users.',
+          icon: <Camera className="h-10 w-10 text-blue-500" />,
+          instructions: [
+            'Click the camera icon in your browser\'s address bar',
+            'Select "Allow" when prompted for camera permissions',
+            'If using a mobile device, check your device settings'
           ]
         };
-      } else if (platform === "android") {
+      case 'microphone':
         return {
-          title: "Camera Access Required",
-          steps: [
-            "Tap the lock icon in the address bar",
-            "Tap on Site settings",
-            "Enable camera access",
-            "Reload the page"
+          title: 'Microphone Access Required',
+          description: 'StrangerWave needs access to your microphone to connect with other users.',
+          icon: <Mic className="h-10 w-10 text-blue-500" />,
+          instructions: [
+            'Click the microphone icon in your browser\'s address bar',
+            'Select "Allow" when prompted for microphone permissions',
+            'If using a mobile device, check your device settings'
           ]
         };
-      } else {
+      default:
         return {
-          title: "Camera Access Required",
-          steps: [
-            "Click the camera icon or lock icon in the address bar",
-            "Enable camera access for this website",
-            "Reload the page"
+          title: 'Camera & Microphone Access Required',
+          description: 'StrangerWave needs access to your camera and microphone to connect with other users.',
+          icon: <AlertTriangle className="h-10 w-10 text-yellow-500" />,
+          instructions: [
+            'Click the camera/microphone icon in your browser\'s address bar',
+            'Select "Allow" when prompted for permissions',
+            'If using a mobile device, check your device settings',
+            'Make sure no other app is currently using your camera/microphone'
           ]
         };
-      }
-    } else if (type === "microphone") {
-      if (platform === "ios") {
-        return {
-          title: "Microphone Access Required",
-          steps: [
-            "Go to your device Settings",
-            "Scroll down and tap on Safari (or the browser you're using)",
-            "Tap on Microphone",
-            "Enable microphone access for this website",
-            "Return to the app and refresh the page"
-          ]
-        };
-      } else if (platform === "android") {
-        return {
-          title: "Microphone Access Required",
-          steps: [
-            "Tap the lock icon in the address bar",
-            "Tap on Site settings",
-            "Enable microphone access",
-            "Reload the page"
-          ]
-        };
-      } else {
-        return {
-          title: "Microphone Access Required",
-          steps: [
-            "Click the microphone icon or lock icon in the address bar",
-            "Enable microphone access for this website",
-            "Reload the page"
-          ]
-        };
-      }
-    } else {
-      // Both camera and microphone
-      if (platform === "ios") {
-        return {
-          title: "Camera & Microphone Access Required",
-          steps: [
-            "Go to your device Settings",
-            "Scroll down and tap on Safari (or the browser you're using)",
-            "Tap on Camera and enable it for this website",
-            "Return and tap on Microphone and enable it for this website",
-            "Return to the app and refresh the page"
-          ]
-        };
-      } else if (platform === "android") {
-        return {
-          title: "Camera & Microphone Access Required",
-          steps: [
-            "Tap the lock icon in the address bar",
-            "Tap on Site settings",
-            "Enable camera and microphone access",
-            "Reload the page"
-          ]
-        };
-      } else {
-        return {
-          title: "Camera & Microphone Access Required",
-          steps: [
-            "Click the lock icon in the address bar",
-            "Enable camera and microphone access for this website",
-            "Reload the page"
-          ]
-        };
-      }
     }
   };
-  
-  const instructions = getInstructions();
-  
+
+  const { title, description, icon, instructions } = getPermissionDetails();
+
   return (
-    <AlertDialog open={isOpen}>
-      <AlertDialogContent className="bg-slate-900 border border-slate-700 text-white max-w-md mx-auto">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl font-bold text-white">{instructions.title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-slate-300">
-            <p className="mb-4">
-              To use video chat in StrangerWave, you need to grant permission to access your {type === "camera" ? "camera" : type === "microphone" ? "microphone" : "camera and microphone"}.
-            </p>
-            <div className="bg-slate-800 p-4 rounded-md">
-              <h3 className="font-semibold text-white mb-2">How to enable {type === "camera" ? "camera" : type === "microphone" ? "microphone" : "camera and microphone"} access:</h3>
-              <ol className="list-decimal pl-5 space-y-1">
-                {instructions.steps.map((step, index) => (
-                  <li key={index} className="text-slate-300">{step}</li>
-                ))}
-              </ol>
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction 
-            onClick={onClose}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-medium"
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-gray-900 text-white border-gray-800 max-w-md mx-auto">
+        <DialogHeader>
+          <div className="mx-auto mb-4 p-4 bg-gray-800 rounded-full">
+            {icon}
+          </div>
+          <DialogTitle className="text-xl text-center">{title}</DialogTitle>
+          <DialogDescription className="text-gray-300 text-center">
+            {description}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="my-4">
+          <h4 className="font-medium text-white mb-2">How to fix:</h4>
+          <ul className="space-y-3">
+            {instructions.map((instruction, index) => (
+              <li key={index} className="flex items-start">
+                <span className="flex-shrink-0 text-sm font-bold bg-blue-600 text-white rounded-full h-5 w-5 flex items-center justify-center mr-2 mt-0.5">{index + 1}</span>
+                <span className="text-sm text-gray-300">{instruction}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bg-gray-800/70 p-3 rounded-lg mt-2 mb-3">
+          <p className="text-xs text-gray-400 italic">
+            Note: If you've denied permission previously, you may need to manually change the settings by clicking on the lock/info icon in your browser's address bar.
+          </p>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            onClick={onClose} 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Got It
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            I've Fixed It
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

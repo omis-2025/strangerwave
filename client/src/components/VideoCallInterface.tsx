@@ -276,52 +276,98 @@ export default function VideoCallInterface({
           </div>
 
           {/* Self-view (bottom right) */}
-          <div className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800">
-            {videoEnabled ? (
-              <video
-                ref={localVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                <div className="flex flex-col items-center justify-center">
-                  <VideoOff className="h-8 w-8 text-gray-600" />
-                  <p className="text-[10px] text-gray-500 mt-1">Camera off</p>
-                </div>
-              </div>
+          <AnimatePresence>
+            {!hideControls && (
+              <motion.div 
+                className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800 shadow-lg z-20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {videoEnabled ? (
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                    <div className="flex flex-col items-center justify-center">
+                      <VideoOff className="h-8 w-8 text-gray-600" />
+                      <p className="text-[10px] text-gray-500 mt-1">Camera off</p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
 
           {/* Video controls overlay (bottom center) */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-900/70 backdrop-blur-sm px-4 py-2 rounded-full">
-            <button 
-              onClick={() => setMicEnabled(!micEnabled)}
-              className={`rounded-full w-10 h-10 flex items-center justify-center ${
-                !micEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800 text-white hover:bg-gray-700'
-              }`}
-            >
-              {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
-            </button>
-            
-            <button 
-              onClick={onDisconnect}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center"
-            >
-              <Phone className="h-6 w-6 transform rotate-135" />
-            </button>
-            
-            <button 
-              onClick={() => setVideoEnabled(!videoEnabled)}
-              className={`rounded-full w-10 h-10 flex items-center justify-center ${
-                !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800 text-white hover:bg-gray-700'
-              }`}
-            >
-              {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
-            </button>
-          </div>
+          <AnimatePresence>
+            {!hideControls && (
+              <motion.div 
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-900/70 backdrop-blur-lg px-4 py-2 rounded-full shadow-lg z-20 border border-gray-800/30"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMicEnabled(!micEnabled);
+                  }}
+                  className={`rounded-full w-10 h-10 flex items-center justify-center ${
+                    !micEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
+                  }`}
+                >
+                  {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+                </button>
+                
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDisconnect();
+                  }}
+                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center"
+                >
+                  <Phone className="h-6 w-6 transform rotate-135" />
+                </button>
+                
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setVideoEnabled(!videoEnabled);
+                  }}
+                  className={`rounded-full w-10 h-10 flex items-center justify-center ${
+                    !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
+                  }`}
+                >
+                  {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          {/* Tap instruction (shows briefly after hiding controls) */}
+          <AnimatePresence>
+            {hideControls && (
+              <motion.div 
+                className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-white text-sm bg-gray-900/50 backdrop-blur-sm px-4 py-2 rounded-full opacity-70 z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.7 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                Tap to show controls
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Right panel - Chat area */}

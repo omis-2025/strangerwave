@@ -84,7 +84,7 @@ export class MobileWebRTCManager {
   private onTrackCallback: ((stream: MediaStream) => void) | null = null;
   private onDataChannelMessageCallback: ((message: string) => void) | null = null;
   private onConnectionStateChangeCallback: ((state: RTCPeerConnectionState) => void) | null = null;
-  private onPermissionErrorCallback: ((type: 'camera' | 'microphone', error: any) => void) | null = null;
+  private onPermissionErrorCallback: ((type: 'camera' | 'microphone', error: unknown) => void) | null = null;
   
   private constructor() {
     this.isNative = Capacitor.isNativePlatform();
@@ -243,12 +243,12 @@ export class MobileWebRTCManager {
       console.error('Error getting local stream:', error);
       
       // Determine if this is a permission error
-      const errorMessage = error.toString().toLowerCase();
+      const errorMessage = (error as Error).toString().toLowerCase();
       if (errorMessage.includes('permission') || 
           errorMessage.includes('denied') || 
           errorMessage.includes('not allowed') ||
-          error.name === 'NotAllowedError' || 
-          error.name === 'PermissionDeniedError') {
+          (error as any).name === 'NotAllowedError' || 
+          (error as any).name === 'PermissionDeniedError') {
         
         // Handle camera permission error
         if (videoEnabled && !this.localStream?.getVideoTracks().length) {
@@ -409,7 +409,7 @@ export class MobileWebRTCManager {
   /**
    * Set callback for permission errors
    */
-  public onPermissionError(callback: (type: 'camera' | 'microphone', error: any) => void): void {
+  public onPermissionError(callback: (type: 'camera' | 'microphone', error: unknown) => void): void {
     this.onPermissionErrorCallback = callback;
   }
   
