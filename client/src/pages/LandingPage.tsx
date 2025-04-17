@@ -82,7 +82,7 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <img 
-              src="attached_assets/image_1744729674145.png" 
+              src="/attached_assets/image_1744729674145.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
             />
