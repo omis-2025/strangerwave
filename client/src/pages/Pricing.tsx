@@ -577,7 +577,9 @@ export default function Pricing() {
                     console.error("Profile image failed to load");
                     // Fallback to initial
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center"><span class="text-white font-bold text-lg">S</span></div>';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center"><span class="text-white font-bold text-lg">S</span></div>';
+                    }
                   }}
                 />
               </div>
@@ -603,10 +605,20 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                {/* Simple avatar for Miguel R. */}
-                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">M</span>
-                </div>
+                {/* Real profile image for Miguel R. */}
+                <img 
+                  src="/images/profiles/profile-male.png"
+                  alt="Miguel R."
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("Profile image failed to load");
+                    // Fallback to initial
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center"><span class="text-white font-bold text-lg">M</span></div>';
+                    }
+                  }}
+                />
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold text-white">Miguel R.</h4>
@@ -630,10 +642,20 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                {/* Simple avatar for Aiden T. */}
-                <div className="w-full h-full bg-gradient-to-r from-teal-400 to-emerald-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">A</span>
-                </div>
+                {/* Real profile image for Aiden T. */}
+                <img 
+                  src="/images/profiles/profile-neutral.png"
+                  alt="Aiden T."
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("Profile image failed to load");
+                    // Fallback to initial
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-r from-teal-400 to-emerald-500 flex items-center justify-center"><span class="text-white font-bold text-lg">A</span></div>';
+                    }
+                  }}
+                />
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold text-white">Aiden T.</h4>
@@ -750,7 +772,21 @@ export default function Pricing() {
           {/* Customer Testimonial in Payment Dialog */}
           <div className="mt-6 p-4 border rounded-lg bg-muted/30">
             <div className="flex items-start">
-              <Quote className="h-10 w-10 text-primary/40 mr-3 flex-shrink-0" />
+              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-primary/40 mr-3">
+                <img 
+                  src="/images/profiles/profile-female.png"
+                  alt="Sophia K."
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("Profile image failed to load");
+                    // Fallback to quote icon
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-muted"><Quote class="h-6 w-6 text-primary/40" /></div>';
+                    }
+                  }}
+                />
+              </div>
               <div>
                 <div className="flex items-center mb-1">
                   <span className="font-semibold text-sm">Sophia K.</span>
