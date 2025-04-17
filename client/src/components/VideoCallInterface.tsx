@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
+import webRTC from '@/lib/mobileWebRTC';
+import PermissionErrorModal from './PermissionErrorModal';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;

@@ -75,11 +75,16 @@ export class MobileWebRTCManager {
   private isNative: boolean = false;
   private dataChannel: RTCDataChannel | null = null;
   
+  // Permission flags
+  private hasCameraPermission: boolean = false;
+  private hasMicrophonePermission: boolean = false;
+  
   // Event callbacks
   private onIceCandidateCallback: ((candidate: RTCIceCandidate) => void) | null = null;
   private onTrackCallback: ((stream: MediaStream) => void) | null = null;
   private onDataChannelMessageCallback: ((message: string) => void) | null = null;
   private onConnectionStateChangeCallback: ((state: RTCPeerConnectionState) => void) | null = null;
+  private onPermissionErrorCallback: ((type: 'camera' | 'microphone', error: any) => void) | null = null;
   
   private constructor() {
     this.isNative = Capacitor.isNativePlatform();
@@ -236,6 +241,32 @@ export class MobileWebRTCManager {
       return this.localStream || new MediaStream();
     } catch (error) {
       console.error('Error getting local stream:', error);
+      
+      // Determine if this is a permission error
+      const errorMessage = error.toString().toLowerCase();
+      if (errorMessage.includes('permission') || 
+          errorMessage.includes('denied') || 
+          errorMessage.includes('not allowed') ||
+          error.name === 'NotAllowedError' || 
+          error.name === 'PermissionDeniedError') {
+        
+        // Handle camera permission error
+        if (videoEnabled && !this.localStream?.getVideoTracks().length) {
+          this.hasCameraPermission = false;
+          if (this.onPermissionErrorCallback) {
+            this.onPermissionErrorCallback('camera', error);
+          }
+        }
+        
+        // Handle microphone permission error
+        if (audioEnabled && !this.localStream?.getAudioTracks().length) {
+          this.hasMicrophonePermission = false;
+          if (this.onPermissionErrorCallback) {
+            this.onPermissionErrorCallback('microphone', error);
+          }
+        }
+      }
+      
       // Return empty stream as fallback
       return new MediaStream();
     }
@@ -373,6 +404,13 @@ export class MobileWebRTCManager {
    */
   public onConnectionStateChange(callback: (state: RTCPeerConnectionState) => void): void {
     this.onConnectionStateChangeCallback = callback;
+  }
+  
+  /**
+   * Set callback for permission errors
+   */
+  public onPermissionError(callback: (type: 'camera' | 'microphone', error: any) => void): void {
+    this.onPermissionErrorCallback = callback;
   }
   
   /**
