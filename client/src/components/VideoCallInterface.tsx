@@ -455,6 +455,39 @@ export default function VideoCallInterface({
 
         {/* Right panel - Chat area */}
         <div className="w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800">
+          {/* Chat header with language toggle */}
+          <div className="p-3 border-b border-gray-800 flex justify-between items-center">
+            <h3 className="text-sm font-medium text-white">Messages</h3>
+            
+            {/* Global translation toggle */}
+            <button
+              onClick={() => {
+                // Create a new state object with all messages set to the same translation state
+                const hasTranslatedMessages = messages.some(m => m.translatedContent);
+                if (!hasTranslatedMessages) return;
+                
+                const showTranslations = Object.values(showOriginalText).some(val => val === true);
+                const newState = {} as {[key: string]: boolean};
+                
+                messages.forEach(message => {
+                  if (message.translatedContent) {
+                    newState[message.id] = !showTranslations;
+                  }
+                });
+                
+                setShowOriginalText(newState);
+              }}
+              className="flex items-center text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300 hover:text-white transition-colors"
+            >
+              <Globe className="w-3 h-3 mr-1 text-blue-400" />
+              <span>
+                {Object.values(showOriginalText).some(val => val === true) 
+                  ? "Show All Translations" 
+                  : "Show All Originals"}
+              </span>
+            </button>
+          </div>
+          
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((message) => (
@@ -477,29 +510,34 @@ export default function VideoCallInterface({
                     <div>
                       <p className="text-sm">{message.translatedContent}</p>
                       {message.detectedLanguage && (
-                        <p className="text-xs opacity-60 mt-1">
-                          Translated from {message.detectedLanguage}
+                        <div className="flex items-center justify-between mt-1.5 border-t border-white/10 pt-1">
+                          <span className="text-xs text-gray-300">
+                            <span className="inline-flex items-center">
+                              <Globe className="w-3 h-3 mr-1 text-blue-300" /> 
+                              {message.detectedLanguage}
+                            </span>
+                          </span>
                           <button 
                             onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: true}))}
-                            className="ml-2 underline text-blue-300 hover:text-blue-200"
+                            className="text-xs px-2 py-0.5 bg-gray-700/50 hover:bg-gray-700 rounded text-blue-300 hover:text-blue-200 transition-colors"
                           >
-                            View Original
+                            Original
                           </button>
-                        </p>
+                        </div>
                       )}
                     </div>
                   ) : (
                     <div>
                       <p className="text-sm">{message.content}</p>
                       {message.translatedContent && (
-                        <p className="text-xs opacity-60 mt-1">
+                        <div className="flex justify-end mt-1.5 border-t border-white/10 pt-1">
                           <button 
                             onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: false}))}
-                            className="underline text-blue-300 hover:text-blue-200"
+                            className="text-xs px-2 py-0.5 bg-blue-600/50 hover:bg-blue-600 rounded text-white transition-colors flex items-center"
                           >
-                            View Translation
+                            <Globe className="w-3 h-3 mr-1" /> Translated
                           </button>
-                        </p>
+                        </div>
                       )}
                     </div>
                   )}
