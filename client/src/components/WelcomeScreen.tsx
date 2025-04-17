@@ -14,39 +14,17 @@ export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVide
   
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center py-6 sm:py-8 px-4 relative overflow-hidden">
-      {/* Animated background elements */}
+      {/* Simple, more performant background */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Glow orbs */}
-        <div className="absolute top-1/4 left-1/5 w-72 h-72 bg-purple-600 rounded-full blur-[100px] opacity-15 animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/5 w-80 h-80 bg-blue-600 rounded-full blur-[100px] opacity-15 animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-indigo-600 rounded-full blur-[80px] opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        {/* Static glow orbs for better performance */}
+        <div className="fixed top-1/4 left-1/4 w-80 h-80 bg-primary rounded-full blur-[120px] opacity-20"></div>
+        <div className="fixed bottom-1/4 right-1/4 w-80 h-80 bg-blue-600 rounded-full blur-[120px] opacity-20"></div>
         
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-70"></div>
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900/80"></div>
         
-        {/* Floating particles */}
-        {[...Array(12)].map((_, i) => (
-          <motion.div 
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full opacity-50"
-            initial={{ 
-              x: Math.random() * 100 + '%',
-              y: Math.random() * 100 + '%'
-            }}
-            animate={{ 
-              y: [
-                Math.random() * 100 + '%',
-                Math.random() * 100 + '%'
-              ],
-              opacity: [0.2, 0.8, 0.2]
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 10 + Math.random() * 20,
-              ease: "linear"
-            }}
-          />
-        ))}
+        {/* Simple grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-40"></div>
       </div>
       
       <motion.div 
@@ -218,39 +196,67 @@ export default function WelcomeScreen({ onStartChat, onShowFilters, onToggleVide
         </div>
       </motion.div>
 
-      {/* Action buttons with premium styling */}
+      {/* Action buttons with enhanced, more prominent styling */}
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="flex mt-2 w-full max-w-md"
+        className="flex mt-4 w-full max-w-md"
       >
-        <motion.button 
-          whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(124,58,237,0.7)" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => {
-            if (onToggleVideoChat) onToggleVideoChat(chatType === 'video');
-            onStartChat();
-          }}
-          className={`relative group overflow-hidden text-white font-medium py-4 px-6 rounded-2xl transition-all flex items-center justify-center shadow-lg w-full ${
-            chatType === 'video' 
-              ? 'bg-gradient-to-r from-blue-600 to-cyan-600' 
-              : 'bg-gradient-to-r from-purple-600 to-indigo-600'
-          }`}
-        >
-          {/* Animated glow effect */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
-          
-          <div className="flex items-center relative z-10">
-            <div className="rounded-full bg-white/20 p-2 mr-3">
-              <Play className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="font-semibold">Start Chat</span>
-              <span className="text-xs opacity-80">{chatType === 'video' ? 'Face-to-face' : 'Text messaging'}</span>
-            </div>
+        {/* Label above button */}
+        <div className="w-full">
+          {/* Online users counter */}
+          <div className="flex items-center justify-center mb-3">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></div>
+            <span className="text-sm text-green-400 font-medium">{activeUsers} people online now</span>
           </div>
-        </motion.button>
+          
+          <motion.button 
+            whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(124,58,237,0.8)" }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              if (onToggleVideoChat) onToggleVideoChat(chatType === 'video');
+              onStartChat();
+            }}
+            className={`relative group overflow-hidden text-white font-medium py-5 px-8 rounded-2xl transition-all flex items-center justify-center shadow-xl w-full ${
+              chatType === 'video' 
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 border-2 border-blue-500/30' 
+                : 'bg-gradient-to-r from-purple-600 to-indigo-600 border-2 border-indigo-500/30'
+            }`}
+          >
+            {/* Enhanced animated glow effect */}
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700"></div>
+            
+            {/* Outer glow */}
+            <div className="absolute -inset-0.5 rounded-2xl opacity-75 group-hover:opacity-100 transition-opacity duration-300 blur-md" 
+                style={{ 
+                  background: chatType === 'video' 
+                    ? 'linear-gradient(to right, rgba(37, 99, 235, 0.5), rgba(6, 182, 212, 0.5))' 
+                    : 'linear-gradient(to right, rgba(124, 58, 237, 0.5), rgba(79, 70, 229, 0.5))' 
+                }}>
+            </div>
+            
+            <div className="flex items-center relative z-10">
+              <div className={`rounded-full p-3 mr-4 ${
+                chatType === 'video' 
+                  ? 'bg-blue-500' 
+                  : 'bg-purple-600'
+              }`}>
+                <Play className="h-6 w-6" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-bold text-xl">Start Chat</span>
+                <span className="text-sm opacity-90">{chatType === 'video' ? 'Face-to-face' : 'Text messaging'}</span>
+              </div>
+            </div>
+          </motion.button>
+          
+          {/* Safety note underneath */}
+          <p className="text-xs text-center text-gray-400 mt-3">
+            <Shield className="inline-block h-3 w-3 mr-1 text-green-400" />
+            Safe, anonymous, and AI-moderated. No personal data collected.
+          </p>
+        </div>
       </motion.div>
       
       {/* Testimonials with glass morphism */}

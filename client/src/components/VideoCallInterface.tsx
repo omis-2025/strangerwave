@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X } from 'lucide-react';
+import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface VideoCallInterfaceProps {
@@ -49,7 +49,7 @@ export default function VideoCallInterface({
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center">
-            <Users className="h-3 w-3 mr-1 text-blue-400" />
+            <UserRound className="h-3 w-3 mr-1 text-blue-400" />
             <span className="text-xs text-gray-300">9,995 users online</span>
           </div>
           <button 
