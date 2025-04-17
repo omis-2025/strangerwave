@@ -445,39 +445,108 @@ export class MobileWebRTCManager {
   
   /**
    * Get video track for native platforms
-   * This is a mock implementation - in a real app, you'd use a proper
-   * camera implementation for Capacitor that provides a MediaTrack
    */
   private async getNativeVideoTrack(): Promise<MediaStreamTrack | null> {
     try {
-      // For demo purposes, we'll fall back to web implementation
+      // First try to get camera permissions using Capacitor Camera
+      if (this.isNative) {
+        try {
+          const cameraPermission = await Camera.checkPermissions();
+          if (cameraPermission.camera !== 'granted') {
+            await Camera.requestPermissions();
+          }
+        } catch (permError) {
+          console.warn('Camera permission request failed:', permError);
+          // Continue anyway, as getUserMedia will also request permissions
+        }
+      }
+      
+      // Use appropriate constraints based on device type
+      const videoConstraints = this.isMobileDevice() 
+        ? MOBILE_VIDEO_CONSTRAINTS 
+        : DEFAULT_VIDEO_CONSTRAINTS;
+      
+      // Use standard getUserMedia API (works on both web and Capacitor WebView)
+      console.log('Requesting camera with constraints:', videoConstraints);
       const tempStream = await navigator.mediaDevices.getUserMedia({
-        video: MOBILE_VIDEO_CONSTRAINTS,
+        video: videoConstraints,
+        audio: false
       });
       
-      return tempStream.getVideoTracks()[0] || null;
+      const videoTrack = tempStream.getVideoTracks()[0];
+      if (!videoTrack) {
+        throw new Error('No video track found in stream');
+      }
+      
+      console.log('Successfully got video track:', videoTrack.label);
+      return videoTrack;
     } catch (error) {
-      console.error('Error getting native video track:', error);
-      return null;
+      console.error('Error getting video track:', error);
+      
+      // Fallback to try with minimal constraints
+      try {
+        console.log('Trying fallback camera access with minimal constraints');
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({
+          video: true
+        });
+        const fallbackTrack = fallbackStream.getVideoTracks()[0];
+        console.log('Got fallback video track:', fallbackTrack?.label);
+        return fallbackTrack || null;
+      } catch (fallbackError) {
+        console.error('Fallback camera access also failed:', fallbackError);
+        return null;
+      }
     }
   }
   
   /**
    * Get audio track for native platforms
-   * This is a mock implementation - in a real app, you'd use a proper
-   * microphone implementation for Capacitor that provides a MediaTrack
    */
   private async getNativeAudioTrack(): Promise<MediaStreamTrack | null> {
     try {
-      // For demo purposes, we'll fall back to web implementation
+      // Try to get microphone permissions using Capacitor Microphone plugin if available
+      if (this.isNative && window.Microphone) {
+        try {
+          const micPermission = await window.Microphone.requestPermission();
+          if (micPermission.value !== 'granted') {
+            console.warn('Microphone permission not granted via Capacitor plugin');
+          }
+        } catch (permError) {
+          console.warn('Microphone permission request failed via Capacitor plugin:', permError);
+          // Continue anyway, as getUserMedia will also request permissions
+        }
+      }
+      
+      // Use standard getUserMedia API with optimized constraints
+      console.log('Requesting microphone with constraints:', DEFAULT_AUDIO_CONSTRAINTS);
       const tempStream = await navigator.mediaDevices.getUserMedia({
         audio: DEFAULT_AUDIO_CONSTRAINTS,
+        video: false
       });
       
-      return tempStream.getAudioTracks()[0] || null;
+      const audioTrack = tempStream.getAudioTracks()[0];
+      if (!audioTrack) {
+        throw new Error('No audio track found in stream');
+      }
+      
+      console.log('Successfully got audio track:', audioTrack.label);
+      return audioTrack;
     } catch (error) {
-      console.error('Error getting native audio track:', error);
-      return null;
+      console.error('Error getting audio track:', error);
+      
+      // Fallback to try with minimal constraints
+      try {
+        console.log('Trying fallback microphone access with minimal constraints');
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+        const fallbackTrack = fallbackStream.getAudioTracks()[0];
+        console.log('Got fallback audio track:', fallbackTrack?.label);
+        return fallbackTrack || null;
+      } catch (fallbackError) {
+        console.error('Fallback microphone access also failed:', fallbackError);
+        return null;
+      }
     }
   }
   

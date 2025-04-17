@@ -1,16 +1,29 @@
-import React, { useState } from 'react';
-import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;
+  onFindNext: () => void; // New prop for skipping to next user
   onSendMessage: (message: string) => void;
   messages: Array<{
     id: string;
     sender: 'me' | 'partner';
     content: string;
     timestamp: Date;
+    translatedContent?: string;
+    detectedLanguage?: string;
   }>;
+  myCountry?: {
+    name: string;
+    code: string;
+    flag: string;
+  };
+  partnerCountry?: {
+    name: string;
+    code: string;
+    flag: string;
+  };
 }
 
 export default function VideoCallInterface({
