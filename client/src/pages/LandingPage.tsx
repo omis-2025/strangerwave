@@ -56,7 +56,18 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Connect with the World, <span className="text-primary">Instantly</span>
+            Connect with the World, {" "}
+            <span 
+              className="relative inline-block"
+            >
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Instantly</span>
+              <motion.span 
+                className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-400/20 blur-xl z-[-1] rounded-lg"
+                initial={{ opacity: 0.5, scale: 1 }}
+                animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -82,10 +93,17 @@ export default function LandingPage() {
                 console.warn("Analytics tracking error:", e);
               }
             }}>
-              <Button size="lg" className="gap-2">
-                <FaVideo className="h-4 w-4" />
-                Start Chatting
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <FaVideo className="h-4 w-4 relative z-10 group-hover:animate-pulse" />
+                  <span className="relative z-10">Start Chatting</span>
+                </Button>
+              </motion.div>
             </Link>
             <Link href="/pricing" onClick={() => {
               console.log("Go premium clicked");
@@ -97,10 +115,16 @@ export default function LandingPage() {
                 console.warn("Analytics tracking error:", e);
               }
             }}>
-              <Button size="lg" variant="outline" className="gap-2">
-                <FaCoins className="h-4 w-4" />
-                Go Premium
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button size="lg" variant="outline" className="gap-2 group border-primary hover:border-primary/80 transition-colors">
+                  <FaCoins className="h-4 w-4 text-primary group-hover:animate-spin-slow" />
+                  <span>Go Premium</span>
+                </Button>
+              </motion.div>
             </Link>
           </motion.div>
         </div>
@@ -427,15 +451,26 @@ interface TestimonialCardProps {
 
 // Helper Components
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
-  <Card>
-    <CardHeader className="pb-2">
-      <div className="mb-2">{icon}</div>
-      <CardTitle>{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <CardDescription>{description}</CardDescription>
-    </CardContent>
-  </Card>
+  <motion.div
+    whileHover={{ y: -5 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <Card className="h-full border border-gray-800 hover:border-primary/50 transition-colors duration-300">
+      <CardHeader className="pb-2">
+        <motion.div 
+          className="mb-3 text-primary"
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
+          {icon}
+        </motion.div>
+        <CardTitle className="text-xl">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CardDescription className="text-gray-400">{description}</CardDescription>
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const ComparisonRow: React.FC<ComparisonRowProps> = ({ feature, strangerwave, omegle, chatroulette }) => (
@@ -447,43 +482,192 @@ const ComparisonRow: React.FC<ComparisonRowProps> = ({ feature, strangerwave, om
   </tr>
 );
 
-const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, features, buttonText, buttonLink, popular }) => (
-  <Card className={`relative overflow-hidden ${popular ? 'border-primary shadow-lg' : ''}`}>
-    {popular && (
-      <div className="absolute top-0 right-0">
-        <div className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-bl-lg">
-          MOST POPULAR
-        </div>
-      </div>
-    )}
-    <CardHeader>
-      <CardTitle>{title}</CardTitle>
-      <div className="mt-2">
-        <span className="text-3xl font-bold">{price}</span>
-        {period && <span className="text-muted-foreground">/{period}</span>}
-      </div>
-    </CardHeader>
-    <CardContent>
-      <ul className="space-y-2">
-        {features.map((feature: string, i: number) => (
-          <li key={i} className="flex items-center gap-2">
-            <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            {feature}
-          </li>
-        ))}
-      </ul>
-    </CardContent>
-    <CardFooter>
-      <Link href={buttonLink} className="w-full" onClick={() => localStorage.setItem('startChatting', 'true')}>
-        <Button className={`w-full ${popular ? '' : 'bg-muted/70 hover:bg-muted'}`} variant={popular ? "default" : "outline"}>
-          {buttonText}
-        </Button>
-      </Link>
-    </CardFooter>
-  </Card>
-);
+const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, features, buttonText, buttonLink, popular }) => {
+  // Function to get the icon for a feature based on keywords
+  const getFeatureIcon = (feature: string) => {
+    if (feature.includes("chat") || feature.includes("match")) return <MessageSquare className="h-4 w-4 text-primary" />;
+    if (feature.includes("filter")) return <FaRandom className="h-3.5 w-3.5 text-primary" />;
+    if (feature.includes("video")) return <Video className="h-4 w-4 text-primary" />;
+    if (feature.includes("HD") || feature.includes("Ultra")) return <FaVideoIcon className="h-3.5 w-3.5 text-amber-500" />;
+    if (feature.includes("premium") || feature.includes("badge")) return <Crown className="h-4 w-4 text-amber-500" />;
+    if (feature.includes("support")) return <FaShieldAlt className="h-3.5 w-3.5 text-green-500" />;
+    if (feature.includes("report")) return <AlertCircle className="h-4 w-4 text-red-500" />;
+    if (feature.includes("theme")) return <FaPalette className="h-3.5 w-3.5 text-purple-500" />;
+    if (feature.includes("advertisement") || feature.includes("ad")) return <FaBan className="h-3.5 w-3.5 text-red-500" />;
+    if (feature.includes("unlimited")) return <FaInfinity className="h-3.5 w-3.5 text-blue-500" />;
+    if (feature.includes("priorit")) return <FaStar className="h-3.5 w-3.5 text-yellow-500" />;
+    // Default icon
+    return <Check className="h-4 w-4 text-primary" />;
+  };
+
+  // Generate the pricing description based on the plan title
+  const getPricingDescription = () => {
+    if (title === "Basic") return "Just here to vibe? We gotchu.";
+    if (title === "Premium") return "No ads, better filters, unlimited matches. Big brain move.";
+    if (title === "VIP") return "You get the royal treatment. Ultra HD, custom vibes, and priority everything.";
+    return "";
+  };
+
+  // Calculate the daily price for premium plan
+  const getDailyPrice = () => {
+    if (title === "Premium" && period === "monthly") {
+      return "$0.10/day";
+    }
+    return null;
+  };
+
+  // Calculate yearly savings
+  const getYearlySavings = () => {
+    if (title === "Premium" && price === "$2.99") {
+      return "Save 16% with yearly billing";
+    }
+    if (title === "VIP" && price === "$7.99") {
+      return "Save 16% with yearly billing";
+    }
+    return null;
+  };
+
+  const dailyPrice = getDailyPrice();
+  const yearlySavings = getYearlySavings();
+  const pricingDescription = getPricingDescription();
+  
+  return (
+    <motion.div
+      whileHover={{ y: -8 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <Card 
+        className={`relative overflow-hidden h-full ${
+          popular 
+            ? 'border-primary border-2 shadow-lg shadow-primary/20' 
+            : 'border-gray-700 hover:border-gray-600'
+        } ${
+          title === "VIP" ? 'bg-gradient-to-b from-gray-900 to-gray-900' : ''
+        }`}
+      >
+        {/* Best Value Ribbon for Premium */}
+        {title === "Premium" && (
+          <div className="absolute -top-1 -right-1 z-10">
+            <div className="bg-blue-500 text-white px-3 py-1 text-xs font-medium rounded-br-md shadow-lg transform rotate-12 translate-y-2">
+              BEST VALUE
+            </div>
+          </div>
+        )}
+        
+        {/* VIP Crown & Glow Effect */}
+        {title === "VIP" && (
+          <>
+            <div className="absolute -top-3 -left-3">
+              <motion.div 
+                className="text-amber-500 text-2xl z-10"
+                animate={{ y: [0, 3, 0], rotate: [0, 5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Crown />
+              </motion.div>
+            </div>
+            <motion.div 
+              className="absolute inset-0 bg-amber-500/5 z-0"
+              animate={{ 
+                boxShadow: ['0 0 15px 2px rgba(245, 158, 11, 0.1)', '0 0 20px 3px rgba(245, 158, 11, 0.2)', '0 0 15px 2px rgba(245, 158, 11, 0.1)'] 
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </>
+        )}
+        
+        <CardHeader className={`relative ${title === "VIP" ? 'pb-2' : 'pb-3'}`}>
+          <div className="flex justify-between items-center mb-1">
+            <CardTitle className={`text-2xl ${title === "VIP" ? 'text-amber-500' : ''}`}>
+              {title}
+            </CardTitle>
+            
+            {title === "VIP" && (
+              <motion.div 
+                className="text-amber-500"
+                animate={{ rotate: [0, 10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Crown className="h-5 w-5" />
+              </motion.div>
+            )}
+          </div>
+          
+          {pricingDescription && (
+            <p className="text-sm text-gray-400 font-normal">
+              {pricingDescription}
+            </p>
+          )}
+          
+          <div className="mt-3 flex items-baseline">
+            <span className={`text-3xl font-bold ${title === "VIP" ? 'text-white' : ''}`}>{price}</span>
+            {period && <span className="text-muted-foreground ml-1">/{period}</span>}
+          </div>
+          
+          {dailyPrice && (
+            <p className="text-xs text-green-500 mt-1 font-medium">
+              {dailyPrice}
+            </p>
+          )}
+          
+          {yearlySavings && (
+            <p className="text-xs text-amber-500/80 mt-1 font-medium flex items-center">
+              <motion.span 
+                className="mr-1"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+              >
+                <FaCoins className="h-3 w-3" />
+              </motion.span>
+              {yearlySavings}
+            </p>
+          )}
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            {features.map((feature: string, i: number) => (
+              <motion.li 
+                key={i} 
+                className="flex items-center gap-2 text-sm"
+                whileHover={{ x: 3 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                {getFeatureIcon(feature)}
+                <span className={title === "VIP" ? 'text-gray-300' : ''}>
+                  {feature}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        </CardContent>
+        <CardFooter>
+          <Link href={buttonLink} className="w-full" onClick={() => localStorage.setItem('startChatting', 'true')}>
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full"
+            >
+              <Button 
+                className={`w-full group ${
+                  title === "VIP" 
+                    ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white' 
+                    : title === "Premium" 
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                      : 'bg-gray-700 hover:bg-gray-600 text-white'
+                }`}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  {title === "VIP" && <Crown className="h-4 w-4 group-hover:animate-pulse" />}
+                  {buttonText}
+                </span>
+              </Button>
+            </motion.div>
+          </Link>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+};
 
 const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, author, location, rating, imageSrc }) => (
   <Card>
