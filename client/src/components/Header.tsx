@@ -123,6 +123,27 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => navigate('/demo')}
+            className="text-gray-300 hover:text-white px-3 py-1 rounded-full flex items-center gap-1 hover:bg-gray-800 transition-all"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-5 w-5" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
+            </svg>
+            <span>Demo</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onFilterClick}
             className="text-gray-300 hover:text-white px-3 py-1 rounded-full flex items-center gap-1 hover:bg-gray-800 transition-all"
           >
@@ -242,6 +263,27 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
                 <path d="M12 13a2 2 0 0 0 1.882-1.35.9.9 0 1 1 1.788.018A2.977 2.977 0 0 1 12 14.5c-.89 0-1.563-.6-1.939-1.347A3.087 3.087 0 0 1 8.5 13" />
               </svg>
               Pricing
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/demo')}
+              className="justify-start"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5 mr-2" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
+              </svg>
+              Demo
             </Button>
             
             <Button

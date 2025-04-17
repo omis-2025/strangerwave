@@ -12,6 +12,7 @@ import Pricing from "@/pages/Pricing";
 import LandingPage from "@/pages/LandingPage";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";
+import Demo from "./pages/Demo";
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -94,6 +95,7 @@ function Router() {
         <Route path="/demo-access" component={DemoAccessPage} />
         <Route path="/analytics-demo" component={DemoDashboardPage} />
         <Route path="/payment-success" component={PaymentSuccess} />
+        <Route path="/demo" component={Demo} />
         <Route path="/payment-canceled">
           {() => (
             <motion.div
