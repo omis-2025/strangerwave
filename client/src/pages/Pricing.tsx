@@ -447,6 +447,85 @@ export default function Pricing() {
         </div>
       </div>
       
+      {/* Customer Testimonials */}
+      <div className="mt-20 mb-10 max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-4">What Our Users Say</h2>
+        <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+          Join thousands of users who have upgraded their experience with our premium plans
+        </p>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          {/* Testimonial 1 */}
+          <div className="bg-card border rounded-lg p-6 shadow-sm">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <Quote className="h-6 w-6" />
+              </div>
+              <div className="ml-4">
+                <h4 className="font-semibold">Alex T.</h4>
+                <div className="flex items-center text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+              </div>
+            </div>
+            <p className="text-sm italic mb-3">
+              "Premium subscription completely transformed my experience. No more time limits and the matching algorithm is so much better! Worth every penny."
+            </p>
+            <div className="text-xs text-muted-foreground">Premium member for 6 months</div>
+          </div>
+          
+          {/* Testimonial 2 */}
+          <div className="bg-card border rounded-lg p-6 shadow-sm">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <Quote className="h-6 w-6" />
+              </div>
+              <div className="ml-4">
+                <h4 className="font-semibold">Sophia K.</h4>
+                <div className="flex items-center text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+              </div>
+            </div>
+            <p className="text-sm italic mb-3">
+              "I was skeptical about upgrading to VIP, but it's been amazing. The ad-free experience and exclusive filters make finding interesting conversations so much easier!"
+            </p>
+            <div className="text-xs text-muted-foreground">VIP member for 3 months</div>
+          </div>
+          
+          {/* Testimonial 3 */}
+          <div className="bg-card border rounded-lg p-6 shadow-sm">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <Quote className="h-6 w-6" />
+              </div>
+              <div className="ml-4">
+                <h4 className="font-semibold">Marcus J.</h4>
+                <div className="flex items-center text-amber-500">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+            <p className="text-sm italic mb-3">
+              "Started with the 7-day free trial of Premium and immediately upgraded to VIP after experiencing the difference. The customization options and priority matching are game-changers."
+            </p>
+            <div className="text-xs text-muted-foreground">Upgraded to VIP 2 weeks ago</div>
+          </div>
+        </div>
+      </div>
+      
       {user?.isBanned && (
         <div className="mt-16 max-w-md mx-auto">
           <Card className="border-red-500/50">
