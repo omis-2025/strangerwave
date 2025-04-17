@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import webRTC from '@/lib/mobileWebRTC';
 import PermissionErrorModal from './PermissionErrorModal';
+import ConnectionStatusToast from './ConnectionStatusToast';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;
@@ -52,6 +53,10 @@ export default function VideoCallInterface({
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [remoteCameraActive, setRemoteCameraActive] = useState(false);
   
+  // UI state
+  const [hideControls, setHideControls] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'partner-left' | null>(null);
+  
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
       onSendMessage(inputMessage);
@@ -91,8 +96,15 @@ export default function VideoCallInterface({
       
       if (state === 'connected') {
         setIsConnecting(false);
-      } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+        setConnectionStatus('connected');
+        setTimeout(() => setConnectionStatus(null), 3000); // Hide after 3 seconds
+      } else if (state === 'disconnected') {
+        setConnectionStatus('disconnected');
+      } else if (state === 'failed' || state === 'closed') {
+        setConnectionStatus('partner-left');
         setConnectionError('Connection lost. Please try again.');
+      } else if (state === 'connecting') {
+        setConnectionStatus('reconnecting');
       }
     });
     
@@ -159,25 +171,38 @@ export default function VideoCallInterface({
       {/* Main content area - split 50/50 on desktop */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left panel - Video takes half the screen on desktop */}
-        <div className="w-full md:w-1/2 h-full relative bg-black">
+        <div 
+          className="w-full md:w-1/2 h-full relative bg-black cursor-pointer" 
+          onClick={() => setHideControls(!hideControls)}
+        >
           {/* Country flags display */}
-          <div className="absolute top-2 left-0 right-0 flex justify-center items-center z-20">
-            <div className="bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-full flex items-center space-x-4">
-              {/* My country */}
-              <div className="flex items-center">
-                <span className={`fi fi-${myCountry.flag} text-lg mr-2`}></span>
-                <span className="text-white text-sm">{myCountry.name}</span>
-              </div>
-              
-              <div className="text-gray-400">•</div>
-              
-              {/* Partner country */}
-              <div className="flex items-center">
-                <span className={`fi fi-${partnerCountry.flag} text-lg mr-2`}></span>
-                <span className="text-white text-sm">{partnerCountry.name}</span>
-              </div>
-            </div>
-          </div>
+          <AnimatePresence>
+            {!hideControls && (
+              <motion.div 
+                className="absolute top-2 left-0 right-0 flex justify-center items-center z-20"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-full flex items-center space-x-4">
+                  {/* My country */}
+                  <div className="flex items-center">
+                    <span className={`fi fi-${myCountry.flag} text-lg mr-2`}></span>
+                    <span className="text-white text-sm">{myCountry.name}</span>
+                  </div>
+                  
+                  <div className="text-gray-400">•</div>
+                  
+                  {/* Partner country */}
+                  <div className="flex items-center">
+                    <span className={`fi fi-${partnerCountry.flag} text-lg mr-2`}></span>
+                    <span className="text-white text-sm">{partnerCountry.name}</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {/* Remote video stream */}
           <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
@@ -425,6 +450,12 @@ export default function VideoCallInterface({
         type={permissionErrorType || 'both'}
         isOpen={showPermissionModal}
         onClose={() => setShowPermissionModal(false)}
+      />
+      
+      {/* Connection status toast */}
+      <ConnectionStatusToast 
+        status={connectionStatus} 
+        onClose={() => setConnectionStatus(null)}
       />
     </div>
   );
