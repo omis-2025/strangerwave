@@ -97,6 +97,21 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
         
         {/* Desktop menu */}
         <div className="hidden md:flex items-center space-x-4">
+          {!user?.hasSubscription && (
+            <Button
+              onClick={() => navigate('/pricing')}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full flex items-center gap-1 hover:shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all border border-indigo-500/30"
+              size="sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L15 6H9L12 2Z"/>
+                <path d="M2 7H22V21H2V7Z"/>
+                <path d="M12 11.5C12.8285 11.5 13.5 12.1716 13.5 13L16.5 13C17.3284 13 18 13.6716 18 14.5V18"/>
+                <path d="M7.5 18V13.5C7.5 12.6716 8.17157 12 9 12H13.5" stroke="white"/>
+              </svg>
+              <span>Upgrade</span>
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -242,6 +257,21 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
       {mobileMenuOpen && (
         <div className="md:hidden mt-2 pt-2 pb-4 border-t border-gray-700">
           <nav className="flex flex-col space-y-2">
+            {!user?.hasSubscription && (
+              <Button
+                onClick={() => navigate('/pricing')}
+                className="justify-start bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 border border-indigo-500/30"
+                size="sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L15 6H9L12 2Z"/>
+                  <path d="M2 7H22V21H2V7Z"/>
+                  <path d="M12 11.5C12.8285 11.5 13.5 12.1716 13.5 13L16.5 13C17.3284 13 18 13.6716 18 14.5V18"/>
+                  <path d="M7.5 18V13.5C7.5 12.6716 8.17157 12 9 12H13.5" stroke="white"/>
+                </svg>
+                Upgrade to Premium
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"

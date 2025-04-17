@@ -10,6 +10,13 @@ export interface User {
   isAdmin?: boolean;
   isBanned?: boolean;
   gender?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  isPremium?: boolean;
+  premiumUntil?: string;
+  premiumTier?: string;
+  // Helper property for subscription checks
+  hasSubscription?: boolean;
 }
 
 interface AuthContextType {
@@ -54,10 +61,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (response.ok) {
             // User exists, get their data
             const userData = await response.json();
+            // Add the hasSubscription field based on existing data
+            userData.hasSubscription = userData.isPremium || !!userData.stripeSubscriptionId;
             setUser(userData);
           } else if (response.status === 404) {
             // User doesn't exist, create new anonymous user
             const newUser = await createAnonymousUser(fbUser.uid);
+            newUser.hasSubscription = false;
             setUser(newUser);
           } else {
             throw new Error("Failed to fetch user data");
