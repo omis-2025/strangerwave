@@ -12,6 +12,7 @@ import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alt
 import { motion } from 'framer-motion';
 import { MessageSquare, Video, Check, Crown, AlertCircle } from 'lucide-react';
 import StaticImage from '@/components/StaticImage';
+import { TrustBadgesGroup, PaymentProviderLogos, SecurityTestimonial } from '@/components/TrustBadges';
 
 // Import images directly
 import heroImage from '@/assets/hero-image.png';
@@ -190,6 +191,11 @@ export default function LandingPage() {
               </motion.div>
             </Link>
           </motion.div>
+          
+          {/* Trust Badges below hero CTA buttons */}
+          <div className="mt-8">
+            <TrustBadgesGroup />
+          </div>
         </div>
         <div className="md:w-1/2">
           <motion.div 
@@ -534,10 +540,15 @@ export default function LandingPage() {
       <section className="container mx-auto py-16 mb-8">
         <div className="bg-primary/10 rounded-xl p-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Connect?</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
             Join thousands of users already making meaningful connections on StrangerWave. Start chatting for free today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          {/* Trust Badges */}
+          <TrustBadgesGroup />
+          <PaymentProviderLogos />
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
             <Link href="/chat" onClick={() => {
               console.log("Create account clicked - setting navigation flag");
               localStorage.setItem('startChatting', 'true');
@@ -562,6 +573,11 @@ export default function LandingPage() {
                 Explore Features
               </Button>
             </Link>
+          </div>
+          
+          {/* Security Testimonial */}
+          <div className="max-w-md mx-auto mt-8">
+            <SecurityTestimonial />
           </div>
         </div>
       </section>

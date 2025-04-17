@@ -236,7 +236,7 @@ const RewardsPage: React.FC = () => {
             </div>
           ) : lockedAchievements.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {lockedAchievements.map(achievement => (
+              {lockedAchievements.map((achievement: Achievement) => (
                 <AchievementCard
                   key={achievement.id}
                   achievement={achievement}
