@@ -291,18 +291,21 @@ export default function LandingPage() {
             author="Sarah K."
             location="United States"
             rating={5}
+            imageSrc="/images/profiles/sarah.png"
           />
           <TestimonialCard 
             quote="As a language learner, I use StrangerWave to practice with native speakers. The country filter is perfect for finding people from specific regions."
             author="Miguel R."
             location="Spain"
             rating={5}
+            imageSrc="/images/profiles/miguel.png"
           />
           <TestimonialCard 
             quote="The premium features are actually worth it. Priority matching means I spend less time waiting and more time having great conversations."
             author="Aiden T."
             location="Australia"
             rating={4}
+            imageSrc="/images/profiles/aiden.png"
           />
         </div>
       </section>
@@ -382,6 +385,7 @@ interface TestimonialCardProps {
   author: string;
   location: string;
   rating: number;
+  imageSrc?: string;
 }
 
 // Helper Components
@@ -444,7 +448,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, feature
   </Card>
 );
 
-const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, author, location, rating }) => (
+const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, author, location, rating, imageSrc }) => (
   <Card>
     <CardContent className="pt-6">
       <div className="flex mb-2">
@@ -460,9 +464,16 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, author, locati
         ))}
       </div>
       <p className="italic mb-4">"{quote}"</p>
-      <div className="text-sm">
-        <p className="font-semibold">{author}</p>
-        <p className="text-muted-foreground">{location}</p>
+      <div className="flex items-center gap-3">
+        {imageSrc && (
+          <div className="h-10 w-10 rounded-full overflow-hidden">
+            <img src={imageSrc} alt={`${author} profile`} className="h-full w-full object-cover" />
+          </div>
+        )}
+        <div className="text-sm">
+          <p className="font-semibold">{author}</p>
+          <p className="text-muted-foreground">{location}</p>
+        </div>
       </div>
     </CardContent>
   </Card>
