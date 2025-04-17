@@ -157,15 +157,34 @@ export default function Pricing() {
   };
   
   const handleSubscribe = async () => {
-    if (!selectedPlan || !user) return;
+    if (!selectedPlan || !user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to continue with your purchase.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       setLoading(selectedPlan.id);
       
+      // Ensure we have a valid userId
+      const userId = user.userId || user.id;
+      if (!userId) {
+        throw new Error('Invalid user ID - please log in again');
+      }
+      
+      console.log("Creating checkout session for:", {
+        planType: selectedPlan.id.toUpperCase(),
+        userId: userId,
+        interval: selectedPlan.interval
+      });
+      
       // Create a checkout session
       const response = await apiRequest('POST', '/api/stripe/create-checkout-session', {
         planType: selectedPlan.id.toUpperCase(),
-        userId: user?.userId || 0,
+        userId: userId,
         interval: selectedPlan.interval
       });
       
@@ -190,7 +209,7 @@ export default function Pricing() {
       console.error('Checkout error:', error);
       toast({
         title: "Checkout Failed",
-        description: "Failed to start checkout process. Please try again.",
+        description: `Failed to start checkout process: ${error.message || "Please try again"}`,
         variant: "destructive",
       });
     } finally {
@@ -212,10 +231,18 @@ export default function Pricing() {
     try {
       setLoading('unban');
       
+      // Ensure we have a valid userId
+      const userId = user.userId || user.id;
+      if (!userId) {
+        throw new Error('Invalid user ID - please log in again');
+      }
+      
+      console.log("Creating unban checkout session for user:", userId);
+      
       // Create a checkout session for unbanning
       const response = await apiRequest('POST', '/api/stripe/create-checkout-session', {
         planType: 'UNBAN',
-        userId: user?.userId || 0
+        userId: userId
       });
       
       const data = await response.json();
@@ -239,7 +266,7 @@ export default function Pricing() {
       console.error('Unban checkout error:', error);
       toast({
         title: "Checkout Failed",
-        description: "Failed to start checkout process. Please try again.",
+        description: `Failed to start checkout process: ${error.message || "Please try again"}`,
         variant: "destructive",
       });
     } finally {
