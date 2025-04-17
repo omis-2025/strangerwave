@@ -15,8 +15,8 @@ const pricingPlans = [
     id: 'premium',
     name: 'Premium',
     prices: {
-      monthly: 5.99,
-      yearly: 59.99
+      monthly: 2.99,
+      yearly: 29.99
     },
     features: [
       { text: 'No ads or interruptions', included: true },
@@ -33,8 +33,8 @@ const pricingPlans = [
     id: 'vip',
     name: 'VIP',
     prices: {
-      monthly: 9.99,
-      yearly: 99.99
+      monthly: 7.99,
+      yearly: 79.99
     },
     features: [
       { text: 'No ads or interruptions', included: true },

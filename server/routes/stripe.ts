@@ -14,26 +14,69 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
   : undefined;
 
-// Plan configuration
-const PREMIUM_PRICE_ID = 'price_premium_monthly'; // Replace with actual Stripe price ID
-const VIP_PRICE_ID = 'price_vip_monthly';         // Replace with actual Stripe price ID
+// Plan configuration (actual Stripe price IDs would be used in production)
+const PREMIUM_PRICE_ID = 'price_premium_monthly'; 
+const VIP_PRICE_ID = 'price_vip_monthly';        
+// Fixed price for unban fee - $10.99
+const UNBAN_PRICE = 1099; // in cents
 
-// Create a checkout session for subscription plans
+// Create a checkout session for subscription plans or unban
 router.post('/create-checkout-session', async (req, res) => {
   try {
     if (!stripe) {
       return res.status(500).json({ error: 'Stripe is not configured' });
     }
 
-    const { planType, userId } = req.body;
+    const { planType, userId, interval } = req.body;
     
-    if (!planType || !userId || !['premium', 'vip'].includes(planType.toLowerCase())) {
+    // Validate input parameters
+    if (!planType || !userId) {
       return res.status(400).json({ error: 'Invalid request parameters' });
     }
     
+    // Get the user
     const user = await storage.getUser(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Host for success and cancel URLs
+    const host = req.headers.host || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    
+    // Handle unban payment separately
+    if (planType.toUpperCase() === 'UNBAN') {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: 'Account Unban Fee',
+                description: 'One-time fee to unban your account',
+              },
+              unit_amount: UNBAN_PRICE, // $10.99
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${protocol}://${host}/payment-success?session_id={CHECKOUT_SESSION_ID}&type=unban`,
+        cancel_url: `${protocol}://${host}/pricing`,
+        metadata: {
+          userId: userId.toString(),
+          paymentType: 'unban'
+        },
+        client_reference_id: userId.toString()
+      });
+      
+      return res.json({ url: session.url });
+    }
+    
+    // For subscription plans
+    if (!['premium', 'vip'].includes(planType.toLowerCase())) {
+      return res.status(400).json({ error: 'Invalid plan type' });
     }
 
     // Determine which price ID to use based on plan type
@@ -41,11 +84,7 @@ router.post('/create-checkout-session', async (req, res) => {
       ? PREMIUM_PRICE_ID 
       : VIP_PRICE_ID;
 
-    // Host for success and cancel URLs
-    const host = req.headers.host || 'localhost:3000';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-
-    // Create Stripe checkout session
+    // Create Stripe checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -55,11 +94,12 @@ router.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${protocol}://${host}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${protocol}://${host}/payment-success?session_id={CHECKOUT_SESSION_ID}&type=subscription`,
       cancel_url: `${protocol}://${host}/pricing`,
       metadata: {
         userId: userId.toString(),
-        planType: planType.toLowerCase()
+        planType: planType.toLowerCase(),
+        interval: interval || 'monthly'
       },
       client_reference_id: userId.toString()
     });
@@ -81,7 +121,7 @@ router.get('/verify-checkout', async (req, res) => {
       return res.status(500).json({ error: 'Stripe is not configured' });
     }
 
-    const { session_id } = req.query;
+    const { session_id, type } = req.query;
     
     if (!session_id || typeof session_id !== 'string') {
       return res.status(400).json({ error: 'Invalid session ID' });
@@ -99,17 +139,45 @@ router.get('/verify-checkout', async (req, res) => {
       return res.status(400).json({ error: 'Payment not completed' });
     }
     
-    // Extract user ID and plan type from metadata
+    // Extract user ID from metadata
     const userId = parseInt(session.metadata?.userId || '0', 10);
-    const planType = session.metadata?.planType;
     
-    if (!userId || !planType) {
+    if (!userId) {
       return res.status(400).json({ error: 'Invalid session metadata' });
     }
 
+    // Handle unban payment
+    if (type === 'unban' || session.metadata?.paymentType === 'unban') {
+      // Unban the user
+      const user = await storage.unbanUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      return res.json({ 
+        success: true, 
+        userId, 
+        paymentType: 'unban',
+        message: 'Your account has been successfully unbanned. You can now continue using the chat.'
+      });
+    }
+    
+    // Handle subscription payment
+    const planType = session.metadata?.planType;
+    
+    if (!planType) {
+      return res.status(400).json({ error: 'Invalid session metadata' });
+    }
+    
     // Activate premium/vip for the user
     const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 1); // Default to 1 month (will be updated by webhooks)
+    // Default to 1 month, but check interval from metadata
+    if (session.metadata?.interval === 'yearly') {
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    } else {
+      expiryDate.setMonth(expiryDate.getMonth() + 1);
+    }
     
     await storage.activatePremium(userId, planType, expiryDate);
     
@@ -117,6 +185,7 @@ router.get('/verify-checkout', async (req, res) => {
       success: true, 
       userId, 
       planType,
+      paymentType: 'subscription',
       message: `Successfully activated ${planType} subscription`
     });
   } catch (error) {
@@ -159,11 +228,28 @@ router.post('/webhook', async (req, res) => {
       case 'checkout.session.completed':
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = parseInt(session.metadata?.userId || '0', 10);
-        const planType = session.metadata?.planType;
         
-        if (userId && planType) {
+        // Skip if we can't identify the user
+        if (!userId) break;
+        
+        // Handle unban payment
+        if (session.metadata?.paymentType === 'unban') {
+          await storage.unbanUser(userId);
+          break;
+        }
+        
+        // Handle subscription payment
+        const planType = session.metadata?.planType;
+        if (planType) {
           const expiryDate = new Date();
-          expiryDate.setMonth(expiryDate.getMonth() + 1);
+          
+          // Check interval for subscription duration
+          if (session.metadata?.interval === 'yearly') {
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+          } else {
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+          }
+          
           await storage.activatePremium(userId, planType, expiryDate);
         }
         break;
@@ -171,8 +257,8 @@ router.post('/webhook', async (req, res) => {
       case 'customer.subscription.updated':
       case 'customer.subscription.created':
         const subscription = event.data.object as Stripe.Subscription;
-        // Update subscription details
-        // In a real app, would update based on subscription period
+        // Update subscription details in a real app
+        // This would update based on subscription period and status
         break;
         
       case 'customer.subscription.deleted':
