@@ -8,6 +8,7 @@ import Admin from "@/pages/Admin";
 import EnhancedAdmin from "@/pages/EnhancedAdmin";
 import Payment from "@/pages/Payment";
 import PaymentSuccess from "@/pages/PaymentSuccess";
+import Pricing from "@/pages/Pricing";
 import LandingPage from "@/pages/LandingPage";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";
@@ -89,34 +90,10 @@ function Router() {
         <Route path="/admin" component={() => <AuthRoute component={Admin} adminOnly={true} />} />
         <Route path="/enhanced-admin" component={() => <AuthRoute component={EnhancedAdmin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />
+        <Route path="/pricing" component={Pricing} />
         <Route path="/demo-access" component={DemoAccessPage} />
         <Route path="/analytics-demo" component={DemoDashboardPage} />
-        <Route path="/payment-success">
-          {() => (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="min-h-screen bg-gray-900 flex items-center justify-center p-4"
-            >
-              <div className="max-w-md w-full bg-gray-800 rounded-xl shadow-lg p-8 text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h1 className="text-2xl font-bold text-white mb-2">Payment Successful!</h1>
-                <p className="text-gray-300 mb-6">Your account has been successfully unbanned. You can now continue chatting.</p>
-                <button 
-                  onClick={() => navigate('/chat')}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Continue to Chat
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </Route>
+        <Route path="/payment-success" component={PaymentSuccess} />
         <Route path="/payment-canceled">
           {() => (
             <motion.div
@@ -134,10 +111,10 @@ function Router() {
                 <h1 className="text-2xl font-bold text-white mb-2">Payment Canceled</h1>
                 <p className="text-gray-300 mb-6">Your payment was canceled. You can try again when you're ready.</p>
                 <button 
-                  onClick={() => navigate('/payment')}
+                  onClick={() => navigate('/pricing')}
                   className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
-                  Try Again
+                  Return to Pricing
                 </button>
               </div>
             </motion.div>

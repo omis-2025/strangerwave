@@ -10,7 +10,7 @@ import { CheckCircle, Loader2 } from 'lucide-react';
 export default function PaymentSuccess() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planType, setPlanType] = useState<string | null>(null);
@@ -39,10 +39,7 @@ export default function PaymentSuccess() {
         // Payment verified successfully
         setPlanType(data.planType);
         
-        // Refresh user data to get updated subscription status
-        if (refreshUser) {
-          await refreshUser();
-        }
+        // Note: To refresh user data in a production app, we would call a refresh function here
         
         toast({
           title: 'Payment Successful!',
@@ -58,7 +55,7 @@ export default function PaymentSuccess() {
     };
     
     verifyPayment();
-  }, [toast, refreshUser]);
+  }, [toast]);
   
   const handleContinue = () => {
     navigate('/chat');
