@@ -526,7 +526,7 @@ export default function Pricing() {
               <tr className="border-b">
                 <th className="py-4 px-6 text-left">Features</th>
                 <th className="py-4 px-6 text-center">Free</th>
-                <th className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Premium</th>
+                <th className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">Premium</th>
                 <th className="py-4 px-6 text-center bg-primary/10">VIP</th>
               </tr>
             </thead>
@@ -534,25 +534,25 @@ export default function Pricing() {
               <tr className="border-b">
                 <td className="py-4 px-6 font-medium">Video chat duration</td>
                 <td className="py-4 px-6 text-center">5 minutes</td>
-                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">30 minutes</td>
+                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">30 minutes</td>
                 <td className="py-4 px-6 text-center bg-primary/10">Unlimited</td>
               </tr>
               <tr className="border-b">
                 <td className="py-4 px-6 font-medium">Matching speed</td>
                 <td className="py-4 px-6 text-center">Standard</td>
-                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Priority</td>
+                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">Priority</td>
                 <td className="py-4 px-6 text-center bg-primary/10">Highest priority</td>
               </tr>
               <tr className="border-b">
                 <td className="py-4 px-6 font-medium">Profile customization</td>
                 <td className="py-4 px-6 text-center"><X className="h-5 w-5 text-muted-foreground mx-auto" /></td>
-                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
+                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
                 <td className="py-4 px-6 text-center bg-primary/10"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
               </tr>
               <tr className="border-b">
                 <td className="py-4 px-6 font-medium">Ad experience</td>
                 <td className="py-4 px-6 text-center">With ads</td>
-                <td className="py-4 px-6 text-center bg-blue-50 dark:bg-blue-950/30">Ad-free</td>
+                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">Ad-free</td>
                 <td className="py-4 px-6 text-center bg-primary/10">Ad-free</td>
               </tr>
               <tr className="border-b">
