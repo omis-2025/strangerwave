@@ -6,8 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FaVideo, FaComments, FaShieldAlt, FaGlobe, FaCoins, FaMobile, FaRandom, FaVideo as FaVideoIcon } from 'react-icons/fa';
 import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alternative icons
 import { motion } from 'framer-motion';
-
-// No need to import images anymore as we'll use direct paths
+import StaticImage from '@/components/StaticImage';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
@@ -87,16 +86,12 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
-            <img 
-              src="/images/image_1744764919386.png" 
+            <StaticImage 
+              src="/assets/hero-image.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
-              onLoad={() => setHeroImageLoaded(true)}
-              onError={(e) => {
-                console.log("Image failed to load, falling back");
-                e.currentTarget.src = "/images/image_1744758309655.png";
-              }}
-            />
+              fallbackSrc="/assets/phone-mockup.png"
+              />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
               <div className="flex items-center gap-2 text-white">
                 <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
