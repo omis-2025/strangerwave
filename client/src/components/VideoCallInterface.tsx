@@ -402,7 +402,8 @@ export default function VideoCallInterface({
                     e.stopPropagation();
                     onDisconnect();
                   }}
-                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center"
+                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-red-500/20 ring-2 ring-red-500/50"
+                  aria-label="End call and disconnect"
                 >
                   <Phone className="h-6 w-6 transform rotate-135" />
                 </button>
@@ -415,6 +416,7 @@ export default function VideoCallInterface({
                   className={`rounded-full w-10 h-10 flex items-center justify-center ${
                     !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
                   }`}
+                  aria-label={videoEnabled ? "Turn camera off" : "Turn camera on"}
                 >
                   {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                 </button>
@@ -431,7 +433,7 @@ export default function VideoCallInterface({
                       });
                     }}
                     className="rounded-full w-10 h-10 flex items-center justify-center bg-gray-800/80 text-white hover:bg-gray-700/90"
-                    aria-label="Switch camera"
+                    aria-label="Switch between front and back camera"
                   >
                     <Camera className="h-5 w-5" />
                   </button>
@@ -537,7 +539,7 @@ export default function VideoCallInterface({
             <div className="mt-4 flex justify-between">
               <button 
                 onClick={onDisconnect}
-                className="bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center"
+                className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center shadow-md"
                 aria-label="Stop chat and disconnect"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -547,7 +549,7 @@ export default function VideoCallInterface({
               
               <button 
                 onClick={onFindNext}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center shadow-md"
                 aria-label="Skip to next person"
               >
                 <SkipForward className="h-4 w-4 mr-2" />
