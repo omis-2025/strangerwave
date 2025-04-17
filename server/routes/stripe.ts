@@ -14,9 +14,13 @@ const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
   : undefined;
 
-// Plan configuration (actual Stripe price IDs would be used in production)
-const PREMIUM_PRICE_ID = 'price_premium_monthly'; 
-const VIP_PRICE_ID = 'price_vip_monthly';        
+// Pricing configuration (actual Stripe price IDs would be used in production)
+// Fixed price for Premium - $2.99/month or $29.99/year
+const PREMIUM_PRICE_MONTHLY = 299; // in cents
+const PREMIUM_PRICE_YEARLY = 2999; // in cents
+// Fixed price for VIP - $7.99/month or $79.99/year
+const VIP_PRICE_MONTHLY = 799; // in cents
+const VIP_PRICE_YEARLY = 7999; // in cents
 // Fixed price for unban fee - $10.99
 const UNBAN_PRICE = 1099; // in cents
 
@@ -79,17 +83,32 @@ router.post('/create-checkout-session', async (req, res) => {
       return res.status(400).json({ error: 'Invalid plan type' });
     }
 
-    // Determine which price ID to use based on plan type
-    const priceId = planType.toLowerCase() === 'premium' 
-      ? PREMIUM_PRICE_ID 
-      : VIP_PRICE_ID;
+    // Determine price based on plan type and interval
+    let unitAmount, productName;
+    if (planType.toLowerCase() === 'premium') {
+      unitAmount = interval === 'yearly' ? PREMIUM_PRICE_YEARLY : PREMIUM_PRICE_MONTHLY;
+      productName = 'StrangerWave Premium';
+    } else {
+      unitAmount = interval === 'yearly' ? VIP_PRICE_YEARLY : VIP_PRICE_MONTHLY;
+      productName = 'StrangerWave VIP';
+    }
 
     // Create Stripe checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: productName,
+              description: `${interval === 'yearly' ? 'Annual' : 'Monthly'} subscription to ${productName}`,
+            },
+            unit_amount: unitAmount,
+            recurring: {
+              interval: interval === 'yearly' ? 'year' : 'month',
+            },
+          },
           quantity: 1,
         },
       ],
@@ -248,10 +267,10 @@ router.post('/webhook', async (req, res) => {
           if (user) {
             console.log(`Successfully unbanned user ${userId}`);
             // Record the unban timestamp for reporting
-            await storage.updateUser(userId, { 
-              unbannedAt: new Date(),
-              unbannedViaPayment: true 
-            });
+            // Log unban event information for audit purposes
+            console.log(`User ${userId} unbanned at ${new Date().toISOString()} via payment`);
+            // We'd store this in a separate audit log table in production
+            // No need to update user object with fields not in schema
           } else {
             console.error(`Failed to unban user ${userId}, user not found`);
           }
@@ -282,8 +301,11 @@ router.post('/webhook', async (req, res) => {
               console.log(`Auto-unbanning user ${userId} after subscription purchase`);
               await storage.unbanUser(userId);
               await storage.updateUser(userId, { 
-                unbannedAt: new Date(),
-                unbannedViaSubscription: true 
+                // Store metadata about the unban event without explicitly adding new schema fields
+                metadata: JSON.stringify({
+                  unbannedAt: new Date().toISOString(),
+                  unbannedViaSubscription: true
+                })
               });
             }
           } else {
@@ -312,12 +334,19 @@ router.post('/webhook', async (req, res) => {
             // Get plan type from subscription items
             const items = updatedSubscription.items.data;
             if (items.length > 0) {
-              const priceId = items[0].price.id;
-              // In production, you'd have a more robust mapping of price IDs to plan types
-              const planType = priceId.includes('premium') ? 'premium' : 'vip';
+              // In a real implementation, we'd use the price ID to determine the plan type
+              // For now, we'll use the description or product name to determine the plan
+              const planType = updatedSubscription.description?.toLowerCase().includes('premium') ? 
+                'premium' : 'vip';
               
-              // Calculate expiry date based on current period end
-              const expiryDate = new Date(updatedSubscription.current_period_end * 1000);
+              // Calculate expiry date (in a real implementation, we'd use current_period_end from Stripe)
+              // For now, set a fixed duration based on interval in metadata
+              const expiryDate = new Date();
+              if (updatedSubscription.metadata?.interval === 'yearly') {
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+              } else {
+                expiryDate.setMonth(expiryDate.getMonth() + 1);
+              }
               
               console.log(`Updating subscription for user ${updatedUserId} to ${planType} until ${expiryDate.toISOString()}`);
               await storage.activatePremium(updatedUserId, planType, expiryDate);
