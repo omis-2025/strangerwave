@@ -14,7 +14,16 @@ import {
   // Achievement and streak system imports
   achievements, type Achievement, type InsertAchievement,
   userAchievements, type UserAchievement, type InsertUserAchievement,
-  userStreaks, type UserStreak, type InsertUserStreak
+  userStreaks, type UserStreak, type InsertUserStreak,
+  // Referral system imports
+  referralCodes, type ReferralCode, type InsertReferralCode,
+  referrals, type Referral, type InsertReferral,
+  referralRewards, type ReferralReward, type InsertReferralReward,
+  userReferralRewards, type UserReferralReward, type InsertUserReferralReward,
+  // Social sharing imports
+  socialShares, type SocialShare, type InsertSocialShare,
+  // Creator mode imports
+  privateRooms, type PrivateRoom, type InsertPrivateRoom
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, isNull, or } from "drizzle-orm";
@@ -111,6 +120,37 @@ export interface IStorage {
   updateUserStreak(id: number, updates: Partial<UserStreak>): Promise<UserStreak | undefined>;
   updateLoginStreak(userId: number): Promise<UserStreak>;
   updateChatStreak(userId: number): Promise<UserStreak>;
+
+  // Referral system methods
+  getUserReferralCode(userId: number): Promise<ReferralCode | undefined>;
+  getReferralCodeByCode(code: string): Promise<ReferralCode | undefined>;
+  createReferralCode(code: InsertReferralCode): Promise<ReferralCode>;
+  deactivateReferralCode(userId: number): Promise<ReferralCode | undefined>;
+  createReferral(referral: InsertReferral): Promise<Referral>;
+  getReferralByReferredId(referredId: number): Promise<Referral | undefined>;
+  getUserReferrals(referrerId: number): Promise<Referral[]>;
+  getQualifiedReferrals(referrerId: number): Promise<Referral[]>;
+  getActiveReferralRewards(): Promise<ReferralReward[]>;
+  getReferralReward(id: number): Promise<ReferralReward | undefined>;
+  getUserReferralReward(userId: number, rewardId: number): Promise<UserReferralReward | undefined>;
+  getUserReferralRewards(userId: number): Promise<(UserReferralReward & { reward: ReferralReward })[]>;
+  createUserReferralReward(userReward: InsertUserReferralReward): Promise<UserReferralReward>;
+  getTopReferrers(limit: number): Promise<Array<{ user: Partial<User>, referralCount: number }>>;
+
+  // Social sharing methods
+  createSocialShare(share: InsertSocialShare): Promise<SocialShare>;
+  getSocialShare(id: number): Promise<SocialShare | undefined>;
+  getUserSocialShares(userId: number): Promise<SocialShare[]>;
+  incrementShareClicks(shareId: number): Promise<SocialShare | undefined>;
+  incrementShareConversions(shareId: number): Promise<SocialShare | undefined>;
+
+  // Creator mode methods
+  getCreators(): Promise<User[]>;
+  createPrivateRoom(room: InsertPrivateRoom): Promise<PrivateRoom>;
+  getPrivateRoom(id: number): Promise<PrivateRoom | undefined>;
+  updatePrivateRoom(id: number, updates: Partial<PrivateRoom>): Promise<PrivateRoom | undefined>;
+  getUserPrivateRooms(userId: number): Promise<PrivateRoom[]>;
+  getCreatorPrivateRooms(creatorId: number): Promise<PrivateRoom[]>;
 }
 
 export class DatabaseStorage implements IStorage {
