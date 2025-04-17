@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star, Timer } from 'lucide-react';
+import { TrustBadgesGroup, PaymentProviderLogos, SecurityTestimonial } from '@/components/TrustBadges';
 import {
   Dialog,
   DialogContent,
@@ -487,6 +488,26 @@ export default function Pricing() {
             </CardFooter>
           </Card>
         ))}
+      </div>
+      
+      {/* Trust Badges Section */}
+      <div className="max-w-3xl mx-auto my-16 text-center">
+        <h3 className="text-lg font-medium mb-4 text-muted-foreground">Trusted and Secure Payments</h3>
+        <TrustBadgesGroup />
+        <PaymentProviderLogos />
+        
+        <div className="grid sm:grid-cols-2 gap-6 mt-8">
+          <SecurityTestimonial />
+          <div className="bg-card/50 backdrop-blur-sm border rounded-xl p-4">
+            <h4 className="text-sm font-medium mb-3 flex items-center">
+              <CreditCard className="h-4 w-4 text-primary mr-2" />
+              Secure Payments
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Your payment information is encrypted with 256-bit SSL technology and is never stored on our servers. We offer 30-day refunds for any subscription.
+            </p>
+          </div>
+        </div>
       </div>
       
       {/* Side-by-Side Plan Comparison */}
