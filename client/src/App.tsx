@@ -8,6 +8,7 @@ import Admin from "@/pages/Admin";
 import EnhancedAdmin from "@/pages/EnhancedAdmin";
 import Payment from "@/pages/Payment";
 import LandingPage from "@/pages/LandingPage";
+import DemoDashboardPage from "@/pages/DemoDashboardPage";
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -80,6 +81,7 @@ function Router() {
         <Route path="/admin" component={() => <AuthRoute component={Admin} adminOnly={true} />} />
         <Route path="/enhanced-admin" component={() => <AuthRoute component={EnhancedAdmin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />
+        <Route path="/analytics-demo" component={DemoDashboardPage} />
         <Route path="/payment-success">
           {() => (
             <motion.div
