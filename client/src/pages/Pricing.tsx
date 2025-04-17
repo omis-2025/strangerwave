@@ -568,11 +568,9 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 relative">
-                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
-                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
-                  </svg>
+                {/* Simple avatar for Sarah K. */}
+                <div className="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">S</span>
                 </div>
               </div>
               <div className="ml-4">
@@ -597,11 +595,9 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                <div className="w-full h-full bg-gradient-to-r from-orange-500 to-red-600 relative">
-                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
-                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
-                  </svg>
+                {/* Simple avatar for Miguel R. */}
+                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">M</span>
                 </div>
               </div>
               <div className="ml-4">
@@ -626,11 +622,9 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                <div className="w-full h-full bg-gradient-to-r from-green-500 to-teal-600 relative">
-                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
-                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
-                  </svg>
+                {/* Simple avatar for Aiden T. */}
+                <div className="w-full h-full bg-gradient-to-r from-teal-400 to-emerald-500 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">A</span>
                 </div>
               </div>
               <div className="ml-4">
