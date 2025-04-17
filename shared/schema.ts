@@ -26,6 +26,8 @@ export const users = pgTable("users", {
   interests: jsonb("interests").$type<{name: string, weight: number}[]>(), // Top interests for quick matching
   matchingScore: integer("matching_score"), // Priority score for matching
   lastMatchedAt: timestamp("last_matched_at"), // When user was last matched
+  // Translation fields
+  preferredLanguage: text("preferred_language").default('en'),
 });
 
 export const chatPreferences = pgTable("chat_preferences", {
@@ -53,6 +55,10 @@ export const messages = pgTable("messages", {
   senderId: integer("sender_id").references(() => users.id),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  // Translation fields
+  detectedLanguage: text("detected_language"),
+  isTranslated: boolean("is_translated").default(false),
+  originalContent: text("original_content"), // Stores original content when translated
 });
 
 export const reports = pgTable("reports", {
@@ -75,6 +81,41 @@ export const waitingQueue = pgTable("waiting_queue", {
   // AI Matching fields
   preferredTopics: text("preferred_topics").array(), // Topics user is interested in discussing
   matchingPriority: integer("matching_priority").default(0), // Higher number = higher priority
+});
+
+// --- TRANSLATION SYSTEM TABLES ---
+
+export const translationCache = pgTable("translation_cache", {
+  id: serial("id").primaryKey(),
+  sourceText: text("source_text").notNull(),
+  sourceLanguage: text("source_language").notNull(),
+  targetLanguage: text("target_language").notNull(),
+  translatedText: text("translated_text").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+  useCount: integer("use_count").default(1).notNull()
+});
+
+export const translationMetrics = pgTable("translation_metrics", {
+  id: serial("id").primaryKey(),
+  date: timestamp("date").defaultNow().notNull(),
+  sourceLanguage: text("source_language").notNull(),
+  targetLanguage: text("target_language").notNull(),
+  translationCount: integer("translation_count").default(0).notNull(),
+  cacheHitCount: integer("cache_hit_count").default(0).notNull(),
+  apiCallCount: integer("api_call_count").default(0).notNull(),
+  characterCount: integer("character_count").default(0).notNull(),
+  averageLatencyMs: integer("average_latency_ms"),
+  errorCount: integer("error_count").default(0).notNull()
+});
+
+export const supportedLanguages = pgTable("supported_languages", {
+  code: text("code").primaryKey(),
+  name: text("name").notNull(),
+  nativeName: text("native_name").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  direction: text("direction").default('ltr').notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
 // --- AI MATCHING SYSTEM TABLES ---
@@ -165,6 +206,23 @@ export const insertWaitingQueueSchema = createInsertSchema(waitingQueue).omit({
   matchingPriority: true,
 });
 
+// Translation insert schemas
+export const insertTranslationCacheSchema = createInsertSchema(translationCache).omit({
+  id: true,
+  createdAt: true,
+  lastUsedAt: true,
+  useCount: true
+});
+
+export const insertTranslationMetricsSchema = createInsertSchema(translationMetrics).omit({
+  id: true,
+  date: true
+});
+
+export const insertSupportedLanguagesSchema = createInsertSchema(supportedLanguages).omit({
+  createdAt: true
+});
+
 // AI Matching insert schemas
 export const insertUserInteractionMetricsSchema = createInsertSchema(userInteractionMetrics).omit({
   id: true,
@@ -210,6 +268,16 @@ export type Report = typeof reports.$inferSelect;
 
 export type InsertWaitingQueue = z.infer<typeof insertWaitingQueueSchema>;
 export type WaitingQueue = typeof waitingQueue.$inferSelect;
+
+// Translation types
+export type InsertTranslationCache = z.infer<typeof insertTranslationCacheSchema>;
+export type TranslationCache = typeof translationCache.$inferSelect;
+
+export type InsertTranslationMetrics = z.infer<typeof insertTranslationMetricsSchema>;
+export type TranslationMetrics = typeof translationMetrics.$inferSelect;
+
+export type InsertSupportedLanguage = z.infer<typeof insertSupportedLanguagesSchema>;
+export type SupportedLanguage = typeof supportedLanguages.$inferSelect;
 
 // AI Matching types
 export type InsertUserInteractionMetrics = z.infer<typeof insertUserInteractionMetricsSchema>;
