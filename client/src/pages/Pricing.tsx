@@ -342,7 +342,7 @@ export default function Pricing() {
       } else {
         throw new Error(data.error || 'Could not create checkout session');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unban checkout error:', error);
       toast({
         title: "Checkout Failed",
