@@ -220,8 +220,11 @@ router.post('/webhook', async (req, res) => {
         webhookSecret
       );
     } catch (err) {
+      console.error('Webhook signature verification failed:', err);
       return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
     }
+    
+    console.log(`Received Stripe webhook: ${event.type}`);
     
     // Handle different events
     switch (event.type) {
@@ -230,17 +233,36 @@ router.post('/webhook', async (req, res) => {
         const userId = parseInt(session.metadata?.userId || '0', 10);
         
         // Skip if we can't identify the user
-        if (!userId) break;
+        if (!userId) {
+          console.warn('Missing userId in session metadata');
+          break;
+        }
+        
+        console.log(`Processing completed checkout for user ${userId}`);
         
         // Handle unban payment
         if (session.metadata?.paymentType === 'unban') {
-          await storage.unbanUser(userId);
+          console.log(`Processing unban payment for user ${userId}`);
+          const user = await storage.unbanUser(userId);
+          
+          if (user) {
+            console.log(`Successfully unbanned user ${userId}`);
+            // Record the unban timestamp for reporting
+            await storage.updateUser(userId, { 
+              unbannedAt: new Date(),
+              unbannedViaPayment: true 
+            });
+          } else {
+            console.error(`Failed to unban user ${userId}, user not found`);
+          }
           break;
         }
         
         // Handle subscription payment
         const planType = session.metadata?.planType;
         if (planType) {
+          console.log(`Processing ${planType} subscription for user ${userId}`);
+          
           const expiryDate = new Date();
           
           // Check interval for subscription duration
@@ -250,26 +272,91 @@ router.post('/webhook', async (req, res) => {
             expiryDate.setMonth(expiryDate.getMonth() + 1);
           }
           
-          await storage.activatePremium(userId, planType, expiryDate);
+          const user = await storage.activatePremium(userId, planType, expiryDate);
+          
+          if (user) {
+            console.log(`Successfully activated ${planType} for user ${userId} until ${expiryDate.toISOString()}`);
+            
+            // If the user is banned and they subscribe to Premium or VIP, automatically unban them as a courtesy
+            if (user.isBanned) {
+              console.log(`Auto-unbanning user ${userId} after subscription purchase`);
+              await storage.unbanUser(userId);
+              await storage.updateUser(userId, { 
+                unbannedAt: new Date(),
+                unbannedViaSubscription: true 
+              });
+            }
+          } else {
+            console.error(`Failed to activate ${planType} for user ${userId}, user not found`);
+          }
         }
         break;
         
       case 'customer.subscription.updated':
+        const updatedSubscription = event.data.object as Stripe.Subscription;
+        // Extract customer/user ID from subscription metadata
+        const updatedUserId = parseInt(updatedSubscription.metadata?.userId || '0', 10);
+        
+        if (!updatedUserId) {
+          // Try to find user via Stripe customer ID
+          const stripeCustomerId = updatedSubscription.customer as string;
+          console.log(`Looking up user by Stripe customer ID: ${stripeCustomerId}`);
+          // This would require a way to find users by stripeCustomerId
+          // In a real implementation, you'd have this field in your user records
+        } else {
+          // Update subscription status
+          const status = updatedSubscription.status;
+          const isActive = status === 'active' || status === 'trialing';
+          
+          if (isActive) {
+            // Get plan type from subscription items
+            const items = updatedSubscription.items.data;
+            if (items.length > 0) {
+              const priceId = items[0].price.id;
+              // In production, you'd have a more robust mapping of price IDs to plan types
+              const planType = priceId.includes('premium') ? 'premium' : 'vip';
+              
+              // Calculate expiry date based on current period end
+              const expiryDate = new Date(updatedSubscription.current_period_end * 1000);
+              
+              console.log(`Updating subscription for user ${updatedUserId} to ${planType} until ${expiryDate.toISOString()}`);
+              await storage.activatePremium(updatedUserId, planType, expiryDate);
+            }
+          }
+        }
+        break;
+        
       case 'customer.subscription.created':
-        const subscription = event.data.object as Stripe.Subscription;
-        // Update subscription details in a real app
-        // This would update based on subscription period and status
+        const newSubscription = event.data.object as Stripe.Subscription;
+        console.log(`New subscription created: ${newSubscription.id}`);
+        // Similar handling as subscription.updated
         break;
         
       case 'customer.subscription.deleted':
         const deletedSubscription = event.data.object as Stripe.Subscription;
         const customerUserId = parseInt(deletedSubscription.metadata?.userId || '0', 10);
+        
         if (customerUserId) {
+          console.log(`Deactivating premium for user ${customerUserId} due to subscription cancellation`);
           await storage.deactivatePremium(customerUserId);
+        } else {
+          console.warn(`Cannot deactivate subscription - missing userId in metadata for subscription ${deletedSubscription.id}`);
         }
+        break;
+        
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log(`Payment intent succeeded: ${paymentIntent.id}`);
+        // This can be used for one-time payments like unban fees
+        break;
+        
+      case 'payment_intent.payment_failed':
+        const failedPayment = event.data.object as Stripe.PaymentIntent;
+        console.log(`Payment failed: ${failedPayment.id}`);
         break;
     }
     
+    // Return a 200 success response to acknowledge receipt of the event
     res.json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);

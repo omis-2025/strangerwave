@@ -17,6 +17,10 @@ interface UserData {
   isBanned: boolean;
   lastActive: string;
   ipAddress: string;
+  subscriptionTier?: string;
+  subscriptionExpiryDate?: string;
+  banCount?: number;
+  unbannedAt?: string;
 }
 
 export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
@@ -30,10 +34,27 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
       setIsLoading(true);
       
       const queryParams = new URLSearchParams();
-      if (filter === "banned") {
-        queryParams.set("banned", "true");
-      } else if (filter === "active") {
-        queryParams.set("banned", "false");
+      
+      // Apply filters based on selection
+      switch (filter) {
+        case "banned":
+          queryParams.set("banned", "true");
+          break;
+        case "active":
+          queryParams.set("banned", "false");
+          break;
+        case "subscribed":
+          queryParams.set("subscribed", "true");
+          break;
+        case "premium":
+          queryParams.set("tier", "premium");
+          break;
+        case "vip":
+          queryParams.set("tier", "vip");
+          break;
+        case "unbanned":
+          queryParams.set("recently_unbanned", "true");
+          break;
       }
       
       const response = await fetch(`/api/admin/users?${queryParams.toString()}`);
@@ -169,6 +190,10 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                     <SelectItem value="all">All Users</SelectItem>
                     <SelectItem value="banned">Banned Users</SelectItem>
                     <SelectItem value="active">Active Users</SelectItem>
+                    <SelectItem value="subscribed">Subscribers</SelectItem>
+                    <SelectItem value="premium">Premium Users</SelectItem>
+                    <SelectItem value="vip">VIP Users</SelectItem>
+                    <SelectItem value="unbanned">Recently Unbanned</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -198,6 +223,9 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                           Status
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
+                          Subscription
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
                           Last Active
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
@@ -210,6 +238,11 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                         <tr key={user.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
                             {user.username}
+                            {user.banCount && user.banCount > 0 && (
+                              <div className="text-xs text-red-400 mt-1">
+                                Ban count: {user.banCount}
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
                             {user.ipAddress || "Unknown"}
@@ -222,6 +255,31 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                             }`}>
                               {user.isBanned ? 'Banned' : 'Active'}
                             </span>
+                            {user.unbannedAt && (
+                              <div className="text-xs text-gray-400 mt-1">
+                                Unbanned: {formatDate(user.unbannedAt)}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {user.subscriptionTier ? (
+                              <div>
+                                <span className={`px-2 py-1 text-xs rounded-full ${
+                                  user.subscriptionTier.toLowerCase() === 'premium'
+                                    ? 'bg-blue-900 text-blue-200'
+                                    : 'bg-purple-900 text-purple-200'
+                                }`}>
+                                  {user.subscriptionTier}
+                                </span>
+                                {user.subscriptionExpiryDate && (
+                                  <div className="text-xs text-gray-400 mt-1">
+                                    Expires: {formatDate(user.subscriptionExpiryDate)}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-500">Basic</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
                             {formatDate(user.lastActive)}
