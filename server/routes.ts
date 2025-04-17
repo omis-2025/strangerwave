@@ -9,6 +9,7 @@ import {
   insertReportSchema, 
   insertMessageSchema 
 } from "@shared/schema";
+import { calculateCompatibilityScore, extractInterestsFromMessage, handleChatEnd } from "./ai-matching";
 import paypalRoutes from "./routes/paypal";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
@@ -450,40 +451,98 @@ async function handleLeaveQueue(userId: number) {
 
 async function findMatch(userId: number, preferences: any) {
   try {
-    // Get matching users from the queue
-    const matches = await storage.getMatchingUsers(preferences);
+    // Get user data needed for matching
+    const user = await storage.getUser(userId);
+    if (!user) {
+      console.error("User not found for matching:", userId);
+      return;
+    }
+
+    // Get potential matches from the queue based on basic criteria
+    const potentialMatches = await storage.getMatchingUsers(preferences);
+    if (!potentialMatches.length || potentialMatches.every(m => m.userId === userId)) {
+      return; // No potential matches found
+    }
     
-    // Filter out the current user and find the first viable match
-    const match = matches.find(m => m.userId !== userId);
+    // Get user metrics for advanced matching if available
+    const userMetrics = await storage.getUserInteractionMetrics(userId);
     
-    if (match) {
+    // Get active algorithm config
+    const algorithms = await storage.getActiveMatchingAlgorithms();
+    const algorithmConfig = algorithms.length ? algorithms[0] : null;
+    const algorithmParams = algorithmConfig?.parameters;
+    
+    // Initialize match scores
+    const matchScores: { userId: number; score: number }[] = [];
+    
+    // Calculate compatibility score for each potential match
+    for (const potMatch of potentialMatches) {
+      if (potMatch.userId === userId) continue;
+      
+      const matchUser = await storage.getUser(potMatch.userId);
+      const matchMetrics = await storage.getUserInteractionMetrics(potMatch.userId);
+      
+      if (matchUser) {
+        // Calculate compatibility score
+        const score = calculateCompatibilityScore(
+          user,
+          matchUser,
+          userMetrics,
+          matchMetrics,
+          algorithmParams
+        );
+        
+        matchScores.push({
+          userId: matchUser.id,
+          score
+        });
+      }
+    }
+    
+    // Sort by score (descending) and take the best match
+    const sortedMatches = matchScores.sort((a, b) => b.score - a.score);
+    const bestMatch = sortedMatches.length ? sortedMatches[0] : null;
+    
+    if (bestMatch) {
+      const matchUserId = bestMatch.userId;
+      
       // Remove both users from the queue
       await storage.removeFromWaitingQueue(userId);
-      await storage.removeFromWaitingQueue(match.userId);
+      await storage.removeFromWaitingQueue(matchUserId);
       
-      // Create a chat session
+      // Update last matched timestamp
+      await storage.updateUser(userId, { lastMatchedAt: new Date() });
+      await storage.updateUser(matchUserId, { lastMatchedAt: new Date() });
+      
+      // Create a chat session with algorithm data
       const session = await storage.createChatSession({
         user1Id: userId,
-        user2Id: match.userId,
-        active: true
+        user2Id: matchUserId,
+        active: true,
+        algorithmId: algorithmConfig?.id,
+        matchQualityScore: bestMatch.score
       });
       
       // Store the active session for both users
-      activeSessions.set(userId, { partnerId: match.userId, sessionId: session.id });
-      activeSessions.set(match.userId, { partnerId: userId, sessionId: session.id });
+      activeSessions.set(userId, { partnerId: matchUserId, sessionId: session.id });
+      activeSessions.set(matchUserId, { partnerId: userId, sessionId: session.id });
       
       // Notify both users
       sendToUser(userId, { 
         type: "match_found", 
         sessionId: session.id,
-        partnerId: match.userId 
+        partnerId: matchUserId,
+        matchScore: Math.round(bestMatch.score * 100) // Send score as percentage
       });
       
-      sendToUser(match.userId, { 
+      sendToUser(matchUserId, { 
         type: "match_found", 
         sessionId: session.id,
-        partnerId: userId 
+        partnerId: userId,
+        matchScore: Math.round(bestMatch.score * 100) // Send score as percentage
       });
+      
+      console.log(`AI Matching: Matched users ${userId} and ${matchUserId} with score ${bestMatch.score}`);
     }
   } catch (error) {
     console.error("Error finding match:", error);
@@ -535,6 +594,14 @@ async function handleSendMessage(userId: number, data: any) {
     
     sendToUser(userId, messagePayload);
     sendToUser(activeSession.partnerId, messagePayload);
+    
+    // Extract interests from message content for AI matching improvements
+    try {
+      await extractInterestsFromMessage(message.content, userId);
+    } catch (interestError) {
+      console.error("Error extracting interests:", interestError);
+      // Continue even if interest extraction fails
+    }
 
     // Handle moderation actions if message was flagged
     if (moderationResult?.isFlagged) {
@@ -599,6 +666,23 @@ async function handleDisconnect(userId: number) {
     // Remove active sessions
     activeSessions.delete(userId);
     activeSessions.delete(partnerId);
+    
+    // Get the session data for tracking metrics
+    const session = await storage.getChatSession(sessionId);
+    if (session) {
+      // Calculate session duration in seconds
+      const startTime = session.startedAt?.getTime() || 0;
+      const endTime = Date.now();
+      const durationSeconds = Math.floor((endTime - startTime) / 1000);
+      
+      // Track chat metrics for AI matching improvement
+      try {
+        await handleChatEnd(userId, sessionId, durationSeconds);
+        await handleChatEnd(partnerId, sessionId, durationSeconds);
+      } catch (metricsError) {
+        console.error("Error updating chat metrics:", metricsError);
+      }
+    }
     
     // End the chat session
     await storage.endChatSession(sessionId);

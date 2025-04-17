@@ -14,6 +14,7 @@ interface TimePreference {
   afternoon: number; // 12:00 - 16:59
   evening: number; // 17:00 - 21:59
   night: number; // 22:00 - 4:59
+  [key: string]: number; // Allow string indexing
 }
 
 /**
@@ -278,11 +279,12 @@ function calculateInterestCompatibility(
   
   // Count common interests
   let commonCount = 0;
-  for (const interest of names1) {
+  // Use Array.from to avoid Set iteration issues
+  Array.from(names1).forEach(interest => {
     if (names2.has(interest)) {
       commonCount++;
     }
-  }
+  });
   
   // Calculate Jaccard similarity: intersection / union
   const unionSize = names1.size + names2.size - commonCount;

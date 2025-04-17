@@ -145,8 +145,6 @@ export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
   id: true,
   startedAt: true,
   endedAt: true,
-  algorithmId: true,
-  matchQualityScore: true,
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
