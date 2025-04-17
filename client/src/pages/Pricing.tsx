@@ -564,7 +564,7 @@ export default function Pricing() {
               <tr className="border-b">
                 <td className="py-4 px-6 font-medium">Advanced filters</td>
                 <td className="py-4 px-6 text-center">Basic only</td>
-                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">Most filters</td>
+                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">Most filters</td>
                 <td className="py-4 px-6 text-center bg-primary/10">All filters</td>
               </tr>
               <tr>
@@ -572,7 +572,7 @@ export default function Pricing() {
                 <td className="py-4 px-6 text-center">
                   <span className="inline-block font-medium">Current Plan</span>
                 </td>
-                <td className="py-4 px-6 text-center bg-blue-400/20 dark:bg-blue-600/30 text-foreground">
+                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">
                   <Button 
                     className="bg-blue-500 hover:bg-blue-600 text-white"
                     onClick={() => openConfirmDialog(pricingPlans[1])}
