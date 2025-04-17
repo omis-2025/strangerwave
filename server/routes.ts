@@ -49,12 +49,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Handle WebSocket connections
   wss.on("connection", async (ws, req) => {
-    const userId = getUserIdFromRequest(req);
+    const userId = await getUserIdFromRequest(req);
     
     if (!userId) {
+      console.log("WebSocket connection rejected: User ID not found");
       ws.close(1008, "User ID required");
       return;
     }
+    
+    console.log(`WebSocket connection established for user ${userId}`);
     
     // Update user's connection status
     connections.set(userId, ws);
@@ -732,12 +735,28 @@ async function earnAchievementIfNotExists(userId: number, achievementCode: strin
   }
 }
 
-function getUserIdFromRequest(req: any): number | null {
-  const uid = new URL(req.url, "http://localhost").searchParams.get("uid");
-  if (!uid) return null;
+async function getUserIdFromRequest(req: any): Promise<number | null> {
+  // Get the value from query parameter
+  const uidOrUserId = new URL(req.url, "http://localhost").searchParams.get("uid");
+  if (!uidOrUserId) return null;
   
-  // In a real app, you'd validate this token/session
-  return parseInt(uid);
+  // Check if it's a numeric user ID already
+  const userId = parseInt(uidOrUserId);
+  if (!isNaN(userId)) {
+    return userId;
+  }
+  
+  // If not a number, it might be a Firebase UID, so look up the user in the database
+  try {
+    const user = await storage.getUserByUid(uidOrUserId);
+    if (user) {
+      return user.id;
+    }
+  } catch (error) {
+    console.error("Error looking up user by UID:", error);
+  }
+  
+  return null;
 }
 
 function sendToUser(userId: number, message: any) {

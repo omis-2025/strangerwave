@@ -52,8 +52,10 @@ export function useChatService(): ChatService {
     if (!user?.userId) return;
     
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    // Use numeric userId for WebSocket connection, not Firebase UID
     const wsUrl = `${protocol}//${window.location.host}/ws?uid=${user.userId}`;
     
+    console.log("Connecting WebSocket with URL:", wsUrl);
     const newSocket = new WebSocket(wsUrl);
     
     newSocket.onopen = () => {
