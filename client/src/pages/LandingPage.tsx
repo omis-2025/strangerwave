@@ -26,10 +26,10 @@ export default function LandingPage() {
           <h1 className="text-2xl font-bold">StrangerWave</h1>
         </div>
         <div className="flex gap-4">
-          <Link href="/login">
+          <Link href="/chat">
             <Button variant="ghost">Login</Button>
           </Link>
-          <Link href="/register">
+          <Link href="/chat">
             <Button>Get Started</Button>
           </Link>
         </div>
@@ -82,7 +82,7 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <img 
-              src="/attached_assets/image_1744729674145.png" 
+              src="attached_assets/image_1744729674145.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
             />
