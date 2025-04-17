@@ -5,7 +5,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-03-31.basil',
 });
 
 // Plan configuration
@@ -95,8 +95,8 @@ export function handleStripeWebhook(
       webhookSecret
     );
     return event;
-  } catch (err) {
-    console.error(`Webhook signature verification failed: ${err.message}`);
-    throw new Error(`Webhook signature verification failed: ${err.message}`);
+  } catch (err: any) {
+    console.error(`Webhook signature verification failed: ${err.message || 'Unknown error'}`);
+    throw new Error(`Webhook signature verification failed: ${err.message || 'Unknown error'}`);
   }
 }

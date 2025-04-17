@@ -9,9 +9,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('STRIPE_SECRET_KEY is not set. Stripe payment features will not work.');
 }
 
-// Use the most recent API version for Stripe
+// Use the most recent API version for Stripe (updated for 2025)
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' as any })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' })
   : undefined;
 
 // Pricing configuration (actual Stripe price IDs would be used in production)
@@ -157,11 +157,11 @@ router.post('/create-checkout-session', async (req, res) => {
         message: stripeError.message || 'Unknown error' 
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({ 
       error: 'Failed to create checkout session', 
-      message: error.message 
+      message: error.message || 'Unknown error' 
     });
   }
 });
@@ -240,11 +240,11 @@ router.get('/verify-checkout', async (req, res) => {
       paymentType: 'subscription',
       message: `Successfully activated ${planType} subscription`
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error verifying checkout:', error);
     res.status(500).json({ 
       error: 'Failed to verify checkout', 
-      message: error.message 
+      message: error.message || 'Unknown error' 
     });
   }
 });
@@ -271,7 +271,7 @@ router.post('/webhook', async (req, res) => {
         sig,
         webhookSecret
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error('Webhook signature verification failed:', err);
       return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
     }
@@ -417,9 +417,9 @@ router.post('/webhook', async (req, res) => {
     
     // Return a 200 success response to acknowledge receipt of the event
     res.json({ received: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Webhook error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || 'Unknown webhook error' });
   }
 });
 
