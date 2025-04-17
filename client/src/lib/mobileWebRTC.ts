@@ -26,6 +26,13 @@ const MOBILE_VIDEO_CONSTRAINTS = {
   facingMode: 'user',
 };
 
+const MOBILE_VIDEO_CONSTRAINTS_BACK = {
+  width: { ideal: 640, max: 1280 },
+  height: { ideal: 480, max: 720 },
+  frameRate: { ideal: 15, max: 24 },
+  facingMode: 'environment',
+};
+
 const DEFAULT_AUDIO_CONSTRAINTS = {
   echoCancellation: true,
   noiseSuppression: true,
@@ -37,6 +44,22 @@ const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
+  // Added free TURN servers for NAT traversal
+  {
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  }
 ];
 
 /**
@@ -357,6 +380,60 @@ export class MobileWebRTCManager {
    */
   public getConnectionState(): RTCPeerConnectionState | null {
     return this.peerConnection?.connectionState || null;
+  }
+  
+  /**
+   * Switch camera between front and back
+   */
+  public async switchCamera(): Promise<MediaStream | null> {
+    if (!this.localStream) {
+      console.error('Cannot switch camera: no local stream exists');
+      return null;
+    }
+    
+    // Get current video track
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    if (!videoTrack) {
+      console.error('Cannot switch camera: no video track found');
+      return null;
+    }
+    
+    // Stop the current track
+    videoTrack.stop();
+    
+    try {
+      // Determine current facing mode
+      const currentFacingMode = videoTrack.getSettings().facingMode || 'user';
+      const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+      
+      console.log(`Switching camera from ${currentFacingMode} to ${newFacingMode}`);
+      
+      // Create new video constraints with the opposite facing mode
+      const videoConstraints = newFacingMode === 'user' 
+        ? MOBILE_VIDEO_CONSTRAINTS 
+        : MOBILE_VIDEO_CONSTRAINTS_BACK;
+      
+      // Get new video track
+      const newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      
+      // Remove old track from the peer connection
+      const senders = this.peerConnection?.getSenders() || [];
+      const videoSender = senders.find(sender => sender.track?.kind === 'video');
+      
+      if (videoSender) {
+        videoSender.replaceTrack(newVideoTrack);
+      }
+      
+      // Replace track in local stream
+      this.localStream.removeTrack(videoTrack);
+      this.localStream.addTrack(newVideoTrack);
+      
+      return this.localStream;
+    } catch (error) {
+      console.error('Error switching camera:', error);
+      return null;
+    }
   }
   
   /**
