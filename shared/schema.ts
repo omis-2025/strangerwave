@@ -5,8 +5,11 @@ import { z } from "zod";
 
 export const genderEnum = pgEnum('gender', ['male', 'female', 'non-binary', 'transgender', 'genderqueer', 'gender-fluid', 'other', 'any']);
 
+// Forward declaration to avoid circular references
+export let users: ReturnType<typeof pgTable>;
+
 // Main user table
-export const users = pgTable("users", {
+users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
@@ -30,6 +33,20 @@ export const users = pgTable("users", {
   sessionCount: integer("session_count").default(0), // Total number of chat sessions
   // Translation fields
   preferredLanguage: text("preferred_language").default('en'),
+  // Referral fields
+  referralCount: integer("referral_count").default(0),
+  wasReferred: boolean("was_referred").default(false),
+  referredBy: integer("referred_by").references(() => users.id),
+  // Virtual tokens and Creator mode
+  tokens: integer("tokens").default(0), // Virtual currency for tipping and purchases
+  isCreator: boolean("is_creator").default(false), // Whether user is in creator mode
+  creatorBio: text("creator_bio"), // Profile description for creators
+  creatorSettings: jsonb("creator_settings").$type<{
+    tippingEnabled: boolean,
+    privateRoomRate: number, // Token rate for private chat
+    contentCategories: string[]
+  }>(),
+  country: text("country"), // User's country for localization
 });
 
 export const chatPreferences = pgTable("chat_preferences", {
@@ -167,10 +184,89 @@ export const userAlgorithmAssignment = pgTable("user_algorithm_assignment", {
   assignedAt: timestamp("assigned_at").defaultNow().notNull(),
 });
 
+// --- REFERRAL SYSTEM TABLES ---
+
+// Referral codes table - stores unique referral codes for users
+export const referralCodes = pgTable("referral_codes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull().unique(),
+  code: text("code").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true).notNull(),
+  isCreatorCode: boolean("is_creator_code").default(false).notNull(), // Special codes for creators
+  bonusPercentage: integer("bonus_percentage").default(0), // Extra rewards for special promotions
+});
+
+// Referrals table - tracks referral relationships between users
+export const referrals = pgTable("referrals", {
+  id: serial("id").primaryKey(),
+  referrerId: integer("referrer_id").references(() => users.id).notNull(),
+  referredId: integer("referred_id").references(() => users.id).notNull().unique(),
+  referralCode: text("referral_code").references(() => referralCodes.code).notNull(),
+  referredAt: timestamp("referred_at").defaultNow().notNull(),
+  status: text("status").default('pending').notNull(), // "pending", "qualified", "rewarded"
+  rewardClaimed: boolean("reward_claimed").default(false).notNull(),
+  rewardClaimedAt: timestamp("reward_claimed_at"),
+});
+
+// Referral rewards table - defines available rewards for successful referrals
+export const referralRewards = pgTable("referral_rewards", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  type: text("type").notNull(), // "premium_days", "tokens", "badge", "discount"
+  value: jsonb("value").notNull(), // e.g. {"days": 30} or {"tokens": 500}
+  requiredReferrals: integer("required_referrals").default(1).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  displayOrder: integer("display_order").default(0).notNull(),
+  iconUrl: text("icon_url"),
+});
+
+// User referral rewards table - tracks rewards claimed by users
+export const userReferralRewards = pgTable("user_referral_rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  rewardId: integer("reward_id").references(() => referralRewards.id).notNull(),
+  claimedAt: timestamp("claimed_at").defaultNow().notNull(),
+  appliedAt: timestamp("applied_at"),
+  expiresAt: timestamp("expires_at"),
+});
+
+// Social shares table - tracks user-shared content
+export const socialShares = pgTable("social_shares", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  type: text("type").notNull(), // "chat_moment", "achievement", "streak"
+  content: text("content"), // Sanitized content text 
+  mediaUrl: text("media_url"), // URL to blurred image or clip
+  shareUrl: text("share_url").notNull(), // Unique tracking URL
+  platform: text("platform"), // "twitter", "facebook", "instagram", etc.
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  clickCount: integer("click_count").default(0).notNull(),
+  convertedCount: integer("converted_count").default(0).notNull(), // How many clicks resulted in signups
+});
+
+// VIP private rooms table - for creator chats
+export const privateRooms = pgTable("private_rooms", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id").references(() => users.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  tokenRate: integer("token_rate").notNull(), // Tokens per minute
+  status: text("status").default('pending').notNull(), // "pending", "active", "completed", "cancelled"
+  startedAt: timestamp("started_at"),
+  endedAt: timestamp("ended_at"),
+  tokensSpent: integer("tokens_spent").default(0).notNull(),
+  minutesActive: integer("minutes_active").default(0).notNull(),
+  creatorRating: integer("creator_rating"), // 1-5 rating from user
+  userRating: integer("user_rating"), // 1-5 rating from creator
+});
+
 // --- ACHIEVEMENT AND STREAK SYSTEM TABLES ---
 
 // Achievement types for better organization
-export const achievementTypeEnum = pgEnum('achievement_type', ['streak', 'milestone', 'quality', 'special', 'onboarding', 'engagement']);
+export const achievementTypeEnum = pgEnum('achievement_type', ['streak', 'milestone', 'quality', 'special', 'onboarding', 'engagement', 'referral', 'creator']);
 
 // Achievements table - defines available achievements
 export const achievements = pgTable("achievements", {
@@ -211,6 +307,42 @@ export const userStreaks = pgTable("user_streaks", {
 });
 
 // --- SCHEMA INSERTION HELPERS ---
+
+// Referral system insert schemas
+export const insertReferralCodeSchema = createInsertSchema(referralCodes).omit({
+  id: true,
+  createdAt: true
+});
+
+export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  referredAt: true,
+  rewardClaimedAt: true
+});
+
+export const insertReferralRewardSchema = createInsertSchema(referralRewards).omit({
+  id: true
+});
+
+export const insertUserReferralRewardSchema = createInsertSchema(userReferralRewards).omit({
+  id: true,
+  claimedAt: true
+});
+
+export const insertSocialShareSchema = createInsertSchema(socialShares).omit({
+  id: true,
+  createdAt: true,
+  clickCount: true,
+  convertedCount: true
+});
+
+export const insertPrivateRoomSchema = createInsertSchema(privateRooms).omit({
+  id: true,
+  startedAt: true,
+  endedAt: true,
+  tokensSpent: true,
+  minutesActive: true
+});
 
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -364,3 +496,22 @@ export type UserAchievement = typeof userAchievements.$inferSelect;
 
 export type InsertUserStreak = z.infer<typeof insertUserStreakSchema>;
 export type UserStreak = typeof userStreaks.$inferSelect;
+
+// Referral system types
+export type InsertReferralCode = z.infer<typeof insertReferralCodeSchema>;
+export type ReferralCode = typeof referralCodes.$inferSelect;
+
+export type InsertReferral = z.infer<typeof insertReferralSchema>;
+export type Referral = typeof referrals.$inferSelect;
+
+export type InsertReferralReward = z.infer<typeof insertReferralRewardSchema>;
+export type ReferralReward = typeof referralRewards.$inferSelect;
+
+export type InsertUserReferralReward = z.infer<typeof insertUserReferralRewardSchema>;
+export type UserReferralReward = typeof userReferralRewards.$inferSelect;
+
+export type InsertSocialShare = z.infer<typeof insertSocialShareSchema>;
+export type SocialShare = typeof socialShares.$inferSelect;
+
+export type InsertPrivateRoom = z.infer<typeof insertPrivateRoomSchema>;
+export type PrivateRoom = typeof privateRooms.$inferSelect;
