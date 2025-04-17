@@ -212,21 +212,32 @@ export default function Pricing() {
         interval: selectedPlan.interval
       });
       
-      // Create a checkout session with enhanced error handling
+      // Create a checkout session with enhanced error handling and debug logs
+      console.log("Sending checkout request with data:", {
+        planType: selectedPlan.id.toUpperCase(),
+        userId,
+        interval: selectedPlan.interval
+      });
+      
       const response = await apiRequest('POST', '/api/stripe/create-checkout-session', {
         planType: selectedPlan.id.toUpperCase(),
         userId,
         interval: selectedPlan.interval
       });
       
+      console.log("Received checkout response with status:", response.status);
+      
       // Check for response issues first
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("Checkout response error text:", errorText);
         let errorData;
         try {
           errorData = JSON.parse(errorText);
+          console.error("Parsed error data:", errorData);
         } catch (e) {
           // If not JSON, use the raw text
+          console.error("Failed to parse error response as JSON:", e);
           throw new Error(`Server error (${response.status}): ${errorText || 'Unknown error'}`);
         }
         throw new Error(errorData.error || errorData.message || `Server error (${response.status})`);
@@ -234,6 +245,7 @@ export default function Pricing() {
       
       // Parse the response data
       const data = await response.json();
+      console.log("Checkout session created successfully, data:", data);
       
       // Check for redirect URL
       if (!data.url) {

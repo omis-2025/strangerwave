@@ -11,7 +11,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 // Use the most recent API version for Stripe
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' as any })
   : undefined;
 
 // Pricing configuration (actual Stripe price IDs would be used in production)
@@ -27,22 +27,31 @@ const UNBAN_PRICE = 1099; // in cents
 // Create a checkout session for subscription plans or unban
 router.post('/create-checkout-session', async (req, res) => {
   try {
+    console.log("Received checkout request with body:", req.body);
+    
     if (!stripe) {
+      console.error("Stripe not configured - missing API key");
       return res.status(500).json({ error: 'Stripe is not configured' });
     }
 
     const { planType, userId, interval } = req.body;
+    console.log("Processing checkout with params:", { planType, userId, interval });
     
     // Validate input parameters
     if (!planType || !userId) {
+      console.error("Invalid parameters:", { planType, userId });
       return res.status(400).json({ error: 'Invalid request parameters' });
     }
     
     // Get the user
     const user = await storage.getUser(userId);
     if (!user) {
+      console.error(`User not found: ${userId}`);
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    console.log(`Found user for checkout: ${userId}, ${user.username}`);
+    
 
     // Host for success and cancel URLs
     const host = req.headers.host || 'localhost:3000';
@@ -93,8 +102,8 @@ router.post('/create-checkout-session', async (req, res) => {
       productName = 'StrangerWave VIP';
     }
 
-    // Create Stripe checkout session for subscription
-    const session = await stripe.checkout.sessions.create({
+    // Create session config with detailed logging
+    const sessionConfig = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -106,7 +115,7 @@ router.post('/create-checkout-session', async (req, res) => {
             },
             unit_amount: unitAmount,
             recurring: {
-              interval: interval === 'yearly' ? 'year' : 'month',
+              interval: (interval === 'yearly' ? 'year' : 'month') as 'year' | 'month',
             },
           },
           quantity: 1,
@@ -121,9 +130,33 @@ router.post('/create-checkout-session', async (req, res) => {
         interval: interval || 'monthly'
       },
       client_reference_id: userId.toString()
-    });
-
-    res.json({ url: session.url });
+    };
+    
+    console.log("Creating Stripe checkout session with config:", JSON.stringify(sessionConfig, null, 2));
+    
+    try {
+      // Create Stripe checkout session for subscription
+      const session = await stripe.checkout.sessions.create(sessionConfig as any);
+      
+      console.log("Stripe checkout session created successfully:", {
+        sessionId: session.id,
+        url: session.url,
+        status: session.status
+      });
+      
+      if (!session.url) {
+        console.error("Missing checkout URL in Stripe session response");
+        return res.status(500).json({ error: "Failed to generate checkout URL" });
+      }
+      
+      return res.json({ url: session.url });
+    } catch (stripeError: any) {
+      console.error("Stripe checkout session creation error:", stripeError);
+      return res.status(500).json({ 
+        error: 'Failed to create Stripe checkout session', 
+        message: stripeError.message || 'Unknown error' 
+      });
+    }
   } catch (error) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({ 

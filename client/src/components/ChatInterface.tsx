@@ -231,7 +231,7 @@ export default function ChatInterface({
     };
     
     // Add the test message to the messages array
-    setMessages(prev => [...prev, testMessage]);
+    onNewMessage(testMessage);
   };
   
   const handleSubmit = (e: React.FormEvent) => {
