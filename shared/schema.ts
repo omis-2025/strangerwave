@@ -26,6 +26,8 @@ export const users = pgTable("users", {
   interests: jsonb("interests").$type<{name: string, weight: number}[]>(), // Top interests for quick matching
   matchingScore: integer("matching_score"), // Priority score for matching
   lastMatchedAt: timestamp("last_matched_at"), // When user was last matched
+  // Session tracking
+  sessionCount: integer("session_count").default(0), // Total number of chat sessions
   // Translation fields
   preferredLanguage: text("preferred_language").default('en'),
 });
@@ -173,6 +175,7 @@ export const achievementTypeEnum = pgEnum('achievement_type', ['streak', 'milest
 // Achievements table - defines available achievements
 export const achievements = pgTable("achievements", {
   id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(), // Unique code identifier for the achievement
   name: text("name").notNull(),
   description: text("description").notNull(),
   category: achievementTypeEnum("category").notNull(),
