@@ -565,72 +565,90 @@ export default function Pricing() {
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {/* Testimonial 1 */}
-          <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
+                <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 relative">
+                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
+                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
+                  </svg>
+                </div>
               </div>
               <div className="ml-4">
-                <h4 className="font-semibold">Alex T.</h4>
-                <div className="flex items-center text-amber-500">
+                <h4 className="font-semibold text-white">Sarah K.</h4>
+                <div className="flex items-center text-yellow-400">
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                 </div>
+                <div className="text-xs text-gray-400 mt-1">United States</div>
               </div>
             </div>
-            <p className="text-sm italic mb-3">
-              "Premium subscription completely transformed my experience. No more time limits and the matching algorithm is so much better! Worth every penny."
+            <p className="text-sm italic mb-3 text-gray-300">
+              "I've tried all the random chat apps, but StrangerWave is in a league of its own. The video quality is amazing and I feel much safer with their moderation system."
             </p>
-            <div className="text-xs text-muted-foreground">Premium member for 6 months</div>
+            <div className="text-xs text-gray-500">VIP member for 6 months</div>
           </div>
           
           {/* Testimonial 2 */}
-          <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
+                <div className="w-full h-full bg-gradient-to-r from-orange-500 to-red-600 relative">
+                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
+                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
+                  </svg>
+                </div>
               </div>
               <div className="ml-4">
-                <h4 className="font-semibold">Sophia K.</h4>
-                <div className="flex items-center text-amber-500">
+                <h4 className="font-semibold text-white">Miguel R.</h4>
+                <div className="flex items-center text-yellow-400">
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                   <Star className="h-4 w-4 fill-current" />
                 </div>
+                <div className="text-xs text-gray-400 mt-1">Spain</div>
               </div>
             </div>
-            <p className="text-sm italic mb-3">
-              "I was skeptical about upgrading to VIP, but it's been amazing. The ad-free experience and exclusive filters make finding interesting conversations so much easier!"
+            <p className="text-sm italic mb-3 text-gray-300">
+              "As a language learner, I use StrangerWave to practice conversations with native speakers. The country filter is perfect for finding people from specific regions!"
             </p>
-            <div className="text-xs text-muted-foreground">VIP member for 3 months</div>
+            <div className="text-xs text-gray-500">Premium member for 4 months</div>
           </div>
           
           {/* Testimonial 3 */}
-          <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <h4 className="font-semibold">Marcus J.</h4>
-                <div className="flex items-center text-amber-500">
-                  <Star className="h-4 w-4 fill-current" />
-                  <Star className="h-4 w-4 fill-current" />
-                  <Star className="h-4 w-4 fill-current" />
-                  <Star className="h-4 w-4 fill-current" />
-                  <Star className="h-4 w-4" />
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
+                <div className="w-full h-full bg-gradient-to-r from-green-500 to-teal-600 relative">
+                  <svg className="absolute inset-0" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                    <circle cx="50" cy="35" r="25" fill="#f9fafb" fillOpacity="0.9" />
+                    <circle cx="50" cy="100" r="40" fill="#f9fafb" fillOpacity="0.8" />
+                  </svg>
                 </div>
               </div>
+              <div className="ml-4">
+                <h4 className="font-semibold text-white">Aiden T.</h4>
+                <div className="flex items-center text-yellow-400">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current opacity-40" />
+                </div>
+                <div className="text-xs text-gray-400 mt-1">Australia</div>
+              </div>
             </div>
-            <p className="text-sm italic mb-3">
-              "Started with the 7-day free trial of Premium and immediately upgraded to VIP after experiencing the difference. The customization options and priority matching are game-changers."
+            <p className="text-sm italic mb-3 text-gray-300">
+              "The premium features are actually worth it. I'm spending less time waiting and more time having great conversations. The priority matching is fantastic!"
             </p>
-            <div className="text-xs text-muted-foreground">Upgraded to VIP 2 weeks ago</div>
+            <div className="text-xs text-gray-500">Premium member for 2 months</div>
           </div>
         </div>
       </div>
