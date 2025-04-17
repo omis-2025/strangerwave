@@ -10,6 +10,7 @@ import {
   insertMessageSchema 
 } from "@shared/schema";
 import { calculateCompatibilityScore, extractInterestsFromMessage, handleChatEnd } from "./ai-matching";
+import { processNewMessage, updateUserLanguagePreference, getSupportedLanguages } from "./translation";
 import paypalRoutes from "./routes/paypal";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
@@ -559,13 +560,9 @@ async function handleSendMessage(userId: number, data: any) {
       });
     }
     
-    // Validate the message
-    const messageData = insertMessageSchema.parse({
-      sessionId: activeSession.sessionId,
-      senderId: userId,
-      content: data.content
-    });
-
+    // Get the partner ID for translation
+    const partnerId = activeSession.partnerId;
+    
     // Check if we need to import the moderation function
     let moderationResult = null;
     try {
@@ -577,6 +574,38 @@ async function handleSendMessage(userId: number, data: any) {
       console.error("Moderation error:", modError);
       // Continue without moderation if it fails
     }
+    
+    // Process message for translation
+    let messageContent = data.content;
+    let isTranslated = false;
+    let detectedLanguage = 'en';
+    
+    try {
+      // Process the message for translation if needed
+      const translationResult = await processNewMessage(
+        data.content,
+        userId,
+        partnerId
+      );
+      
+      messageContent = translationResult.content;
+      isTranslated = translationResult.isTranslated;
+      detectedLanguage = translationResult.detectedLanguage;
+    } catch (transError) {
+      console.error("Translation error:", transError);
+      // Continue with original message if translation fails
+    }
+    
+    // Validate the message
+    const messageData = insertMessageSchema.parse({
+      sessionId: activeSession.sessionId,
+      senderId: userId,
+      content: messageContent,
+      // Add translation metadata
+      detectedLanguage,
+      isTranslated,
+      originalContent: isTranslated ? data.content : null
+    });
 
     // Save the message to the database
     const message = await storage.createMessage(messageData);
@@ -588,16 +617,23 @@ async function handleSendMessage(userId: number, data: any) {
         id: message.id,
         content: message.content,
         senderId: message.senderId,
-        timestamp: message.createdAt
+        timestamp: message.createdAt,
+        isTranslated: message.isTranslated,
+        detectedLanguage: message.detectedLanguage,
+        originalContent: message.originalContent
       }
     };
     
+    // Send to sender (original or translated based on UI needs)
     sendToUser(userId, messagePayload);
-    sendToUser(activeSession.partnerId, messagePayload);
+    
+    // Send to recipient (always translated if needed)
+    sendToUser(partnerId, messagePayload);
     
     // Extract interests from message content for AI matching improvements
     try {
-      await extractInterestsFromMessage(message.content, userId);
+      // Always use the original message content for interest extraction
+      await extractInterestsFromMessage(data.content, userId);
     } catch (interestError) {
       console.error("Error extracting interests:", interestError);
       // Continue even if interest extraction fails
