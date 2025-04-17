@@ -567,8 +567,18 @@ export default function Pricing() {
           {/* Testimonial 1 */}
           <div className="bg-card border rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
+              <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-primary/30">
+                <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full">
+                  <defs>
+                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#gradient1)" />
+                  <circle cx="100" cy="85" r="40" fill="#f9fafb" />
+                  <circle cx="100" cy="200" r="80" fill="#f9fafb" />
+                </svg>
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold">Alex T.</h4>
@@ -590,8 +600,18 @@ export default function Pricing() {
           {/* Testimonial 2 */}
           <div className="bg-card border rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
+              <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-primary/30">
+                <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full">
+                  <defs>
+                    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ec4899" />
+                      <stop offset="100%" stopColor="#f43f5e" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#gradient2)" />
+                  <circle cx="100" cy="85" r="40" fill="#f9fafb" />
+                  <circle cx="100" cy="200" r="80" fill="#f9fafb" />
+                </svg>
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold">Sophia K.</h4>
@@ -613,8 +633,18 @@ export default function Pricing() {
           {/* Testimonial 3 */}
           <div className="bg-card border rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Quote className="h-6 w-6" />
+              <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-primary/30">
+                <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full">
+                  <defs>
+                    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#0ea5e9" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#gradient3)" />
+                  <circle cx="100" cy="85" r="40" fill="#f9fafb" />
+                  <circle cx="100" cy="200" r="80" fill="#f9fafb" />
+                </svg>
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold">Marcus J.</h4>
