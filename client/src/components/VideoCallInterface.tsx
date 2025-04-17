@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import webRTC from '@/lib/mobileWebRTC';
 import PermissionErrorModal from './PermissionErrorModal';
 import ConnectionStatusToast from './ConnectionStatusToast';
+import CountryDisplay from './CountryDisplay';
 
 interface VideoCallInterfaceProps {
   onDisconnect: () => void;
@@ -243,32 +244,26 @@ export default function VideoCallInterface({
           className="w-full md:w-1/2 h-full relative bg-black cursor-pointer" 
           onClick={() => setHideControls(!hideControls)}
         >
-          {/* Country flags display - always visible on mobile */}
+          {/* Country flag displays */}
           <AnimatePresence>
             {(!hideControls || isMobile) && (
-              <motion.div 
-                className="absolute top-2 left-0 right-0 flex justify-center items-center z-20"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-full flex items-center space-x-4">
-                  {/* My country */}
-                  <div className="flex items-center">
-                    <span className={`fi fi-${myCountry.flag} text-lg mr-2`}></span>
-                    <span className="text-white text-sm">{myCountry.name}</span>
-                  </div>
-                  
-                  <div className="text-gray-400">•</div>
-                  
-                  {/* Partner country */}
-                  <div className="flex items-center">
-                    <span className={`fi fi-${partnerCountry.flag} text-lg mr-2`}></span>
-                    <span className="text-white text-sm">{partnerCountry.name}</span>
-                  </div>
-                </div>
-              </motion.div>
+              <>
+                {/* Partner's country display in top right */}
+                <CountryDisplay 
+                  country={partnerCountry}
+                  label="Partner"
+                  position="top-right"
+                  size={isMobile ? "sm" : "md"}
+                />
+                
+                {/* My country display in top left */}
+                <CountryDisplay 
+                  country={myCountry}
+                  label="You"
+                  position="top-left"
+                  size={isMobile ? "sm" : "md"}
+                />
+              </>
             )}
           </AnimatePresence>
           

@@ -147,8 +147,16 @@ export default function ChatScreen() {
   };
   
   const handleNewChat = () => {
-    setChatState('connecting');
-    chatService.joinQueue(preferences);
+    // First disconnect from any existing chat
+    if (chatService.connected) {
+      chatService.disconnect();
+    }
+    
+    // Small delay to ensure connection is properly closed before joining queue
+    setTimeout(() => {
+      setChatState('connecting');
+      chatService.joinQueue(preferences);
+    }, 300);
   };
   
   const handleBackToWelcome = () => {
