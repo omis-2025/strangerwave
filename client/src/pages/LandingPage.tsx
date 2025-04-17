@@ -7,6 +7,8 @@ import { FaVideo, FaComments, FaShieldAlt, FaGlobe, FaCoins, FaMobile, FaRandom,
 import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alternative icons
 import { motion } from 'framer-motion';
 
+// No need to import images anymore as we'll use direct paths
+
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
@@ -86,13 +88,13 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <img 
-              src="/images/hero-image.png" 
+              src="/images/image_1744764919386.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
               onLoad={() => setHeroImageLoaded(true)}
               onError={(e) => {
                 console.log("Image failed to load, falling back");
-                e.currentTarget.src = "/images/phone-mockup.png";
+                e.currentTarget.src = "/images/image_1744758309655.png";
               }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
