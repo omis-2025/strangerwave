@@ -11,6 +11,9 @@ import PaymentSuccess from "@/pages/PaymentSuccess";
 import Pricing from "@/pages/Pricing";
 import LandingPage from "@/pages/LandingPage";
 import Rewards from "@/pages/Rewards";
+import ReferralPage from "@/pages/ReferralPage";
+import SocialSharingPage from "@/pages/SocialSharingPage";
+import CreatorModePage from "@/pages/CreatorModePage";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";
 import Demo from "./pages/Demo";
@@ -139,6 +142,9 @@ function Router() {
         <Route path="/payment" component={Payment} />
         <Route path="/pricing" component={Pricing} />
         <Route path="/rewards" component={() => <AuthRoute component={Rewards} />} />
+        <Route path="/referral" component={() => <AuthRoute component={ReferralPage} />} />
+        <Route path="/social" component={() => <AuthRoute component={SocialSharingPage} />} />
+        <Route path="/creator" component={() => <AuthRoute component={CreatorModePage} />} />
         <Route path="/demo-access" component={DemoAccessPage} />
         <Route path="/analytics-demo" component={DemoDashboardPage} />
         <Route path="/payment-success" component={PaymentSuccess} />
