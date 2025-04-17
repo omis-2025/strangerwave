@@ -217,10 +217,32 @@ export default function ChatInterface({
     inputRef.current?.focus();
   }, []);
   
+  // For testing translation UI - remove in production
+  const sendTestTranslatedMessage = () => {
+    // This is just for UI testing - in real implementation messages will come from server with translation info
+    const testMessage = {
+      id: Date.now(),
+      content: "Hello, how are you today?",
+      senderId: partnerId || 999,
+      timestamp: new Date(),
+      isTranslated: true,
+      originalContent: "Hola, ¿cómo estás hoy?",
+      detectedLanguage: "Spanish"
+    };
+    
+    // Add the test message to the messages array
+    setMessages(prev => [...prev, testMessage]);
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim()) {
-      onSendMessage(messageInput);
+      // For testing: if message starts with "/test", send a test translated message
+      if (messageInput.startsWith("/test")) {
+        sendTestTranslatedMessage();
+      } else {
+        onSendMessage(messageInput);
+      }
       setMessageInput("");
     }
   };
