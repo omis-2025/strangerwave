@@ -32,13 +32,17 @@ export default function ChatScreen() {
     sender: 'me' | 'partner';
     content: string;
     timestamp: Date;
+    translatedContent?: string;
+    detectedLanguage?: string;
   }>>([
     // Sample messages for demo
     {
       id: '1',
       sender: 'partner',
       content: 'La mejor fiesta de todas! 🎉🎊🎉',
-      timestamp: new Date(Date.now() - 60000 * 5)
+      timestamp: new Date(Date.now() - 60000 * 5),
+      translatedContent: 'The best party ever! 🎉🎊🎉',
+      detectedLanguage: 'Spanish'
     },
     {
       id: '2',
@@ -50,13 +54,17 @@ export default function ChatScreen() {
       id: '3',
       sender: 'partner',
       content: 'Fue muy divertido... 😊',
-      timestamp: new Date(Date.now() - 60000 * 3)
+      timestamp: new Date(Date.now() - 60000 * 3),
+      translatedContent: 'It was a lot of fun... 😊',
+      detectedLanguage: 'Spanish'
     },
     {
       id: '4',
       sender: 'partner',
       content: 'Te veo mañana! 👋😄',
-      timestamp: new Date(Date.now() - 60000 * 2)
+      timestamp: new Date(Date.now() - 60000 * 2),
+      translatedContent: 'See you tomorrow! 👋😄',
+      detectedLanguage: 'Spanish'
     },
     {
       id: '5',
@@ -187,6 +195,13 @@ export default function ChatScreen() {
           messages={videoMessages}
           onSendMessage={handleSendVideoMessage}
           onDisconnect={handleDisconnect}
+          onFindNext={handleNewChat}
+          myCountry={preferences.country ? {
+            name: preferences.country.name,
+            code: preferences.country.code,
+            flag: preferences.country.flag
+          } : { name: 'United States', code: 'us', flag: 'us' }}
+          partnerCountry={{ name: 'Spain', code: 'es', flag: 'es' }}
         />
       )}
       

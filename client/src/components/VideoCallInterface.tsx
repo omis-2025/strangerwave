@@ -28,12 +28,16 @@ interface VideoCallInterfaceProps {
 
 export default function VideoCallInterface({
   onDisconnect,
+  onFindNext,
   onSendMessage,
-  messages = []
+  messages = [],
+  myCountry = { name: 'United States', code: 'us', flag: 'us' },
+  partnerCountry = { name: 'Spain', code: 'es', flag: 'es' }
 }: VideoCallInterfaceProps) {
   const [inputMessage, setInputMessage] = useState('');
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [micEnabled, setMicEnabled] = useState(true);
+  const [showOriginalText, setShowOriginalText] = useState<{[key: string]: boolean}>({});
   
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -78,6 +82,25 @@ export default function VideoCallInterface({
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left panel - Video takes half the screen on desktop */}
         <div className="w-full md:w-1/2 h-full relative bg-black">
+          {/* Country flags display */}
+          <div className="absolute top-2 left-0 right-0 flex justify-center items-center z-20">
+            <div className="bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-full flex items-center space-x-4">
+              {/* My country */}
+              <div className="flex items-center">
+                <span className={`fi fi-${myCountry.flag} text-lg mr-2`}></span>
+                <span className="text-white text-sm">{myCountry.name}</span>
+              </div>
+              
+              <div className="text-gray-400">•</div>
+              
+              {/* Partner country */}
+              <div className="flex items-center">
+                <span className={`fi fi-${partnerCountry.flag} text-lg mr-2`}></span>
+                <span className="text-white text-sm">{partnerCountry.name}</span>
+              </div>
+            </div>
+          </div>
+          
           {/* Remote video stream */}
           <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
             <div className="flex flex-col items-center">
@@ -150,7 +173,37 @@ export default function VideoCallInterface({
                       : 'bg-gray-800 text-white mr-auto'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  {/* Display translated content if available and not showing original */}
+                  {message.translatedContent && !showOriginalText[message.id] ? (
+                    <div>
+                      <p className="text-sm">{message.translatedContent}</p>
+                      {message.detectedLanguage && (
+                        <p className="text-xs opacity-60 mt-1">
+                          Translated from {message.detectedLanguage}
+                          <button 
+                            onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: true}))}
+                            className="ml-2 underline text-blue-300 hover:text-blue-200"
+                          >
+                            View Original
+                          </button>
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm">{message.content}</p>
+                      {message.translatedContent && (
+                        <p className="text-xs opacity-60 mt-1">
+                          <button 
+                            onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: false}))}
+                            className="underline text-blue-300 hover:text-blue-200"
+                          >
+                            View Translation
+                          </button>
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <p className="text-xs opacity-70 mt-1 text-right">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -178,22 +231,26 @@ export default function VideoCallInterface({
               </button>
             </div>
             
-            {/* Skip button below chat */}
+            {/* Action buttons below chat */}
             <div className="mt-4 flex justify-between">
               <button 
                 onClick={onDisconnect}
                 className="bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center"
+                aria-label="Stop chat and disconnect"
               >
                 <X className="h-4 w-4 mr-2" />
-                Disconnect
+                <span className="hidden xs:inline">Disconnect</span>
+                <span className="xs:hidden">Stop</span>
               </button>
               
               <button 
-                onClick={onDisconnect} // Would need a dedicated skip handler
+                onClick={onFindNext}
                 className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center"
+                aria-label="Skip to next person"
               >
                 <SkipForward className="h-4 w-4 mr-2" />
-                Skip
+                <span className="hidden xs:inline">Skip to Next</span>
+                <span className="xs:hidden">Next</span>
               </button>
             </div>
           </div>
