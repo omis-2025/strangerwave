@@ -4,10 +4,17 @@ import {
   chatSessions, type ChatSession, type InsertChatSession,
   messages, type Message, type InsertMessage,
   reports, type Report, type InsertReport,
-  waitingQueue, type WaitingQueue, type InsertWaitingQueue
+  waitingQueue, type WaitingQueue, type InsertWaitingQueue,
+  // AI matching imports
+  userInteractionMetrics, type UserInteractionMetrics, type InsertUserInteractionMetrics,
+  userInterests, type UserInterests, type InsertUserInterests,
+  matchingFeedback, type MatchingFeedback, type InsertMatchingFeedback,
+  matchingAlgorithmConfig, type MatchingAlgorithmConfig, type InsertMatchingAlgorithmConfig,
+  userAlgorithmAssignment, type UserAlgorithmAssignment, type InsertUserAlgorithmAssignment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, isNull, or } from "drizzle-orm";
+
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -31,6 +38,7 @@ export interface IStorage {
   createChatSession(session: InsertChatSession): Promise<ChatSession>;
   getChatSession(id: number): Promise<ChatSession | undefined>;
   endChatSession(id: number): Promise<ChatSession | undefined>;
+  updateChatSession(id: number, updates: Partial<ChatSession>): Promise<ChatSession | undefined>;
   
   // Messages methods
   createMessage(message: InsertMessage): Promise<Message>;
@@ -44,13 +52,39 @@ export interface IStorage {
   // Waiting queue methods
   addToWaitingQueue(entry: InsertWaitingQueue): Promise<WaitingQueue>;
   removeFromWaitingQueue(userId: number): Promise<void>;
-  getMatchingUsers(preferences: { preferredGender?: string, country?: string }): Promise<WaitingQueue[]>;
+  getMatchingUsers(preferences: { preferredGender?: string, country?: string, preferredTopics?: string[] }): Promise<WaitingQueue[]>;
   
   // Admin methods
   banUser(id: number): Promise<User | undefined>;
   unbanUser(id: number): Promise<User | undefined>;
   incrementBanCount(userId: number): Promise<User | undefined>;
   getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]>;
+  
+  // User Interaction Metrics methods
+  getUserInteractionMetrics(userId: number): Promise<UserInteractionMetrics | undefined>;
+  createUserInteractionMetrics(metrics: InsertUserInteractionMetrics): Promise<UserInteractionMetrics>;
+  updateUserInteractionMetrics(userId: number, updates: Partial<UserInteractionMetrics>): Promise<UserInteractionMetrics | undefined>;
+  
+  // User Interests methods
+  getUserInterests(userId: number): Promise<UserInterests[]>;
+  createUserInterest(interest: InsertUserInterests): Promise<UserInterests>;
+  updateUserInterest(id: number, updates: Partial<UserInterests>): Promise<UserInterests | undefined>;
+  deleteUserInterest(id: number): Promise<void>;
+  
+  // Matching Feedback methods
+  createMatchingFeedback(feedback: InsertMatchingFeedback): Promise<MatchingFeedback>;
+  getSessionFeedback(sessionId: number): Promise<MatchingFeedback[]>;
+  
+  // Matching Algorithm methods
+  getMatchingAlgorithmConfig(id: number): Promise<MatchingAlgorithmConfig | undefined>;
+  getActiveMatchingAlgorithms(): Promise<MatchingAlgorithmConfig[]>;
+  createMatchingAlgorithmConfig(config: InsertMatchingAlgorithmConfig): Promise<MatchingAlgorithmConfig>;
+  updateMatchingAlgorithmConfig(id: number, updates: Partial<MatchingAlgorithmConfig>): Promise<MatchingAlgorithmConfig | undefined>;
+  
+  // User Algorithm Assignment methods
+  getUserAlgorithmAssignment(userId: number): Promise<UserAlgorithmAssignment | undefined>;
+  createUserAlgorithmAssignment(assignment: InsertUserAlgorithmAssignment): Promise<UserAlgorithmAssignment>;
+  updateUserAlgorithmAssignment(userId: number, algorithmId: number): Promise<UserAlgorithmAssignment | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -346,6 +380,155 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .orderBy(desc(users.lastActive));
+  }
+
+  // Chat session methods
+  async updateChatSession(id: number, updates: Partial<ChatSession>): Promise<ChatSession | undefined> {
+    const [updatedSession] = await db
+      .update(chatSessions)
+      .set(updates)
+      .where(eq(chatSessions.id, id))
+      .returning();
+    return updatedSession;
+  }
+  
+  // User Interaction Metrics methods
+  async getUserInteractionMetrics(userId: number): Promise<UserInteractionMetrics | undefined> {
+    const [metrics] = await db
+      .select()
+      .from(userInteractionMetrics)
+      .where(eq(userInteractionMetrics.userId, userId));
+    return metrics;
+  }
+  
+  async createUserInteractionMetrics(metrics: InsertUserInteractionMetrics): Promise<UserInteractionMetrics> {
+    const [newMetrics] = await db
+      .insert(userInteractionMetrics)
+      .values(metrics)
+      .returning();
+    return newMetrics;
+  }
+  
+  async updateUserInteractionMetrics(userId: number, updates: Partial<UserInteractionMetrics>): Promise<UserInteractionMetrics | undefined> {
+    const [updatedMetrics] = await db
+      .update(userInteractionMetrics)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(userInteractionMetrics.userId, userId))
+      .returning();
+    return updatedMetrics;
+  }
+  
+  // User Interests methods
+  async getUserInterests(userId: number): Promise<UserInterests[]> {
+    return db
+      .select()
+      .from(userInterests)
+      .where(eq(userInterests.userId, userId))
+      .orderBy(desc(userInterests.weight));
+  }
+  
+  async createUserInterest(interest: InsertUserInterests): Promise<UserInterests> {
+    const [newInterest] = await db
+      .insert(userInterests)
+      .values(interest)
+      .returning();
+    return newInterest;
+  }
+  
+  async updateUserInterest(id: number, updates: Partial<UserInterests>): Promise<UserInterests | undefined> {
+    const [updatedInterest] = await db
+      .update(userInterests)
+      .set(updates)
+      .where(eq(userInterests.id, id))
+      .returning();
+    return updatedInterest;
+  }
+  
+  async deleteUserInterest(id: number): Promise<void> {
+    await db
+      .delete(userInterests)
+      .where(eq(userInterests.id, id));
+  }
+  
+  // Matching Feedback methods
+  async createMatchingFeedback(feedback: InsertMatchingFeedback): Promise<MatchingFeedback> {
+    const [newFeedback] = await db
+      .insert(matchingFeedback)
+      .values(feedback)
+      .returning();
+    return newFeedback;
+  }
+  
+  async getSessionFeedback(sessionId: number): Promise<MatchingFeedback[]> {
+    return db
+      .select()
+      .from(matchingFeedback)
+      .where(eq(matchingFeedback.sessionId, sessionId));
+  }
+  
+  // Matching Algorithm methods
+  async getMatchingAlgorithmConfig(id: number): Promise<MatchingAlgorithmConfig | undefined> {
+    const [config] = await db
+      .select()
+      .from(matchingAlgorithmConfig)
+      .where(eq(matchingAlgorithmConfig.id, id));
+    return config;
+  }
+  
+  async getActiveMatchingAlgorithms(): Promise<MatchingAlgorithmConfig[]> {
+    return db
+      .select()
+      .from(matchingAlgorithmConfig)
+      .where(eq(matchingAlgorithmConfig.isActive, true));
+  }
+  
+  async createMatchingAlgorithmConfig(config: InsertMatchingAlgorithmConfig): Promise<MatchingAlgorithmConfig> {
+    const [newConfig] = await db
+      .insert(matchingAlgorithmConfig)
+      .values(config)
+      .returning();
+    return newConfig;
+  }
+  
+  async updateMatchingAlgorithmConfig(id: number, updates: Partial<MatchingAlgorithmConfig>): Promise<MatchingAlgorithmConfig | undefined> {
+    const [updatedConfig] = await db
+      .update(matchingAlgorithmConfig)
+      .set(updates)
+      .where(eq(matchingAlgorithmConfig.id, id))
+      .returning();
+    return updatedConfig;
+  }
+  
+  // User Algorithm Assignment methods
+  async getUserAlgorithmAssignment(userId: number): Promise<UserAlgorithmAssignment | undefined> {
+    const [assignment] = await db
+      .select()
+      .from(userAlgorithmAssignment)
+      .where(eq(userAlgorithmAssignment.userId, userId));
+    return assignment;
+  }
+  
+  async createUserAlgorithmAssignment(assignment: InsertUserAlgorithmAssignment): Promise<UserAlgorithmAssignment> {
+    const [newAssignment] = await db
+      .insert(userAlgorithmAssignment)
+      .values(assignment)
+      .returning();
+    return newAssignment;
+  }
+  
+  async updateUserAlgorithmAssignment(userId: number, algorithmId: number): Promise<UserAlgorithmAssignment | undefined> {
+    const [updatedAssignment] = await db
+      .update(userAlgorithmAssignment)
+      .set({
+        algorithmId,
+        assignedAt: new Date()
+      })
+      .where(eq(userAlgorithmAssignment.userId, userId))
+      .returning();
+    return updatedAssignment;
   }
 }
 
