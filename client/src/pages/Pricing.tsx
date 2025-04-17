@@ -12,6 +12,25 @@ import { Loader2, Check, X } from 'lucide-react';
 // Pricing data structure
 const pricingPlans = [
   {
+    id: 'free',
+    name: 'Free',
+    prices: {
+      monthly: 0,
+      yearly: 0
+    },
+    features: [
+      { text: 'Random matching', included: true },
+      { text: 'Basic chat functionality', included: true },
+      { text: 'Limited video time', included: true },
+      { text: 'Standard support', included: true },
+      { text: 'Ad-supported experience', included: true },
+      { text: 'Basic filters', included: true }
+    ],
+    popular: false,
+    color: 'bg-gray-400',
+    buttonText: 'Current Plan'
+  },
+  {
     id: 'premium',
     name: 'Premium',
     prices: {
@@ -27,7 +46,8 @@ const pricingPlans = [
       { text: 'Exclusive filters', included: false }
     ],
     popular: false,
-    color: 'bg-blue-500'
+    color: 'bg-blue-500',
+    buttonText: 'Subscribe Now'
   },
   {
     id: 'vip',
@@ -45,7 +65,8 @@ const pricingPlans = [
       { text: 'Exclusive filters', included: true }
     ],
     popular: true,
-    color: 'bg-purple-600'
+    color: 'bg-purple-600',
+    buttonText: 'Subscribe Now'
   }
 ];
 
@@ -158,7 +179,7 @@ export default function Pricing() {
         </div>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {pricingPlans.map((plan) => (
           <Card 
             key={plan.id}
@@ -175,12 +196,18 @@ export default function Pricing() {
               <CardTitle className="text-2xl">{plan.name}</CardTitle>
               <CardDescription>
                 <div className="flex items-baseline mt-2">
-                  <span className="text-3xl font-bold">
-                    ${yearly ? plan.prices.yearly : plan.prices.monthly}
-                  </span>
-                  <span className="text-muted-foreground ml-1">
-                    {yearly ? '/year' : '/month'}
-                  </span>
+                  {plan.id === 'free' ? (
+                    <span className="text-3xl font-bold">Free</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold">
+                        ${yearly ? plan.prices.yearly : plan.prices.monthly}
+                      </span>
+                      <span className="text-muted-foreground ml-1">
+                        {yearly ? '/year' : '/month'}
+                      </span>
+                    </>
+                  )}
                 </div>
               </CardDescription>
             </CardHeader>
@@ -204,13 +231,14 @@ export default function Pricing() {
               <Button 
                 className="w-full"
                 size="lg"
-                onClick={() => handleSubscribe(plan.id)}
-                disabled={loading !== null}
+                variant={plan.id === 'free' ? 'outline' : 'default'}
+                onClick={() => plan.id !== 'free' ? handleSubscribe(plan.id) : null}
+                disabled={loading !== null || plan.id === 'free'}
               >
                 {loading === plan.id ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  'Subscribe Now'
+                  plan.buttonText || 'Subscribe Now'
                 )}
               </Button>
             </CardFooter>
