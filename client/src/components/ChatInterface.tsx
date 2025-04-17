@@ -705,6 +705,11 @@ export default function ChatInterface({
                     message.senderId === user?.userId ? 'bg-primary/90 text-white' : 'bg-gray-800 text-gray-200'
                   }`}>
                     {message.content}
+                    {message.isTranslated && (
+                      <div className="mt-0.5 text-[10px] opacity-70 flex items-center">
+                        <Flag className="h-2 w-2 mr-0.5" /> Translated
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -819,7 +824,31 @@ export default function ChatInterface({
                       : "bg-gray-700 text-gray-200 rounded-tl-none"
                     }
                   `}>
+                    {/* Message content */}
                     {message.content}
+                    
+                    {/* Translation indicator for translated messages */}
+                    {message.isTranslated && (
+                      <div className="mt-1 pt-1 border-t border-gray-600/30 flex items-center justify-between">
+                        <span className="text-xs opacity-70 flex items-center">
+                          <Flag className="h-3 w-3 mr-1" /> 
+                          Translated from {message.detectedLanguage || "another language"}
+                        </span>
+                        <button 
+                          onClick={() => toggleOriginalContent(message.id)}
+                          className="text-xs underline opacity-70 hover:opacity-100"
+                        >
+                          {viewingOriginalMessages.has(message.id) ? "View Translation" : "View Original"}
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Original message content */}
+                    {message.isTranslated && viewingOriginalMessages.has(message.id) && message.originalContent && (
+                      <div className="mt-1 pt-1 text-xs italic opacity-80">
+                        "{message.originalContent}"
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
