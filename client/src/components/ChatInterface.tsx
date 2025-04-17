@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Message } from "@/lib/chatService";
 import { useAuth } from "@/lib/useAuth";
+import mobileWebRTC from "@/lib/mobileWebRTC";
 import { TypingIndicator } from "./ui/typing-indicator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -9,7 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Flag, LogOut, Send, Image, User, Shield, Lock, Info, AlertTriangle, 
   MessageSquare, Video, VideoOff, Mic, MicOff, PhoneOff, SkipForward, RefreshCw, Crown,
-  Wifi, WifiOff
+  Wifi, WifiOff, FlipHorizontal, CameraIcon
 } from "lucide-react";
 import { 
   determineOptimalVideoQuality, 
@@ -177,6 +178,31 @@ export default function ChatInterface({
         videoTracks[0].enabled = videoEnabled;
         setIsCameraOff(!videoEnabled);
       }
+    }
+  };
+  
+  // Switch between front and back cameras (for mobile devices)
+  const switchCamera = async () => {
+    try {
+      console.log('Switching camera...');
+      // Use the mobileWebRTC manager to switch cameras
+      const newStream = await mobileWebRTC.switchCamera();
+      
+      if (newStream) {
+        // Update the local stream
+        setLocalStream(newStream);
+        
+        // Update the video element
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = newStream;
+        }
+        
+        console.log('Camera switched successfully');
+      } else {
+        console.error('Failed to switch camera');
+      }
+    } catch (error) {
+      console.error('Error switching camera:', error);
     }
   };
   
@@ -364,6 +390,18 @@ export default function ChatInterface({
               >
                 {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
               </Button>
+              
+              {/* Switch camera button for mobile devices */}
+              {isMobile && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => switchCamera()}
+                  className="rounded-full aspect-square p-2 bg-gray-800 text-white"
+                >
+                  <FlipHorizontal className="h-5 w-5" />
+                </Button>
+              )}
               
               <Button 
                 variant="destructive" 
@@ -618,6 +656,16 @@ export default function ChatInterface({
                 {isCameraOff && (
                   <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
                     <VideoOff className="h-6 w-6 text-gray-500" />
+                  </div>
+                )}
+                
+                {/* Camera switch button on the PIP view for mobile users */}
+                {isMobile && !isCameraOff && (
+                  <div 
+                    className="absolute top-1 left-1 bg-black/60 rounded-full p-1.5 cursor-pointer"
+                    onClick={() => switchCamera()}
+                  >
+                    <FlipHorizontal className="h-4 w-4 text-white" />
                   </div>
                 )}
                 
