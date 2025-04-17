@@ -87,10 +87,11 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <StaticImage 
-              src="/assets/hero-image.png" 
+              src="/images/hero-image.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
-              fallbackSrc="/assets/phone-mockup.png"
+              fallbackSrc="/images/phone-mockup.png"
+              onLoad={() => setHeroImageLoaded(true)}
               />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
               <div className="flex items-center gap-2 text-white">
