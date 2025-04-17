@@ -41,6 +41,17 @@ export default function VideoCallInterface({
   const [micEnabled, setMicEnabled] = useState(true);
   const [showOriginalText, setShowOriginalText] = useState<{[key: string]: boolean}>({});
   
+  // Media stream refs
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  
+  // Connection and permission states
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [permissionErrorType, setPermissionErrorType] = useState<'camera' | 'microphone' | 'both' | null>(null);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [remoteCameraActive, setRemoteCameraActive] = useState(false);
+  
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
       onSendMessage(inputMessage);
@@ -54,6 +65,71 @@ export default function VideoCallInterface({
       handleSendMessage();
     }
   };
+  
+  // Initialize WebRTC and handle permissions
+  useEffect(() => {
+    setIsConnecting(true);
+    
+    // Set up permission error callback
+    webRTC.onPermissionError((type, error) => {
+      console.error(`Permission error for ${type}:`, error);
+      
+      if (type === 'camera' && !micEnabled) {
+        setPermissionErrorType('camera');
+      } else if (type === 'microphone' && !videoEnabled) {
+        setPermissionErrorType('microphone');
+      } else {
+        setPermissionErrorType('both');
+      }
+      
+      setShowPermissionModal(true);
+    });
+    
+    // Set up connection state change callback
+    webRTC.onConnectionStateChange((state) => {
+      console.log(`WebRTC connection state changed to: ${state}`);
+      
+      if (state === 'connected') {
+        setIsConnecting(false);
+      } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+        setConnectionError('Connection lost. Please try again.');
+      }
+    });
+    
+    // Initialize the media stream
+    const initializeMedia = async () => {
+      try {
+        const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled);
+        
+        // Attach local stream to video element
+        if (localVideoRef.current && localStream) {
+          localVideoRef.current.srcObject = localStream;
+        }
+        
+        setIsConnecting(false);
+      } catch (error) {
+        console.error('Failed to get local media stream:', error);
+        setConnectionError('Could not access camera or microphone. Please check your device settings.');
+      }
+    };
+    
+    // Set up remote stream handler
+    webRTC.onTrack((stream) => {
+      console.log('Received remote track:', stream);
+      
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = stream;
+        setRemoteCameraActive(true);
+      }
+    });
+    
+    initializeMedia();
+    
+    // Clean up when component unmounts
+    return () => {
+      webRTC.close();
+    };
+  }, [videoEnabled, micEnabled]);
   
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-900 relative overflow-hidden">
@@ -105,26 +181,93 @@ export default function VideoCallInterface({
           
           {/* Remote video stream */}
           <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-            <div className="flex flex-col items-center">
-              <User className="h-20 w-20 text-gray-700 mb-4" />
-              <p className="text-gray-400">Waiting for partner's video...</p>
-            </div>
+            {isConnecting ? (
+              <motion.div 
+                className="flex flex-col items-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center">
+                  <div className="flex items-center mb-4">
+                    <motion.div 
+                      className="h-16 w-16 rounded-full flex items-center justify-center bg-gray-700 relative overflow-hidden"
+                      animate={{ 
+                        boxShadow: ['0 0 0 0px rgba(124, 58, 237, 0.2)', '0 0 0 8px rgba(124, 58, 237, 0)'],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                      }}
+                    >
+                      <span className={`fi fi-${myCountry.flag} text-2xl absolute`}></span>
+                    </motion.div>
+                    <motion.div
+                      className="mx-4 relative"
+                      animate={{
+                        x: [0, 10, 0],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <div className="w-4 h-1 bg-purple-500 rounded-full mx-1"></div>
+                      <div className="w-4 h-1 bg-purple-500 rounded-full mt-1 mx-1"></div>
+                      <div className="w-4 h-1 bg-purple-500 rounded-full mt-1 mx-1"></div>
+                    </motion.div>
+                    <motion.div
+                      className="h-16 w-16 rounded-full flex items-center justify-center bg-gray-700 relative overflow-hidden"
+                      animate={{ 
+                        boxShadow: ['0 0 0 0px rgba(124, 58, 237, 0)', '0 0 0 8px rgba(124, 58, 237, 0.2)', '0 0 0 0px rgba(124, 58, 237, 0)'],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                        delay: 0.75,
+                      }}
+                    >
+                      <Globe className="h-6 w-6 text-purple-500" />
+                    </motion.div>
+                  </div>
+                  <p className="text-white font-medium mt-2">Finding your match...</p>
+                  <p className="text-gray-400 text-sm mt-1">Setting up secure connection</p>
+                </div>
+              </motion.div>
+            ) : !remoteCameraActive ? (
+              <div className="flex flex-col items-center">
+                <User className="h-20 w-20 text-gray-700 mb-4" />
+                <p className="text-gray-400">Waiting for partner's video...</p>
+              </div>
+            ) : (
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
 
           {/* Self-view (bottom right) */}
           <div className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800">
-            <div className="w-full h-full flex items-center justify-center bg-gray-800">
-              {videoEnabled ? (
-                <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                  <Camera className="h-10 w-10 text-white/60" />
-                </div>
-              ) : (
+            {videoEnabled ? (
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-800">
                 <div className="flex flex-col items-center justify-center">
                   <VideoOff className="h-8 w-8 text-gray-600" />
                   <p className="text-[10px] text-gray-500 mt-1">Camera off</p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Video controls overlay (bottom center) */}
@@ -258,6 +401,31 @@ export default function VideoCallInterface({
           </div>
         </div>
       </div>
+      
+      {/* Error messages */}
+      {connectionError && (
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-xl font-bold text-white mb-2">Connection Error</h3>
+            <p className="text-gray-300 mb-4">{connectionError}</p>
+            <div className="flex justify-end">
+              <button 
+                onClick={() => setConnectionError(null)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Permission error modal */}
+      <PermissionErrorModal
+        type={permissionErrorType || 'both'}
+        isOpen={showPermissionModal}
+        onClose={() => setShowPermissionModal(false)}
+      />
     </div>
   );
 }
