@@ -527,12 +527,19 @@ export class MobileWebRTCManager {
    */
   private async getNativeVideoTrack(): Promise<MediaStreamTrack | null> {
     try {
+      console.log('Getting native video track, platform is', this.isNative ? 'native' : 'web', 'mobile:', this.isMobileDevice());
+      
       // First try to get camera permissions using Capacitor Camera
       if (this.isNative) {
         try {
+          console.log('Requesting camera permissions via Capacitor Camera API');
           const cameraPermission = await Camera.checkPermissions();
+          console.log('Current camera permission status:', cameraPermission.camera);
+          
           if (cameraPermission.camera !== 'granted') {
-            await Camera.requestPermissions();
+            console.log('Camera permission not granted, requesting permission');
+            const result = await Camera.requestPermissions();
+            console.log('Camera permission request result:', result);
           }
         } catch (permError) {
           console.warn('Camera permission request failed:', permError);
@@ -540,13 +547,36 @@ export class MobileWebRTCManager {
         }
       }
       
-      // Use appropriate constraints based on device type
-      const videoConstraints = this.isMobileDevice() 
-        ? MOBILE_VIDEO_CONSTRAINTS 
+      // Log available device info to help with debugging
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        console.log(`Found ${videoDevices.length} video input devices`);
+        
+        if (videoDevices.length === 0) {
+          console.warn('No video input devices found');
+        } else {
+          videoDevices.forEach((device, i) => {
+            console.log(`Video device ${i+1}: ${device.label || 'unnamed'} (${device.deviceId.substring(0, 8)}...)`);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to enumerate devices:', err);
+      }
+      
+      // Enhanced constraints for mobile
+      const isMobile = this.isMobileDevice();
+      const videoConstraints = isMobile 
+        ? {
+            facingMode: { ideal: 'user' },
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { ideal: 30 }
+          }
         : DEFAULT_VIDEO_CONSTRAINTS;
       
       // Use standard getUserMedia API (works on both web and Capacitor WebView)
-      console.log('Requesting camera with constraints:', videoConstraints);
+      console.log('Requesting camera with constraints:', JSON.stringify(videoConstraints));
       const tempStream = await navigator.mediaDevices.getUserMedia({
         video: videoConstraints,
         audio: false
@@ -558,6 +588,7 @@ export class MobileWebRTCManager {
       }
       
       console.log('Successfully got video track:', videoTrack.label);
+      console.log('Track settings:', JSON.stringify(videoTrack.getSettings()));
       return videoTrack;
     } catch (error) {
       console.error('Error getting video track:', error);

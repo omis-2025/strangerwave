@@ -92,6 +92,7 @@ export default function VideoCallInterface({
   
   // Initialize WebRTC and handle permissions
   useEffect(() => {
+    console.log(`Initializing WebRTC - video: ${videoEnabled}, audio: ${micEnabled}, mobile: ${isMobile}`);
     setIsConnecting(true);
     
     // Set up permission error callback
@@ -127,40 +128,88 @@ export default function VideoCallInterface({
       }
     });
     
-    // Initialize the media stream
-    const initializeMedia = async () => {
-      try {
-        const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled);
-        
-        // Attach local stream to video element
-        if (localVideoRef.current && localStream) {
-          localVideoRef.current.srcObject = localStream;
-        }
-        
-        setIsConnecting(false);
-      } catch (error) {
-        console.error('Failed to get local media stream:', error);
-        setConnectionError('Could not access camera or microphone. Please check your device settings.');
-      }
-    };
-    
-    // Set up remote stream handler
+    // Set up remote stream handler - add better error handling
     webRTC.onTrack((stream) => {
       console.log('Received remote track:', stream);
       
       if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = stream;
-        setRemoteCameraActive(true);
+        try {
+          remoteVideoRef.current.srcObject = stream;
+          setRemoteCameraActive(true);
+          
+          // Add safeguard in case video doesn't play
+          const playPromise = remoteVideoRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.warn('Auto-play was prevented for remote video:', error);
+              // Add a manual play button or retry logic here if needed
+            });
+          }
+        } catch (err) {
+          console.error('Error attaching remote stream:', err);
+        }
+      } else {
+        console.warn('Remote video ref is not available');
       }
     });
+    
+    // Initialize the media stream with better error handling
+    const initializeMedia = async () => {
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      const attemptInitialize = async () => {
+        try {
+          console.log(`Attempting to get local stream (attempt ${retryCount + 1}/${maxRetries})`);
+          const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled);
+          
+          // Attach local stream to video element
+          if (localVideoRef.current && localStream) {
+            console.log('Attaching local stream to video element');
+            localVideoRef.current.srcObject = localStream;
+            
+            // Make sure autoplay works properly on mobile
+            if (isMobile) {
+              try {
+                const playPromise = localVideoRef.current.play();
+                if (playPromise !== undefined) {
+                  playPromise.catch(error => {
+                    console.warn('Auto-play was prevented for local video:', error);
+                  });
+                }
+              } catch (playError) {
+                console.warn('Error playing local video:', playError);
+              }
+            }
+          } else {
+            console.warn('Local video ref is not available or stream is null');
+          }
+          
+          setIsConnecting(false);
+        } catch (error) {
+          console.error(`Failed to get local media stream (attempt ${retryCount + 1}/${maxRetries}):`, error);
+          
+          if (retryCount < maxRetries - 1) {
+            retryCount++;
+            console.log(`Retrying in 1 second... (${retryCount}/${maxRetries - 1})`);
+            setTimeout(attemptInitialize, 1000);
+          } else {
+            setConnectionError('Could not access camera or microphone. Please check your device settings and permissions.');
+          }
+        }
+      };
+      
+      await attemptInitialize();
+    };
     
     initializeMedia();
     
     // Clean up when component unmounts
     return () => {
+      console.log('Cleaning up WebRTC resources');
       webRTC.close();
     };
-  }, [videoEnabled, micEnabled]);
+  }, [videoEnabled, micEnabled, isMobile]);
   
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-900 relative overflow-hidden">
@@ -369,6 +418,24 @@ export default function VideoCallInterface({
                 >
                   {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
                 </button>
+                
+                {/* Camera switch button for mobile devices */}
+                {isMobile && videoEnabled && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      webRTC.switchCamera().then(stream => {
+                        console.log('Camera switched successfully');
+                      }).catch(err => {
+                        console.error('Failed to switch camera:', err);
+                      });
+                    }}
+                    className="rounded-full w-10 h-10 flex items-center justify-center bg-gray-800/80 text-white hover:bg-gray-700/90"
+                    aria-label="Switch camera"
+                  >
+                    <Camera className="h-5 w-5" />
+                  </button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
