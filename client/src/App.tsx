@@ -10,6 +10,7 @@ import Payment from "@/pages/Payment";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import Pricing from "@/pages/Pricing";
 import LandingPage from "@/pages/LandingPage";
+import Rewards from "@/pages/Rewards";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";
 import Demo from "./pages/Demo";
@@ -137,6 +138,7 @@ function Router() {
         <Route path="/enhanced-admin" component={() => <AuthRoute component={EnhancedAdmin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />
         <Route path="/pricing" component={Pricing} />
+        <Route path="/rewards" component={() => <AuthRoute component={Rewards} />} />
         <Route path="/demo-access" component={DemoAccessPage} />
         <Route path="/analytics-demo" component={DemoDashboardPage} />
         <Route path="/payment-success" component={PaymentSuccess} />
