@@ -62,9 +62,15 @@ function Router() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Redirect to chat if already logged in
+  // Only redirect to chat if logged in AND user has explicitly chosen to start chatting
+  // This prevents automatic redirection from landing page
   useEffect(() => {
-    if (user && window.location.pathname === '/') {
+    // We'll use localStorage to track if user explicitly clicked "Start Chatting" 
+    const shouldRedirect = localStorage.getItem('startChatting') === 'true';
+    
+    if (user && shouldRedirect && window.location.pathname === '/') {
+      // Clear the flag after redirecting
+      localStorage.removeItem('startChatting');
       navigate('/chat');
     }
   }, [user, navigate]);

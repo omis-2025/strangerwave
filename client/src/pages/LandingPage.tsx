@@ -64,13 +64,13 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex gap-4"
           >
-            <Link href="/chat">
+            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
               <Button size="lg" className="gap-2">
                 <FaVideo className="h-4 w-4" />
                 Start Chatting
               </Button>
             </Link>
-            <Link href="/chat">
+            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
               <Button size="lg" variant="outline" className="gap-2">
                 <FaCoins className="h-4 w-4" />
                 Go Premium
@@ -314,10 +314,10 @@ export default function LandingPage() {
             Join thousands of users already making meaningful connections on StrangerWave. Start chatting for free today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/chat">
+            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
               <Button size="lg" className="w-full sm:w-auto">Create Account</Button>
             </Link>
-            <Link href="/chat">
+            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Explore Features
               </Button>
@@ -434,7 +434,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, feature
       </ul>
     </CardContent>
     <CardFooter>
-      <Link href={buttonLink} className="w-full">
+      <Link href={buttonLink} className="w-full" onClick={() => localStorage.setItem('startChatting', 'true')}>
         <Button className={`w-full ${popular ? '' : 'bg-muted/70 hover:bg-muted'}`} variant={popular ? "default" : "outline"}>
           {buttonText}
         </Button>
