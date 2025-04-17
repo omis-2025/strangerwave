@@ -111,6 +111,24 @@ export default function VideoCallInterface({
     }
   }, [connectionStatus]);
   
+  // Simulate messages being translated for demo purposes
+  // In a real implementation, this would be set when messages are sent/received
+  // and would be cleared when translations are completed
+  useEffect(() => {
+    messages.forEach(message => {
+      if (message.sender === 'partner' && !message.translatedContent && !translatingMessages[message.id]) {
+        // Mark the message as being translated
+        setTranslatingMessages(prev => ({ ...prev, [message.id]: true }));
+        
+        // Simulate translation completion after 1-2 seconds
+        const delay = 1000 + Math.random() * 1000;
+        setTimeout(() => {
+          setTranslatingMessages(prev => ({ ...prev, [message.id]: false }));
+        }, delay);
+      }
+    });
+  }, [messages, translatingMessages]);
+  
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
       onSendMessage(inputMessage);
@@ -515,6 +533,15 @@ export default function VideoCallInterface({
                 });
                 
                 setShowOriginalText(newState);
+                
+                // Update and save translation preference to localStorage
+                const newPref = !showTranslations;
+                setShowTranslationPref(newPref);
+                try {
+                  localStorage.setItem('sw_show_translations', String(newPref));
+                } catch (error) {
+                  console.warn('Could not save translation preference to localStorage:', error);
+                }
               }}
               className="flex items-center text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300 hover:text-white transition-colors"
             >
@@ -559,8 +586,32 @@ export default function VideoCallInterface({
                     // Or detect RTL directly from text if language is not specified
                     const contentRTL = isMessageRTL || isRTL(message.content);
                     
+                    // Show shimmer loading effect for messages being translated
+                    if (translatingMessages[message.id]) {
+                      return (
+                        <div>
+                          {/* Apply RTL text direction if needed */}
+                          <p 
+                            className="text-sm" 
+                            dir={contentRTL ? "rtl" : "ltr"}
+                            style={{ textAlign: contentRTL ? "right" : "left" }}
+                          >
+                            {message.content}
+                          </p>
+                          
+                          <div className="mt-3 space-y-1.5">
+                            <div className="flex items-center gap-1 text-blue-300">
+                              <Globe className="w-3 h-3 animate-pulse" />
+                              <span className="text-xs animate-pulse">Translating...</span>
+                            </div>
+                            <TranslationShimmer width="80%" height="16px" />
+                            <TranslationShimmer width="60%" height="16px" />
+                          </div>
+                        </div>
+                      );
+                    }
                     // Display translated content if available and not showing original
-                    if (message.translatedContent && !showOriginalText[message.id]) {
+                    else if (message.translatedContent && !showOriginalText[message.id]) {
                       return (
                         <div>
                           <p className="text-sm">{message.translatedContent}</p>

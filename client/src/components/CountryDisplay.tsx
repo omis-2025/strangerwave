@@ -47,20 +47,45 @@ export default function CountryDisplay({
   };
 
   return (
-    <div 
+    <motion.div 
       className={`absolute ${positionClasses[position]} z-10 flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full ${sizeClasses[size].container} shadow-lg border border-gray-700/50`}
+      initial={animate ? { scale: 0.9, opacity: 0.7 } : { scale: 1, opacity: 1 }}
+      animate={animate ? { 
+        scale: [0.9, 1.05, 1],
+        opacity: [0.7, 1, 1],
+        boxShadow: [
+          '0 0 0 0 rgba(59, 130, 246, 0)',
+          '0 0 0 8px rgba(59, 130, 246, 0.3)',
+          '0 0 0 0 rgba(59, 130, 246, 0)'
+        ]
+      } : { scale: 1, opacity: 1 }}
+      transition={animate ? { 
+        duration: 1.5,
+        ease: "easeOut",
+        times: [0, 0.6, 1]
+      } : {}}
     >
       {/* Country flag */}
-      <span 
+      <motion.span 
         className={`fi fi-${country.flag} rounded-full object-cover ${sizeClasses[size].flag} ring-1 ring-gray-700`}
         role="img"
         aria-label={`Flag of ${country.name}`}
+        animate={animate ? {
+          scale: [1, 1.2, 1], 
+          rotate: [0, -5, 5, 0]
+        } : {}}
+        transition={animate ? { 
+          duration: 1, 
+          ease: "easeInOut",
+          repeat: 1,
+          repeatDelay: 0.5
+        } : {}}
       />
       
       {/* Country name with optional label */}
       <span className={`${sizeClasses[size].text} font-medium text-white`}>
         {label ? `${label}: ${country.name}` : country.name}
       </span>
-    </div>
+    </motion.div>
   );
 }
