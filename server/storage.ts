@@ -26,7 +26,7 @@ import {
   privateRooms, type PrivateRoom, type InsertPrivateRoom
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, isNull, or } from "drizzle-orm";
+import { eq, and, desc, isNull, or, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -927,6 +927,276 @@ export class DatabaseStorage implements IStorage {
     });
     
     return updatedStreak!;
+  }
+
+  // Referral system methods
+  async getUserReferralCode(userId: number): Promise<ReferralCode | undefined> {
+    const [code] = await db
+      .select()
+      .from(referralCodes)
+      .where(and(
+        eq(referralCodes.userId, userId),
+        eq(referralCodes.isActive, true)
+      ));
+    return code;
+  }
+
+  async getReferralCodeByCode(code: string): Promise<ReferralCode | undefined> {
+    const [referralCode] = await db
+      .select()
+      .from(referralCodes)
+      .where(eq(referralCodes.code, code));
+    return referralCode;
+  }
+
+  async createReferralCode(insertCode: InsertReferralCode): Promise<ReferralCode> {
+    const [code] = await db
+      .insert(referralCodes)
+      .values({
+        ...insertCode,
+        createdAt: new Date()
+      })
+      .returning();
+    return code;
+  }
+
+  async deactivateReferralCode(userId: number): Promise<ReferralCode | undefined> {
+    const [updatedCode] = await db
+      .update(referralCodes)
+      .set({ isActive: false })
+      .where(and(
+        eq(referralCodes.userId, userId),
+        eq(referralCodes.isActive, true)
+      ))
+      .returning();
+    return updatedCode;
+  }
+
+  async createReferral(insertReferral: InsertReferral): Promise<Referral> {
+    const [referral] = await db
+      .insert(referrals)
+      .values({
+        ...insertReferral,
+        createdAt: new Date()
+      })
+      .returning();
+    return referral;
+  }
+
+  async getReferralByReferredId(referredId: number): Promise<Referral | undefined> {
+    const [referral] = await db
+      .select()
+      .from(referrals)
+      .where(eq(referrals.referredId, referredId));
+    return referral;
+  }
+
+  async getUserReferrals(referrerId: number): Promise<Referral[]> {
+    return db
+      .select()
+      .from(referrals)
+      .where(eq(referrals.referrerId, referrerId))
+      .orderBy(desc(referrals.createdAt));
+  }
+
+  async getQualifiedReferrals(referrerId: number): Promise<Referral[]> {
+    // Qualified referrals are those that led to premium subscriptions or other conversion events
+    return db
+      .select()
+      .from(referrals)
+      .where(and(
+        eq(referrals.referrerId, referrerId),
+        eq(referrals.status, 'converted')
+      ));
+  }
+
+  async getActiveReferralRewards(): Promise<ReferralReward[]> {
+    return db
+      .select()
+      .from(referralRewards)
+      .where(eq(referralRewards.isActive, true))
+      .orderBy(referralRewards.requiredReferrals);
+  }
+
+  async getReferralReward(id: number): Promise<ReferralReward | undefined> {
+    const [reward] = await db
+      .select()
+      .from(referralRewards)
+      .where(eq(referralRewards.id, id));
+    return reward;
+  }
+
+  async getUserReferralReward(userId: number, rewardId: number): Promise<UserReferralReward | undefined> {
+    const [userReward] = await db
+      .select()
+      .from(userReferralRewards)
+      .where(and(
+        eq(userReferralRewards.userId, userId),
+        eq(userReferralRewards.rewardId, rewardId)
+      ));
+    return userReward;
+  }
+
+  async getUserReferralRewards(userId: number): Promise<(UserReferralReward & { reward: ReferralReward })[]> {
+    const userRewards = await db
+      .select({
+        userReward: userReferralRewards,
+        reward: referralRewards
+      })
+      .from(userReferralRewards)
+      .innerJoin(
+        referralRewards,
+        eq(userReferralRewards.rewardId, referralRewards.id)
+      )
+      .where(eq(userReferralRewards.userId, userId));
+
+    return userRewards.map(({ userReward, reward }) => ({
+      ...userReward,
+      reward
+    }));
+  }
+
+  async createUserReferralReward(insertUserReward: InsertUserReferralReward): Promise<UserReferralReward> {
+    const [userReward] = await db
+      .insert(userReferralRewards)
+      .values(insertUserReward)
+      .returning();
+    return userReward;
+  }
+
+  async getTopReferrers(limit: number): Promise<Array<{ user: Partial<User>, referralCount: number }>> {
+    // Get users with the highest referral counts
+    const topUsers = await db
+      .select({
+        user: users,
+        referralCount: referrals.referrerId.count().as('referral_count')
+      })
+      .from(users)
+      .leftJoin(
+        referrals,
+        eq(users.id, referrals.referrerId)
+      )
+      .groupBy(users.id)
+      .orderBy(desc(sql`referral_count`))
+      .limit(limit);
+
+    return topUsers.map(({ user, referralCount }) => ({
+      user: {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar
+      },
+      referralCount: Number(referralCount) || 0
+    }));
+  }
+
+  // Social sharing methods
+  async createSocialShare(insertShare: InsertSocialShare): Promise<SocialShare> {
+    const [share] = await db
+      .insert(socialShares)
+      .values({
+        ...insertShare,
+        clicks: 0,
+        conversions: 0,
+        createdAt: new Date()
+      })
+      .returning();
+    return share;
+  }
+
+  async getSocialShare(id: number): Promise<SocialShare | undefined> {
+    const [share] = await db
+      .select()
+      .from(socialShares)
+      .where(eq(socialShares.id, id));
+    return share;
+  }
+
+  async getUserSocialShares(userId: number): Promise<SocialShare[]> {
+    return db
+      .select()
+      .from(socialShares)
+      .where(eq(socialShares.userId, userId))
+      .orderBy(desc(socialShares.createdAt));
+  }
+
+  async incrementShareClicks(shareId: number): Promise<SocialShare | undefined> {
+    const share = await this.getSocialShare(shareId);
+    if (!share) return undefined;
+
+    const [updatedShare] = await db
+      .update(socialShares)
+      .set({ clicks: (share.clicks || 0) + 1 })
+      .where(eq(socialShares.id, shareId))
+      .returning();
+    return updatedShare;
+  }
+
+  async incrementShareConversions(shareId: number): Promise<SocialShare | undefined> {
+    const share = await this.getSocialShare(shareId);
+    if (!share) return undefined;
+
+    const [updatedShare] = await db
+      .update(socialShares)
+      .set({ conversions: (share.conversions || 0) + 1 })
+      .where(eq(socialShares.id, shareId))
+      .returning();
+    return updatedShare;
+  }
+
+  // Creator mode methods
+  async getCreators(): Promise<User[]> {
+    return db
+      .select()
+      .from(users)
+      .where(eq(users.isCreator, true))
+      .orderBy(desc(users.lastActive));
+  }
+
+  async createPrivateRoom(insertRoom: InsertPrivateRoom): Promise<PrivateRoom> {
+    const [room] = await db
+      .insert(privateRooms)
+      .values({
+        ...insertRoom,
+        requestedAt: new Date(),
+        tokensSpent: 0,
+        minutesActive: 0
+      })
+      .returning();
+    return room;
+  }
+
+  async getPrivateRoom(id: number): Promise<PrivateRoom | undefined> {
+    const [room] = await db
+      .select()
+      .from(privateRooms)
+      .where(eq(privateRooms.id, id));
+    return room;
+  }
+
+  async updatePrivateRoom(id: number, updates: Partial<PrivateRoom>): Promise<PrivateRoom | undefined> {
+    const [updatedRoom] = await db
+      .update(privateRooms)
+      .set(updates)
+      .where(eq(privateRooms.id, id))
+      .returning();
+    return updatedRoom;
+  }
+
+  async getUserPrivateRooms(userId: number): Promise<PrivateRoom[]> {
+    return db
+      .select()
+      .from(privateRooms)
+      .where(eq(privateRooms.userId, userId))
+      .orderBy(desc(privateRooms.requestedAt));
+  }
+
+  async getCreatorPrivateRooms(creatorId: number): Promise<PrivateRoom[]> {
+    return db
+      .select()
+      .from(privateRooms)
+      .where(eq(privateRooms.creatorId, creatorId))
+      .orderBy(desc(privateRooms.requestedAt));
   }
 }
 

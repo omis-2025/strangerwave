@@ -13,6 +13,9 @@ import {
 import { calculateCompatibilityScore, extractInterestsFromMessage, handleChatEnd } from "./ai-matching";
 import { processNewMessage, updateUserLanguagePreference, getSupportedLanguages, translateMessage } from "./translation";
 import paypalRoutes from "./routes/paypal";
+import referralRoutes from "./routes/referral";
+import socialRoutes from "./routes/social";
+import creatorRoutes from "./routes/creator";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
 import stripeRoutes from "./routes/stripe";
@@ -387,6 +390,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Stripe routes
   app.use('/api/stripe', stripeRoutes);
+  
+  // Register referral routes
+  app.use('/api/referral', referralRoutes);
+  
+  // Register social sharing routes
+  app.use('/api/social', socialRoutes);
+  
+  // Register creator mode routes
+  app.use('/api/creator', creatorRoutes);
   
   // Streak and Achievement routes
 
