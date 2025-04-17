@@ -186,7 +186,7 @@ export default function LandingPage() {
               >
                 <Button size="lg" variant="outline" className="gap-2 group border-primary hover:border-primary/80 transition-colors">
                   <FaCoins className="h-4 w-4 text-primary group-hover:animate-spin-slow" />
-                  <span>Go Premium</span>
+                  <span>View Pricing</span>
                 </Button>
               </motion.div>
             </Link>
@@ -370,8 +370,8 @@ export default function LandingPage() {
                   "Unlimited matches",
                   "HD video quality"
                 ]}
-                buttonText="Go Premium"
-                buttonLink="/chat"
+                buttonText="View Plan"
+                buttonLink="/pricing"
                 popular={true}
               />
               <PricingCard 
