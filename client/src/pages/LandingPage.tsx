@@ -86,13 +86,13 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <img 
-              src="/assets/hero-image.png" 
+              src="/images/hero-image.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
               onLoad={() => setHeroImageLoaded(true)}
               onError={(e) => {
                 console.log("Image failed to load, falling back");
-                e.currentTarget.src = "/assets/phone-mockup.png";
+                e.currentTarget.src = "/images/phone-mockup.png";
               }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
