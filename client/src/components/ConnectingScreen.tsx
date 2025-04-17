@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Globe, Shield, X, Video, Camera, Mic, VideoOff, MicOff } from 'lucide-react';
+import { Users, Search, Globe, Shield, X, Video, Camera, Mic, VideoOff, MicOff, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ConnectingScreenProps {
@@ -109,214 +109,220 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
   }, []);
   
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="relative text-center mb-10"
-      >
-        <div className="relative">
-          {/* Animated glow effect behind spinner */}
-          <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl transform scale-125"></div>
-          
-          <div className="relative w-24 h-24 mx-auto">
-            {/* Main spinner */}
-            <motion.div 
-              className="w-24 h-24 border-4 border-primary border-t-transparent rounded-full absolute inset-0"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            ></motion.div>
-            
-            {/* Secondary spinner */}
-            <motion.div 
-              className="w-16 h-16 border-4 border-blue-400 border-b-transparent rounded-full absolute inset-0 m-auto"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            ></motion.div>
-            
-            {/* Center icon */}
-            <div className="absolute inset-0 m-auto flex items-center justify-center z-10">
-              <Search className="h-8 w-8 text-primary" />
-            </div>
-            
-            {/* Orbiting user dot */}
-            <motion.div
-              className="absolute"
-              style={{ width: 10, height: 10 }}
-              animate={{
-                x: [0, 30, 0, -30, 0],
-                y: [30, 0, -30, 0, 30],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </motion.div>
-          </div>
+    <div className="flex-1 flex flex-col max-h-screen overflow-hidden">
+      {/* Top status bar */}
+      <div className="bg-gray-900 p-3 border-b border-gray-800 flex justify-between items-center">
+        <div className="flex items-center">
+          <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2 animate-pulse"></div>
+          <span className="text-sm font-medium text-yellow-500">Finding match</span>
         </div>
-        
-        <motion.h2 
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-xl sm:text-2xl font-bold text-white mt-8 mb-2"
-        >
-          Finding someone to chat with...
-        </motion.h2>
-        
-        <motion.p 
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-gray-300 mb-1"
-        >
-          This might take a moment
-        </motion.p>
-        
-        {searchingCountry && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center justify-center text-sm text-gray-400 mt-2"
-          >
-            <Globe className="h-3 w-3 mr-1 text-primary" />
-            <span>Searching in {searchingCountry}...</span>
-          </motion.div>
-        )}
-        
+        <div className="flex items-center">
+          <Users className="h-3 w-3 mr-1 text-blue-400" />
+          <span className="text-xs text-gray-300">{userCount} users online</span>
+        </div>
+      </div>
+
+      {/* Main content - desktop layout is side by side, mobile is stacked */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* Left panel - Video preview (takes half the screen on desktop) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex items-center justify-center mt-2 bg-gray-800/50 rounded-full px-3 py-1"
+          transition={{ duration: 0.3 }}
+          className="w-full md:w-1/2 h-full relative bg-black flex-shrink-0"
         >
-          <Users className="h-3 w-3 mr-1 text-blue-400" />
-          <span className="text-xs text-gray-300">{userCount} users online now</span>
-        </motion.div>
-      </motion.div>
-      
-      {/* Video Preview */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="mb-6 w-full max-w-xs"
-      >
-        <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
-          <div className="aspect-video relative bg-gray-900 overflow-hidden">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`w-full h-full object-cover ${!videoEnabled ? 'hidden' : ''}`}
-            />
-            
-            {!videoEnabled && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800">
-                <VideoOff className="h-10 w-10 text-gray-600 mb-2" />
-                <p className="text-sm text-gray-400">Camera is turned off</p>
-              </div>
-            )}
-            
-            <div className="absolute bottom-3 right-3 flex space-x-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${!micEnabled ? 'bg-red-500/20 text-red-400' : 'bg-gray-900/80 text-white'}`}
-                onClick={toggleMic}
-              >
-                {micEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-              </Button>
-              
-              <Button
-                size="sm"
-                variant="ghost"
-                className={`rounded-full w-8 h-8 p-0 flex items-center justify-center ${!videoEnabled ? 'bg-red-500/20 text-red-400' : 'bg-gray-900/80 text-white'}`}
-                onClick={toggleVideo}
-              >
-                {videoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={`w-full h-full object-cover ${!videoEnabled ? 'hidden' : ''}`}
+          />
           
-          <div className="p-2 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                <span className="text-xs text-gray-300">Camera ready</span>
-              </div>
-              <div className="text-xs text-gray-400 flex items-center">
-                <Video className="h-3 w-3 mr-1 text-blue-400" />
-                <span>Video activated</span>
-              </div>
+          {!videoEnabled && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+              <VideoOff className="h-16 w-16 text-gray-700 mb-3" />
+              <p className="text-gray-400 font-medium">Camera is turned off</p>
             </div>
+          )}
+
+          {/* Camera controls - moved to centered bottom of video */}
+          <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-3">
+            <Button
+              size="sm"
+              variant="secondary"
+              className={`rounded-full w-12 h-12 p-0 flex items-center justify-center shadow-lg ${!micEnabled ? 'bg-red-500 text-white' : 'bg-gray-800/80 text-white'}`}
+              onClick={toggleMic}
+            >
+              {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+            </Button>
             
-            {/* Audio/Video quality selectors */}
-            <div className="flex justify-between text-xs text-gray-400">
-              <div className="flex items-center space-x-1">
-                <Mic className="h-3 w-3 text-blue-400" />
-                <select 
-                  className="bg-gray-700 border-none rounded text-xs py-0.5 px-1"
-                  defaultValue="medium"
-                >
-                  <option value="high">Audio: High</option>
-                  <option value="medium">Audio: Medium</option>
-                  <option value="low">Audio: Low</option>
-                </select>
+            <Button
+              size="sm"
+              variant="secondary"
+              className={`rounded-full w-12 h-12 p-0 flex items-center justify-center shadow-lg ${!videoEnabled ? 'bg-red-500 text-white' : 'bg-gray-800/80 text-white'}`}
+              onClick={toggleVideo}
+            >
+              {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+            </Button>
+          </div>
+
+          {/* Status label */}
+          <div className="absolute top-4 left-4 bg-gray-900/70 rounded-full px-3 py-1 text-sm flex items-center">
+            <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+            <span className="text-white">Your camera</span>
+          </div>
+
+          {/* Quality indicator */}
+          <div className="absolute top-4 right-4 bg-gray-900/70 rounded-full px-3 py-1 text-xs">
+            <span className="text-white font-medium">HD Quality</span>
+          </div>
+        </motion.div>
+
+        {/* Right panel - Matching status/chat placeholder */}
+        <div className="flex-1 flex flex-col bg-gray-900">
+          {/* Matching animation and status */}
+          <div className="flex-1 p-6 flex flex-col items-center justify-center">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="relative mb-5"
+            >
+              <div className="relative">
+                {/* Animated glow effect behind spinner */}
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl transform scale-150"></div>
+                
+                <div className="relative w-28 h-28 mx-auto">
+                  {/* Main spinner */}
+                  <motion.div 
+                    className="w-28 h-28 border-4 border-primary border-t-transparent rounded-full absolute inset-0"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  ></motion.div>
+                  
+                  {/* Secondary spinner */}
+                  <motion.div 
+                    className="w-20 h-20 border-4 border-blue-400 border-b-transparent rounded-full absolute inset-0 m-auto"
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  ></motion.div>
+                  
+                  {/* Center icon */}
+                  <div className="absolute inset-0 m-auto flex items-center justify-center z-10">
+                    <Search className="h-10 w-10 text-primary" />
+                  </div>
+                  
+                  {/* Orbiting user dots */}
+                  <motion.div
+                    className="absolute"
+                    style={{ width: 12, height: 12 }}
+                    animate={{
+                      x: [0, 40, 0, -40, 0],
+                      y: [40, 0, -40, 0, 40],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  >
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </motion.div>
+                  
+                  <motion.div
+                    className="absolute"
+                    style={{ width: 10, height: 10 }}
+                    animate={{
+                      x: [30, -30, 0, 30],
+                      y: [0, 30, -30, 0],
+                    }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+                  >
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  </motion.div>
+                </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <Camera className="h-3 w-3 text-blue-400" />
-                <select 
-                  className="bg-gray-700 border-none rounded text-xs py-0.5 px-1"
-                  defaultValue="480p"
+              
+              <motion.h2 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl sm:text-3xl font-bold text-white mt-8 mb-3"
+              >
+                Finding someone to chat with...
+              </motion.h2>
+              
+              <motion.p 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-lg text-gray-300 mb-2"
+              >
+                This might take a moment
+              </motion.p>
+              
+              {searchingCountry && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center justify-center text-sm text-gray-400 mt-2"
                 >
-                  <option value="720p">Video: HD</option>
-                  <option value="480p">Video: SD</option>
-                  <option value="360p">Video: Low</option>
-                </select>
+                  <Globe className="h-4 w-4 mr-1 text-primary" />
+                  <span>Searching in {searchingCountry}...</span>
+                </motion.div>
+              )}
+            </motion.div>
+            
+            {/* Trust elements */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-wrap justify-center space-x-4 mb-6 text-sm text-gray-400"
+            >
+              <div className="flex items-center">
+                <Shield className="h-4 w-4 mr-1 text-green-500" />
+                <span>AI moderated</span>
               </div>
-            </div>
+              <div className="flex items-center">
+                <Users className="h-4 w-4 mr-1 text-blue-500" />
+                <span>Smart matching</span>
+              </div>
+              <div className="flex items-center">
+                <Camera className="h-4 w-4 mr-1 text-blue-500" />
+                <span>HD video</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="p-5 border-t border-gray-800 flex justify-between">
+            <motion.button 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={onCancel}
+              className="bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
+            >
+              <X className="h-5 w-5 mr-2" />
+              Cancel
+            </motion.button>
+            
+            <motion.button 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={onCancel} // For now using the same handler as Cancel, would need a skipMatch handler
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
+            >
+              <SkipForward className="h-5 w-5 mr-2" />
+              Skip
+            </motion.button>
           </div>
         </div>
-      </motion.div>
-      
-      {/* Trust elements */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="flex space-x-3 mb-6 text-xs text-gray-400"
-      >
-        <div className="flex items-center">
-          <Shield className="h-3 w-3 mr-1 text-green-500" />
-          <span>AI moderated</span>
-        </div>
-        <span>•</span>
-        <div className="flex items-center">
-          <Users className="h-3 w-3 mr-1 text-blue-500" />
-          <span>Smart matching</span>
-        </div>
-        <span>•</span>
-        <div className="flex items-center">
-          <Camera className="h-3 w-3 mr-1 text-blue-500" />
-          <span>Video enabled</span>
-        </div>
-      </motion.div>
-      
-      <motion.button 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onCancel}
-        className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-all flex items-center"
-      >
-        <X className="h-4 w-4 mr-1" />
-        Cancel
-      </motion.button>
+      </div>
     </div>
   );
 }
