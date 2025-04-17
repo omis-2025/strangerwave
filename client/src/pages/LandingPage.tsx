@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FaVideo, FaComments, FaShieldAlt, FaGlobe, FaCoins, FaMobile, FaRandom, FaVideo as FaVideoIcon } from 'react-icons/fa';
+import { 
+  FaVideo, FaComments, FaShieldAlt, FaGlobe, FaCoins, FaMobile, 
+  FaVideo as FaVideoIcon, FaRandom, FaBan, FaStar, FaPalette
+} from 'react-icons/fa';
+import { FaInfinity } from 'react-icons/fa6';
 import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alternative icons
 import { motion } from 'framer-motion';
+import { MessageSquare, Video, Check, Crown, AlertCircle } from 'lucide-react';
 import StaticImage from '@/components/StaticImage';
 
 // Import images directly
@@ -18,6 +23,64 @@ import aidenProfile from '@/assets/profiles/aiden.png';
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [autoScrollPaused, setAutoScrollPaused] = useState(false);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll testimonials every 5 seconds
+  useEffect(() => {
+    if (autoScrollPaused) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTestimonial(prev => {
+        // If we're at the last testimonial, go back to the first
+        if (prev >= testimonialsData.length - 1) {
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [autoScrollPaused]);
+  
+  const testimonialsData = [
+    {
+      quote: "I've tried all the random chat apps, but StrangerWave is in a league of its own. The video quality is amazing and I feel much safer.",
+      author: "Sarah K.",
+      location: "United States",
+      rating: 5,
+      imageSrc: sarahProfile
+    },
+    {
+      quote: "As a language learner, I use StrangerWave to practice with native speakers. The country filter is perfect for finding people from specific regions.",
+      author: "Miguel R.",
+      location: "Spain",
+      rating: 5,
+      imageSrc: miguelProfile
+    },
+    {
+      quote: "The premium features are actually worth it. Priority matching means I spend less time waiting and more time having great conversations.",
+      author: "Aiden T.",
+      location: "Australia",
+      rating: 4,
+      imageSrc: aidenProfile
+    },
+    {
+      quote: "I was skeptical at first, but the VIP subscription is totally worth it. Ultra HD video calls and the extra privacy features make it stand out.",
+      author: "Emma L.",
+      location: "Canada",
+      rating: 5,
+      imageSrc: sarahProfile
+    },
+    {
+      quote: "Meeting people from around the world has never been easier. The interface is sleek and I love how I can quickly filter by interests.",
+      author: "Jason M.",
+      location: "UK",
+      rating: 4,
+      imageSrc: aidenProfile
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 flex flex-col">
@@ -328,30 +391,98 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="container mx-auto py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <TestimonialCard 
-            quote="I've tried all the random chat apps, but StrangerWave is in a league of its own. The video quality is amazing and I feel much safer."
-            author="Sarah K."
-            location="United States"
-            rating={5}
-            imageSrc={sarahProfile}
-          />
-          <TestimonialCard 
-            quote="As a language learner, I use StrangerWave to practice with native speakers. The country filter is perfect for finding people from specific regions."
-            author="Miguel R."
-            location="Spain"
-            rating={5}
-            imageSrc={miguelProfile}
-          />
-          <TestimonialCard 
-            quote="The premium features are actually worth it. Priority matching means I spend less time waiting and more time having great conversations."
-            author="Aiden T."
-            location="Australia"
-            rating={4}
-            imageSrc={aidenProfile}
-          />
+      <section className="container mx-auto py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 opacity-50 rounded-3xl" />
+        
+        <div className="relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Join thousands of satisfied users already connecting on StrangerWave
+            </p>
+            <div className="flex justify-center gap-2 mt-4">
+              <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="inline-block h-2 w-2 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <span className="inline-block h-2 w-2 rounded-full bg-primary/50 animate-pulse" style={{ animationDelay: '0.4s' }} />
+            </div>
+          </motion.div>
+          
+          <div className="relative max-w-5xl mx-auto" ref={testimonialsRef}>
+            <div className="overflow-hidden">
+              <motion.div 
+                className="flex gap-6 px-4"
+                animate={{ x: -currentTestimonial * 100 + '%' }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              >
+                {testimonialsData.map((testimonial, index) => (
+                  <div 
+                    key={index} 
+                    className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-2"
+                  >
+                    <TestimonialCard 
+                      quote={testimonial.quote}
+                      author={testimonial.author}
+                      location={testimonial.location}
+                      rating={testimonial.rating}
+                      imageSrc={testimonial.imageSrc}
+                    />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+            
+            {/* Navigation dots */}
+            <div className="flex justify-center gap-3 mt-10">
+              {testimonialsData.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    currentTestimonial === index 
+                      ? 'bg-primary scale-125' 
+                      : 'bg-gray-600 hover:bg-gray-500'
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+            
+            {/* Navigation arrows */}
+            <div className="hidden md:block">
+              <motion.button
+                whileHover={{ scale: 1.1, x: -3 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCurrentTestimonial(prev => Math.max(0, prev - 1))}
+                className={`absolute top-1/2 -translate-y-1/2 left-0 -ml-4 w-10 h-10 rounded-full bg-background border border-gray-800 shadow-lg flex items-center justify-center ${
+                  currentTestimonial === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:border-primary/50'
+                }`}
+                disabled={currentTestimonial === 0}
+              >
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.1, x: 3 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCurrentTestimonial(prev => Math.min(testimonialsData.length - 1, prev + 1))}
+                className={`absolute top-1/2 -translate-y-1/2 right-0 -mr-4 w-10 h-10 rounded-full bg-background border border-gray-800 shadow-lg flex items-center justify-center ${
+                  currentTestimonial === testimonialsData.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:border-primary/50'
+                }`}
+                disabled={currentTestimonial === testimonialsData.length - 1}
+              >
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </motion.button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -670,32 +801,54 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, feature
 };
 
 const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, author, location, rating, imageSrc }) => (
-  <Card>
-    <CardContent className="pt-6">
-      <div className="flex mb-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg 
-            key={i} 
-            className={`h-4 w-4 ${i < rating ? 'text-yellow-500' : 'text-muted'}`} 
-            fill="currentColor" 
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
+  <motion.div
+    whileHover={{ y: -5 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <Card className="h-full border border-gray-800 hover:border-primary/40 transition-all duration-300 relative overflow-hidden">
+      {/* Quote mark background */}
+      <div className="absolute top-3 right-3 opacity-5 text-primary text-7xl font-serif z-0">
+        "
       </div>
-      <p className="italic mb-4">"{quote}"</p>
-      <div className="flex items-center gap-3">
-        {imageSrc && (
-          <div className="h-10 w-10 rounded-full overflow-hidden">
-            <img src={imageSrc} alt={`${author} profile`} className="h-full w-full object-cover" />
-          </div>
-        )}
-        <div className="text-sm">
-          <p className="font-semibold">{author}</p>
-          <p className="text-muted-foreground">{location}</p>
+      
+      <CardContent className="pt-6 relative z-10">
+        <div className="flex mb-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <motion.svg 
+              key={i} 
+              className={`h-4 w-4 ${i < rating ? 'text-yellow-500' : 'text-muted'}`} 
+              fill="currentColor" 
+              viewBox="0 0 20 20"
+              initial={{ scale: 1 }}
+              whileHover={{ scale: 1.2, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </motion.svg>
+          ))}
+          <span className="ml-2 text-xs text-gray-400 mt-0.5">{rating}.0</span>
         </div>
-      </div>
-    </CardContent>
-  </Card>
+        
+        <p className="italic mb-6 text-gray-300 relative z-10">"{quote}"</p>
+        
+        <div className="flex items-center gap-3 pt-4 border-t border-gray-800">
+          {imageSrc && (
+            <motion.div 
+              className="h-12 w-12 rounded-full overflow-hidden ring-2 ring-primary/30"
+              whileHover={{ scale: 1.1 }}
+            >
+              <img src={imageSrc} alt={`${author} profile`} className="h-full w-full object-cover" />
+            </motion.div>
+          )}
+          <div className="text-sm">
+            <p className="font-semibold text-white">{author}</p>
+            <p className="text-muted-foreground flex items-center gap-1">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/60 mr-1"></span>
+              {location}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </motion.div>
 );
