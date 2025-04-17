@@ -568,10 +568,18 @@ export default function Pricing() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-yellow-500">
-                {/* Simple avatar for Sarah K. */}
-                <div className="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">S</span>
-                </div>
+                {/* Real profile image for Sarah K. */}
+                <img 
+                  src="/images/profiles/profile-female.png"
+                  alt="Sarah K."
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("Profile image failed to load");
+                    // Fallback to initial
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center"><span class="text-white font-bold text-lg">S</span></div>';
+                  }}
+                />
               </div>
               <div className="ml-4">
                 <h4 className="font-semibold text-white">Sarah K.</h4>
