@@ -1,0 +1,52 @@
+As we move into the final stretch with StrangerWave — and given the valuation target of $11M+ — it's critical that we ensure the platform is production-ready, bug-free, and visually flawless before launching or handing it off to any acquirers.
+
+I'd like to request a comprehensive QA pass on the full application — both frontend and backend — to validate that every element functions correctly and meets a high design and usability standard.
+
+Please review and test the following areas thoroughly:
+
+🔹 Landing Page & Visual Elements
+Verify payment method logos (Visa, MasterCard, PayPal, Apple Pay, etc.) are visible and styled consistently
+
+Ensure the "What Our Users Say" section includes profile pictures for each testimonial
+
+All calls to action (CTAs) and plan-selection buttons must be working properly
+
+🔹 Payment & Checkout Flows
+Confirm Stripe and PayPal checkouts function properly for:
+
+VIP and Premium subscriptions
+
+Unban payments
+
+Check responsiveness, layout alignment, and button interactivity across all plans
+
+Validate pricing visibility per region
+
+🔹 Core App Functionality
+Video/text chat working flawlessly across all browsers and devices
+
+Matching engine accuracy (filters by gender & country)
+
+Moderation tools (bans, reports, and unban automation after payment)
+
+Token system functionality (if active)
+
+🔹 Cross-Platform & Browser Compatibility
+Full testing on Chrome, Safari, Firefox
+
+Mobile (iOS & Android) and desktop experience consistency
+
+Responsive layout for all breakpoints
+
+Deliverables:
+A quick QA summary report outlining:
+
+Any critical bugs found (with screenshots or video if needed)
+
+Any layout issues or inconsistencies
+
+Confirmation of successful tests on payments and chat features
+
+This is a key step to ensure the platform truly reflects its $11M+ valuation and can confidently be presented to advisors or buyers. Please prioritize this task and let me know once it's complete — happy to review it together afterward if needed.
+
+Thanks again for the hard work
