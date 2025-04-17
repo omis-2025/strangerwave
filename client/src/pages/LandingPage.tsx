@@ -72,13 +72,31 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex gap-4"
           >
-            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
+            <Link href="/chat" onClick={() => {
+              console.log("Start chatting clicked - setting navigation flag");
+              localStorage.setItem('startChatting', 'true');
+              // Track user interaction
+              try {
+                if (window.gtag) window.gtag('event', 'start_chatting_click');
+              } catch (e) {
+                console.warn("Analytics tracking error:", e);
+              }
+            }}>
               <Button size="lg" className="gap-2">
                 <FaVideo className="h-4 w-4" />
                 Start Chatting
               </Button>
             </Link>
-            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
+            <Link href="/pricing" onClick={() => {
+              console.log("Go premium clicked");
+              // Don't set startChatting flag for premium link - we want users to see the pricing page
+              // Track user interaction
+              try {
+                if (window.gtag) window.gtag('event', 'premium_click');
+              } catch (e) {
+                console.warn("Analytics tracking error:", e);
+              }
+            }}>
               <Button size="lg" variant="outline" className="gap-2">
                 <FaCoins className="h-4 w-4" />
                 Go Premium
@@ -321,10 +339,26 @@ export default function LandingPage() {
             Join thousands of users already making meaningful connections on StrangerWave. Start chatting for free today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
+            <Link href="/chat" onClick={() => {
+              console.log("Create account clicked - setting navigation flag");
+              localStorage.setItem('startChatting', 'true');
+              try {
+                if (window.gtag) window.gtag('event', 'create_account_click');
+              } catch (e) {
+                console.warn("Analytics tracking error:", e);
+              }
+            }}>
               <Button size="lg" className="w-full sm:w-auto">Create Account</Button>
             </Link>
-            <Link href="/chat" onClick={() => localStorage.setItem('startChatting', 'true')}>
+            <Link href="/pricing" onClick={() => {
+              console.log("Explore features clicked");
+              // Don't set startChatting flag for features link
+              try {
+                if (window.gtag) window.gtag('event', 'explore_features_click');
+              } catch (e) {
+                console.warn("Analytics tracking error:", e);
+              }
+            }}>
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 Explore Features
               </Button>

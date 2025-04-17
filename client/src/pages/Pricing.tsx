@@ -90,7 +90,7 @@ export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null);
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{
     id: string;
@@ -157,62 +157,124 @@ export default function Pricing() {
   };
   
   const handleSubscribe = async () => {
-    if (!selectedPlan || !user) {
+    if (!selectedPlan) {
+      toast({
+        title: "Invalid Plan",
+        description: "Please select a valid subscription plan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user) {
+      // Explicitly handle the unauthenticated case
       toast({
         title: "Authentication Required",
         description: "Please log in to continue with your purchase.",
         variant: "destructive",
       });
+      // Automatically trigger login process
+      try {
+        await login();
+        // Don't continue with subscription process - wait for auth to complete
+        toast({
+          title: "Please try again",
+          description: "You're being logged in. Please try subscribing again in a moment.",
+        });
+        setConfirmDialogOpen(false);
+        return;
+      } catch (loginError) {
+        console.error("Login attempt failed:", loginError);
+        // Continue with error handling
+      }
       return;
     }
     
     try {
+      // Set loading state with plan ID
       setLoading(selectedPlan.id);
       
-      // Ensure we have a valid userId
-      const userId = user.userId || user.id;
+      // Ensure we have a valid userId - prefer userId over id for consistency
+      const userId = user.userId;
       if (!userId) {
-        throw new Error('Invalid user ID - please log in again');
+        toast({
+          title: "User ID Missing",
+          description: "Your user account is incomplete. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        throw new Error('Invalid or missing user ID - please refresh and try again');
       }
       
+      // Log checkout attempt for debugging
       console.log("Creating checkout session for:", {
         planType: selectedPlan.id.toUpperCase(),
-        userId: userId,
+        userId,
         interval: selectedPlan.interval
       });
       
-      // Create a checkout session
+      // Create a checkout session with enhanced error handling
       const response = await apiRequest('POST', '/api/stripe/create-checkout-session', {
         planType: selectedPlan.id.toUpperCase(),
-        userId: userId,
+        userId,
         interval: selectedPlan.interval
       });
       
+      // Check for response issues first
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          // If not JSON, use the raw text
+          throw new Error(`Server error (${response.status}): ${errorText || 'Unknown error'}`);
+        }
+        throw new Error(errorData.error || errorData.message || `Server error (${response.status})`);
+      }
+      
+      // Parse the response data
       const data = await response.json();
       
-      if (response.ok && data.url) {
-        // Show success toast before redirecting
-        toast({
-          title: "Redirecting to checkout",
-          description: "You'll be redirected to our secure payment provider.",
-        });
-        
-        // Brief timeout to let the toast appear before redirect
-        setTimeout(() => {
-          // Redirect to Stripe checkout
-          window.location.href = data.url;
-        }, 1000);
-      } else {
-        throw new Error(data.error || 'Could not create checkout session');
+      // Check for redirect URL
+      if (!data.url) {
+        throw new Error('No checkout URL returned from server');
       }
-    } catch (error) {
+      
+      // Show success toast before redirecting
+      toast({
+        title: "Redirecting to checkout",
+        description: "You'll be redirected to our secure payment provider.",
+      });
+      
+      // Track checkout redirection in analytics
+      console.log(`User ${userId} redirected to checkout for ${selectedPlan.id} plan`);
+      
+      // Brief timeout to let the toast appear before redirect
+      setTimeout(() => {
+        // Save checkout state for return journey
+        localStorage.setItem('checkoutInProgress', 'true');
+        localStorage.setItem('checkoutPlan', selectedPlan.id);
+        
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      }, 1000);
+    } catch (error: any) {
+      // Enhanced error handling for better user experience
       console.error('Checkout error:', error);
+      
+      // Determine the most user-friendly error message
+      const errorMessage = error.message || "An unexpected error occurred";
+      const errorDetails = errorMessage.includes('Server error') 
+        ? "There was a problem with our payment system. Please try again later."
+        : errorMessage;
+      
       toast({
         title: "Checkout Failed",
-        description: `Failed to start checkout process: ${error.message || "Please try again"}`,
+        description: errorDetails,
         variant: "destructive",
       });
     } finally {
+      // Always clean up loading state and dialog
       setLoading(null);
       setConfirmDialogOpen(false);
     }
@@ -232,7 +294,7 @@ export default function Pricing() {
       setLoading('unban');
       
       // Ensure we have a valid userId
-      const userId = user.userId || user.id;
+      const userId = user.userId;
       if (!userId) {
         throw new Error('Invalid user ID - please log in again');
       }

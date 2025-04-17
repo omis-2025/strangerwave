@@ -65,25 +65,63 @@ function Router() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Handle navigation and redirection based on user state and preferences
+  // Enhanced navigation logic with stability improvements
   useEffect(() => {
-    // Set a flag to explicitly show landing page
-    if (window.location.pathname === '/' || window.location.pathname === '/landing') {
-      localStorage.setItem('showLandingPage', 'true');
-      localStorage.removeItem('startChatting');
-    }
+    // Only execute navigation logic if we're not in a loading state
+    if (isLoading) return;
     
-    // Only redirect to chat if user has explicitly chosen to start chatting
-    const shouldRedirect = localStorage.getItem('startChatting') === 'true';
-    const shouldShowLanding = localStorage.getItem('showLandingPage') === 'true';
-    
-    if (user && shouldRedirect && (window.location.pathname === '/' || window.location.pathname === '/landing')) {
-      // Clear the flags after redirecting
-      localStorage.removeItem('startChatting');
-      localStorage.removeItem('showLandingPage');
-      navigate('/chat');
+    try {
+      const currentPath = window.location.pathname;
+      const isOnLandingPage = currentPath === '/' || currentPath === '/landing';
+      
+      // Handle navigation flags with more information
+      console.log('Navigation check:', { 
+        currentPath,
+        isAuthenticated: !!user,
+        startChatting: localStorage.getItem('startChatting'),
+        showLandingPage: localStorage.getItem('showLandingPage')
+      });
+      
+      // Setting landing page preference
+      if (isOnLandingPage) {
+        localStorage.setItem('showLandingPage', 'true');
+        
+        // Don't overwrite explicit startChatting preference if it exists
+        if (localStorage.getItem('startChatting') !== 'true') {
+          localStorage.removeItem('startChatting');
+        }
+      }
+      
+      // Only perform redirection under specific conditions
+      const shouldRedirectToChat = 
+        user && // User must be authenticated
+        isOnLandingPage && // Must be on landing page
+        localStorage.getItem('startChatting') === 'true' && // Must have explicit redirect flag
+        !localStorage.getItem('preventRedirect'); // Emergency override for debugging
+      
+      if (shouldRedirectToChat) {
+        console.log('Redirecting from landing page to chat based on user preference');
+        
+        // Set a temporary flag to prevent redirect loops
+        localStorage.setItem('redirecting', 'true');
+        
+        // Clear navigation flags after redirect
+        localStorage.removeItem('startChatting');
+        localStorage.removeItem('showLandingPage');
+        
+        // Navigate to chat page
+        navigate('/chat');
+        
+        // Remove temporary flag after a short delay
+        setTimeout(() => {
+          localStorage.removeItem('redirecting');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Don't let navigation errors break the app
     }
-  }, [user, navigate]);
+  }, [user, navigate, isLoading]);
   
   if (isLoading) {
     return <LoadingScreen />;
