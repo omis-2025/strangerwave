@@ -100,6 +100,29 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => navigate('/pricing')}
+            className="text-gray-300 hover:text-white px-3 py-1 rounded-full flex items-center gap-1 hover:bg-gray-800 transition-all"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-5 w-5" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 17v.01" />
+              <path d="M12 13a2 2 0 0 0 1.882-1.35.9.9 0 1 1 1.788.018A2.977 2.977 0 0 1 12 14.5c-.89 0-1.563-.6-1.939-1.347A3.087 3.087 0 0 1 8.5 13" />
+            </svg>
+            <span>Pricing</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onFilterClick}
             className="text-gray-300 hover:text-white px-3 py-1 rounded-full flex items-center gap-1 hover:bg-gray-800 transition-all"
           >
@@ -198,6 +221,29 @@ export default function Header({ onFilterClick, onAdminClick }: HeaderProps) {
       {mobileMenuOpen && (
         <div className="md:hidden mt-2 pt-2 pb-4 border-t border-gray-700">
           <nav className="flex flex-col space-y-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/pricing')}
+              className="justify-start"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5 mr-2" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 17v.01" />
+                <path d="M12 13a2 2 0 0 0 1.882-1.35.9.9 0 1 1 1.788.018A2.977 2.977 0 0 1 12 14.5c-.89 0-1.563-.6-1.939-1.347A3.087 3.087 0 0 1 8.5 13" />
+              </svg>
+              Pricing
+            </Button>
+            
             <Button
               variant="ghost"
               size="sm"

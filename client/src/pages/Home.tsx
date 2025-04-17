@@ -4,6 +4,7 @@ import ChatScreen from "@/components/ChatScreen";
 import FilterModal from "@/components/FilterModal";
 import AdminModal from "@/components/AdminModal";
 import OnboardingModal from "@/components/OnboardingModal";
+import { BannedUserMessage } from "@/components/BannedUserMessage";
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -120,6 +121,9 @@ export default function Home() {
       {showOnboarding && (
         <OnboardingModal onClose={() => setShowOnboarding(false)} />
       )}
+      
+      {/* Banned user message overlay */}
+      <BannedUserMessage />
       
       <footer className="bg-surface py-4 px-4 sm:px-6 border-t border-gray-800">
         <div className="container mx-auto text-center text-text-secondary text-sm">
