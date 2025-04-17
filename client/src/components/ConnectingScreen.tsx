@@ -308,7 +308,7 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
                       className="flex items-center justify-center gap-2"
                     >
                       <X className="h-4 w-4" />
-                      Cancel
+                      Stop
                     </Button>
                     
                     <Button 
@@ -544,7 +544,7 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
               className="bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
             >
               <X className="h-5 w-5 mr-2" />
-              Cancel
+              Stop
             </motion.button>
             
             <motion.button 
@@ -557,7 +557,7 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center"
             >
               <SkipForward className="h-5 w-5 mr-2" />
-              Skip
+              Next
             </motion.button>
           </div>
         </div>
