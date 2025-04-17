@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Loader2, Check, X, CreditCard, AlertCircle } from 'lucide-react';
+import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -226,6 +226,18 @@ export default function Pricing() {
   
   return (
     <div className="container mx-auto py-16 px-4">
+      {/* Limited Time Offer Banner */}
+      <div className="max-w-5xl mx-auto -mt-8 mb-12">
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3 flex items-center justify-center">
+          <span className="animate-pulse inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/20 text-amber-600 mr-3">
+            <Clock className="h-4 w-4" />
+          </span>
+          <p className="text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
+            <span className="font-bold">Limited Time Offer:</span> 30% off yearly VIP plan for the next <span className="font-bold">48 hours</span>! Use code <span className="font-mono bg-amber-500/20 px-2 py-0.5 rounded">WAVE30</span> at checkout.
+          </p>
+        </div>
+      </div>
+      
       <div className="text-center max-w-3xl mx-auto mb-12">
         <h1 className="text-4xl font-bold mb-3">Choose Your Plan</h1>
         <p className="text-lg text-muted-foreground mb-8">
@@ -478,6 +490,28 @@ export default function Pricing() {
             <DialogDescription>
               Please review your subscription details before proceeding to payment.
             </DialogDescription>
+            
+            {/* Payment Progress Indicator */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-medium">1</div>
+                <span className="text-xs mt-1 font-medium">Review</span>
+              </div>
+              <div className="h-0.5 flex-1 bg-muted mx-2 relative">
+                <div className="absolute inset-0 bg-primary" style={{ width: '0%' }}></div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-medium">2</div>
+                <span className="text-xs mt-1 text-muted-foreground">Payment</span>
+              </div>
+              <div className="h-0.5 flex-1 bg-muted mx-2">
+                <div className="absolute inset-0 bg-primary" style={{ width: '0%' }}></div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-medium">3</div>
+                <span className="text-xs mt-1 text-muted-foreground">Confirmation</span>
+              </div>
+            </div>
           </DialogHeader>
           
           {selectedPlan && (
