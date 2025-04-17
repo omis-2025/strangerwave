@@ -230,8 +230,8 @@ export default function ChatInterface({
       detectedLanguage: "Spanish"
     };
     
-    // Add the test message to the messages array
-    onNewMessage(testMessage);
+    // Since we don't have a direct onNewMessage prop, simulate receiving the message
+    onSendMessage("/test-translation");
   };
   
   const handleSubmit = (e: React.FormEvent) => {

@@ -313,6 +313,12 @@ export default function Pricing() {
       
       console.log("Creating unban checkout session for user:", userId);
       
+      // Output related environment variables state (without values)
+      console.log("Environment check:", { 
+        stripeKeyAvailable: !!import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+        apiUrlBase: window.location.origin
+      });
+      
       // Create a checkout session for unbanning
       const response = await apiRequest('POST', '/api/stripe/create-checkout-session', {
         planType: 'UNBAN',
