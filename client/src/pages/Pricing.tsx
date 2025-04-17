@@ -420,13 +420,14 @@ export default function Pricing() {
                   {plan.description}
                 </p>
               )}
-              <CardDescription className="mt-3">
+              {/* Removed CardDescription and used div with similar styling to avoid DOM nesting errors */}
+              <div className="mt-3 text-sm text-muted-foreground">
                 <div className="flex items-baseline">
                   {plan.id === 'free' ? (
-                    <span className="text-3xl font-bold">Free</span>
+                    <span className="text-3xl font-bold text-foreground">Free</span>
                   ) : (
                     <>
-                      <span className="text-3xl font-bold">
+                      <span className="text-3xl font-bold text-foreground">
                         ${yearly ? plan.prices.yearly : plan.prices.monthly}
                       </span>
                       <span className="text-muted-foreground ml-1">
@@ -445,7 +446,7 @@ export default function Pricing() {
                     <span className="mr-1">★</span> {plan.discount}
                   </div>
                 )}
-              </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -491,21 +492,25 @@ export default function Pricing() {
       </div>
       
       {/* Trust Badges Section */}
-      <div className="max-w-3xl mx-auto my-16 text-center">
-        <h3 className="text-lg font-medium mb-4 text-muted-foreground">Trusted and Secure Payments</h3>
-        <TrustBadgesGroup />
-        <PaymentProviderLogos />
+      <div className="max-w-4xl mx-auto mt-16 mb-20 text-center">
+        <h3 className="text-lg font-medium mb-6 text-muted-foreground">Trusted and Secure Payments</h3>
+        <div className="mb-8">
+          <TrustBadgesGroup />
+        </div>
+        <div className="mb-10">
+          <PaymentProviderLogos />
+        </div>
         
-        <div className="grid sm:grid-cols-2 gap-6 mt-8">
+        <div className="grid sm:grid-cols-2 gap-6 mt-10">
           <SecurityTestimonial />
-          <div className="bg-card/50 backdrop-blur-sm border rounded-xl p-4">
-            <h4 className="text-sm font-medium mb-3 flex items-center">
+          <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-5 flex flex-col justify-center">
+            <h4 className="text-sm font-medium mb-3 flex items-center justify-center">
               <CreditCard className="h-4 w-4 text-primary mr-2" />
-              Secure Payments
+              Secure Payment Processing
             </h4>
-            <p className="text-sm text-muted-foreground">
-              Your payment information is encrypted with 256-bit SSL technology and is never stored on our servers. We offer 30-day refunds for any subscription.
-            </p>
+            <div className="text-sm text-muted-foreground">
+              Your payment is securely processed with 256-bit encryption. We never store your complete payment details on our servers.
+            </div>
           </div>
         </div>
       </div>
