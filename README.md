@@ -94,6 +94,16 @@ For a complete overview, see the [Documentation Index](./docs/README.md).
 
 ## Deployment
 
+### Replit Deployment
+
+StrangerWave is configured for one-click deployment on Replit:
+
+1. Click the "Deploy" button on the Replit interface
+2. Ensure all environment variables are properly set
+3. The app will be deployed to a public `*.replit.app` URL
+
+### Alternative Hosting Services
+
 The application can be deployed on any standard Node.js hosting service:
 
 ```bash
@@ -103,6 +113,26 @@ npm run build
 # Start production server
 npm start
 ```
+
+### Environment Variables Required for Deployment
+
+Ensure these environment variables are configured in your deployment environment:
+
+#### Firebase Configuration
+- `VITE_FIREBASE_API_KEY` - Firebase API key
+- `VITE_FIREBASE_APP_ID` - Firebase app ID
+- `VITE_FIREBASE_PROJECT_ID` - Firebase project ID
+
+#### Database
+- `DATABASE_URL` - PostgreSQL connection string
+
+#### Payment Processing
+- `VITE_STRIPE_PUBLIC_KEY` - Stripe publishable key
+- `STRIPE_SECRET_KEY` - Stripe secret key
+- `PAYPAL_CLIENT_ID` - PayPal client ID
+- `PAYPAL_CLIENT_SECRET` - PayPal secret key
+
+The application will check for these variables on startup and warn if any are missing.
 
 See the [Technical Setup Guide](./docs/technical-setup-guide.md) for detailed deployment instructions.
 
