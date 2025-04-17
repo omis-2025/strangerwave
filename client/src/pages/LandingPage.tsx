@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 flex flex-col">
@@ -27,7 +28,10 @@ export default function LandingPage() {
         </div>
         <div className="flex gap-4">
           <Link href="/chat">
-            <Button variant="ghost">Login</Button>
+            <Button variant="outline" className="gap-2">
+              <FaShieldAlt className="h-4 w-4" />
+              Report
+            </Button>
           </Link>
           <Link href="/chat">
             <Button>Get Started</Button>
@@ -82,12 +86,13 @@ export default function LandingPage() {
             className="relative rounded-xl overflow-hidden border shadow-xl"
           >
             <img 
-              src="/attached_assets/image_1744729674145.png" 
+              src="/assets/hero-image.png" 
               alt="StrangerWave in action" 
               className="w-full rounded-xl"
+              onLoad={() => setHeroImageLoaded(true)}
               onError={(e) => {
                 console.log("Image failed to load, falling back");
-                e.currentTarget.src = "/assets/fallback-image.jpg";
+                e.currentTarget.src = "/assets/phone-mockup.png";
               }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
