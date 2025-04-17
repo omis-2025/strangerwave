@@ -413,7 +413,10 @@ export default function LandingPage() {
           </motion.div>
           
           <div className="relative max-w-5xl mx-auto" ref={testimonialsRef}>
-            <div className="overflow-hidden">
+            <div className="overflow-hidden"
+             onMouseEnter={() => setAutoScrollPaused(true)}
+             onMouseLeave={() => setAutoScrollPaused(false)}
+            >
               <motion.div 
                 className="flex gap-6 px-4"
                 animate={{ x: -currentTestimonial * 100 + '%' }}
@@ -458,29 +461,70 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.1, x: -3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentTestimonial(prev => Math.max(0, prev - 1))}
-                className={`absolute top-1/2 -translate-y-1/2 left-0 -ml-4 w-10 h-10 rounded-full bg-background border border-gray-800 shadow-lg flex items-center justify-center ${
-                  currentTestimonial === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:border-primary/50'
+                className={`absolute top-1/2 -translate-y-1/2 left-0 -ml-6 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm border border-gray-800 shadow-lg flex items-center justify-center group ${
+                  currentTestimonial === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-90 hover:opacity-100 hover:border-primary/50 hover:shadow-primary/20 hover:shadow-xl'
                 }`}
                 disabled={currentTestimonial === 0}
               >
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <motion.div
+                  className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200"
+                  initial={{ x: 0 }}
+                  whileHover={{ x: -2 }}
+                >
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </motion.div>
+                <div className="absolute inset-0 bg-primary/5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </motion.button>
               
               <motion.button
                 whileHover={{ scale: 1.1, x: 3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentTestimonial(prev => Math.min(testimonialsData.length - 1, prev + 1))}
-                className={`absolute top-1/2 -translate-y-1/2 right-0 -mr-4 w-10 h-10 rounded-full bg-background border border-gray-800 shadow-lg flex items-center justify-center ${
-                  currentTestimonial === testimonialsData.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:border-primary/50'
+                className={`absolute top-1/2 -translate-y-1/2 right-0 -mr-6 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm border border-gray-800 shadow-lg flex items-center justify-center group ${
+                  currentTestimonial === testimonialsData.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-90 hover:opacity-100 hover:border-primary/50 hover:shadow-primary/20 hover:shadow-xl'
                 }`}
                 disabled={currentTestimonial === testimonialsData.length - 1}
               >
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <motion.div
+                  className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors duration-200"
+                  initial={{ x: 0 }}
+                  whileHover={{ x: 2 }}
+                >
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </motion.div>
+                <div className="absolute inset-0 bg-primary/5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </motion.button>
+            </div>
+            
+            {/* Mobile navigation arrows */}
+            <div className="flex justify-between md:hidden mt-8">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setCurrentTestimonial(prev => Math.max(0, prev - 1))}
+                disabled={currentTestimonial === 0}
+                className="border-gray-700 hover:bg-primary/10 hover:border-primary/50"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => setCurrentTestimonial(prev => Math.min(testimonialsData.length - 1, prev + 1))}
+                disabled={currentTestimonial === testimonialsData.length - 1}
+                className="border-gray-700 hover:bg-primary/10 hover:border-primary/50"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </motion.button>
+              </Button>
             </div>
           </div>
         </div>
