@@ -493,17 +493,19 @@ export default function Pricing() {
       
       {/* Trust Badges Section */}
       <div className="max-w-4xl mx-auto mt-16 mb-20 text-center">
-        <h3 className="text-lg font-medium mb-6 text-muted-foreground">Trusted and Secure Payments</h3>
-        <div className="mb-8">
+        <h3 className="text-lg font-medium mb-6 text-muted-foreground animate-in fade-in slide-in-from-bottom-5 duration-700">Trusted and Secure Payments</h3>
+        <div className="mb-8 transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-1000 fill-mode-both">
           <TrustBadgesGroup />
         </div>
-        <div className="mb-10">
+        <div className="mb-10 transition-all duration-300 hover:opacity-90 animate-in fade-in slide-in-from-bottom-3 duration-1000 fill-mode-both delay-200">
           <PaymentProviderLogos />
         </div>
         
         <div className="grid sm:grid-cols-2 gap-6 mt-10">
-          <SecurityTestimonial />
-          <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-5 flex flex-col justify-center">
+          <div className="transition-transform duration-300 hover:translate-y-[-4px] animate-in fade-in-50 duration-1000 fill-mode-both delay-300">
+            <SecurityTestimonial />
+          </div>
+          <div className="bg-card/60 backdrop-blur-sm border rounded-xl p-5 flex flex-col justify-center transition-all duration-300 hover:bg-card/80 hover:shadow-md animate-in fade-in-50 duration-1000 fill-mode-both delay-400">
             <h4 className="text-sm font-medium mb-3 flex items-center justify-center">
               <CreditCard className="h-4 w-4 text-primary mr-2" />
               Secure Payment Processing
