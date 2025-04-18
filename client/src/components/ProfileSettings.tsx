@@ -23,7 +23,7 @@ interface LanguageOption {
   nativeName: string;
 }
 
-type GenderOption = 'any' | 'male' | 'female' | 'transgender';
+type GenderOption = 'any' | 'male' | 'female';
 
 interface GenderOptionType {
   value: GenderOption;
@@ -44,12 +44,6 @@ const genderOptions: GenderOptionType[] = [
     label: 'Female', 
     icon: <User className="h-6 w-6 text-pink-500" />,
     description: 'Identify as female'
-  },
-  { 
-    value: 'transgender', 
-    label: 'Transgender', 
-    icon: <User className="h-6 w-6 text-indigo-500" />,
-    description: 'Identify as transgender'
   },
   { 
     value: 'any', 

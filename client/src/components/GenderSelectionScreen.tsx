@@ -44,12 +44,6 @@ export default function GenderSelectionScreen({
       label: 'Females', 
       icon: <User className="h-6 w-6 text-pink-500" />,
       description: 'Chat with females only'
-    },
-    { 
-      value: 'transgender', 
-      label: 'Transgender', 
-      icon: <User className="h-6 w-6 text-indigo-500" />,
-      description: 'Chat with transgender people only'
     }
   ];
 
