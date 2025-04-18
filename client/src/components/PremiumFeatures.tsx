@@ -74,6 +74,8 @@ const coinPackages = [
   { id: 'xl', amount: 1000, price: 34.99, discount: 40 },
 ];
 
+import abTesting, { PricingVariant } from '@/lib/abTesting';
+
 export default function PremiumFeatures({
   isOpen,
   onClose
@@ -81,6 +83,12 @@ export default function PremiumFeatures({
   const [activeTab, setActiveTab] = useState<'subscription' | 'coins'>('subscription');
   const [selectedPlan, setSelectedPlan] = useState('premium');
   const [selectedPackage, setSelectedPackage] = useState('medium');
+  
+  // Force the standard pricing variant before rendering
+  // This ensures consistency in pricing across the application
+  useEffect(() => {
+    abTesting.setVariant('subscription_pricing_test', PricingVariant.Standard.toString());
+  }, []);
   
   if (!isOpen) return null;
   

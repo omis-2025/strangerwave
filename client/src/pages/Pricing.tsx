@@ -20,7 +20,11 @@ import {
 import { getPricingPlans, trackPricingEvent, PricingPlan } from '@/lib/pricingVariants';
 import abTesting, { PricingVariant } from '@/lib/abTesting';
 
-// Get pricing plans based on the user's A/B test variant
+// Force the standard pricing variant to be used
+// This ensures we display the correct, updated pricing regardless of AB test assignment
+abTesting.setVariant('subscription_pricing_test', PricingVariant.Standard.toString());
+
+// Get pricing plans based on the user's A/B test variant (which is now forced to standard)
 const pricingPlans = getPricingPlans();
 
 export default function Pricing() {

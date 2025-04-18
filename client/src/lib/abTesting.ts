@@ -294,6 +294,21 @@ class ABTestingService {
 // Create singleton instance
 const abTesting = ABTestingService.getInstance();
 
+// Force clean any existing pricing experiments from localStorage
+// This ensures price updates take effect immediately and aren't cached
+try {
+  const savedAssignments = localStorage.getItem('strangerwave_experiments');
+  if (savedAssignments) {
+    const parsed = JSON.parse(savedAssignments);
+    const filtered = parsed.filter((assignment: any) => 
+      assignment.experimentId !== 'subscription_pricing_test'
+    );
+    localStorage.setItem('strangerwave_experiments', JSON.stringify(filtered));
+  }
+} catch (error) {
+  console.error('Error cleaning up pricing experiments:', error);
+}
+
 // Register default experiments
 abTesting.registerExperiment(
   'subscription_pricing_test',
