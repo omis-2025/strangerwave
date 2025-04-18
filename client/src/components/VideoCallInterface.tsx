@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe } from 'lucide-react';
+import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import webRTC from '@/lib/mobileWebRTC';
 import { ResponsiveContainer, FlexContainer } from '@/components/ui/responsive-container';
@@ -63,6 +63,7 @@ export default function VideoCallInterface({
   // UI state - never hide controls on mobile
   const [hideControls, setHideControls] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'video' | 'chat'>('video'); // For mobile tab navigation
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'partner-left' | null>(null);
   
   // Check if device is mobile for better UI handling
@@ -83,66 +84,8 @@ export default function VideoCallInterface({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
   
-  // Load translation preferences from localStorage
-  useEffect(() => {
-    try {
-      const savedPref = localStorage.getItem('sw_show_translations');
-      if (savedPref !== null) {
-        setShowTranslationPref(savedPref === 'true');
-      }
-    } catch (error) {
-      console.warn('Could not load translation preferences from localStorage:', error);
-    }
-  }, []);
-  
   // Flag animation state for new match
   const [showFlagAnimation, setShowFlagAnimation] = useState(false);
-  
-  // Trigger flag animation when connection is established
-  useEffect(() => {
-    if (connectionStatus === 'connected') {
-      setShowFlagAnimation(true);
-      
-      // Reset flag animation after it plays
-      const timer = setTimeout(() => {
-        setShowFlagAnimation(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [connectionStatus]);
-  
-  // Simulate messages being translated for demo purposes
-  // In a real implementation, this would be set when messages are sent/received
-  // and would be cleared when translations are completed
-  useEffect(() => {
-    messages.forEach(message => {
-      if (message.sender === 'partner' && !message.translatedContent && !translatingMessages[message.id]) {
-        // Mark the message as being translated
-        setTranslatingMessages(prev => ({ ...prev, [message.id]: true }));
-        
-        // Simulate translation completion after 1-2 seconds
-        const delay = 1000 + Math.random() * 1000;
-        setTimeout(() => {
-          setTranslatingMessages(prev => ({ ...prev, [message.id]: false }));
-        }, delay);
-      }
-    });
-  }, [messages, translatingMessages]);
-  
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      onSendMessage(inputMessage);
-      setInputMessage('');
-    }
-  };
-  
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
   
   // Initialize WebRTC and handle permissions
   useEffect(() => {
@@ -264,6 +207,50 @@ export default function VideoCallInterface({
       webRTC.close();
     };
   }, [videoEnabled, micEnabled, isMobile]);
+
+  const handleSendMessage = () => {
+    if (inputMessage.trim()) {
+      onSendMessage(inputMessage);
+      setInputMessage('');
+    }
+  };
+  
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+  
+  // Trigger flag animation when connection is established
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      setShowFlagAnimation(true);
+      
+      // Reset flag animation after it plays
+      const timer = setTimeout(() => {
+        setShowFlagAnimation(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [connectionStatus]);
+  
+  // Simulate messages being translated for demo purposes
+  useEffect(() => {
+    messages.forEach(message => {
+      if (message.sender === 'partner' && !message.translatedContent && !translatingMessages[message.id]) {
+        // Mark the message as being translated
+        setTranslatingMessages(prev => ({ ...prev, [message.id]: true }));
+        
+        // Simulate translation completion after 1-2 seconds
+        const delay = 1000 + Math.random() * 1000;
+        setTimeout(() => {
+          setTranslatingMessages(prev => ({ ...prev, [message.id]: false }));
+        }, delay);
+      }
+    });
+  }, [messages, translatingMessages]);
   
   return (
     <ResponsiveContainer 
@@ -293,452 +280,201 @@ export default function VideoCallInterface({
         </div>
       </div>
 
-      {/* Main content area - flex layout that adapts properly to mobile */}
-      <FlexContainer
-        className="flex-1 w-full overflow-hidden"
-        direction={{ 
-          mobile: "column",
-          tablet: "row",
-          desktop: "row"
-        }}
-        fullHeight={true}
-      >
-        {/* Left panel - Video takes full width on mobile, half on desktop */}
-        <div 
-          className="w-full md:w-1/2 h-[45vh] md:h-full relative bg-black cursor-pointer" 
-          onClick={() => setHideControls(!hideControls)}
-        >
-          {/* Country flag displays */}
-          <AnimatePresence>
-            {(!hideControls || isMobile) && (
-              <>
-                {/* Partner's country display in top right */}
-                <CountryDisplay 
-                  country={partnerCountry}
-                  label="Partner"
-                  position="top-right"
-                  size={isMobile ? "sm" : "md"}
-                  animate={showFlagAnimation}
-                />
-                
-                {/* My country display in top left */}
-                <CountryDisplay 
-                  country={myCountry}
-                  label="You"
-                  position="top-left"
-                  size={isMobile ? "sm" : "md"}
-                  animate={false}
-                />
-              </>
-            )}
-          </AnimatePresence>
-          
-          {/* Remote video stream */}
-          <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-            {isConnecting ? (
-              <motion.div 
-                className="flex flex-col items-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+      {/* Main content area with mobile-optimized navigation */}
+      <div className="relative w-full h-full flex-1 overflow-hidden">
+        {/* Mobile tab navigation - only visible on mobile */}
+        {isMobile && (
+          <div className="absolute top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-800 flex justify-center p-1">
+            <div className="inline-flex rounded-lg p-1 bg-gray-800">
+              <button
+                onClick={() => setActiveTab('video')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'video' 
+                    ? 'bg-primary text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                }`}
+                aria-label="Show video"
               >
-                <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center">
-                  <div className="flex items-center mb-4">
-                    <motion.div 
-                      className="h-16 w-16 rounded-full flex items-center justify-center bg-gray-700 relative overflow-hidden"
-                      animate={{ 
-                        boxShadow: ['0 0 0 0px rgba(124, 58, 237, 0.2)', '0 0 0 8px rgba(124, 58, 237, 0)'],
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 1.5,
-                      }}
-                    >
-                      <span className={`fi fi-${myCountry.flag} text-2xl absolute`}></span>
-                    </motion.div>
-                    <motion.div
-                      className="mx-4 relative"
-                      animate={{
-                        x: [0, 10, 0],
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 1.5,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <div className="w-4 h-1 bg-purple-500 rounded-full mx-1"></div>
-                      <div className="w-4 h-1 bg-purple-500 rounded-full mt-1 mx-1"></div>
-                      <div className="w-4 h-1 bg-purple-500 rounded-full mt-1 mx-1"></div>
-                    </motion.div>
-                    <motion.div
-                      className="h-16 w-16 rounded-full flex items-center justify-center bg-gray-700 relative overflow-hidden"
-                      animate={{ 
-                        boxShadow: ['0 0 0 0px rgba(124, 58, 237, 0)', '0 0 0 8px rgba(124, 58, 237, 0.2)', '0 0 0 0px rgba(124, 58, 237, 0)'],
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 1.5,
-                        delay: 0.75,
-                      }}
-                    >
-                      <Globe className="h-6 w-6 text-purple-500" />
-                    </motion.div>
-                  </div>
-                  <p className="text-white font-medium mt-2">Finding your match...</p>
-                  <p className="text-gray-400 text-sm mt-1">Setting up secure connection</p>
-                </div>
-              </motion.div>
-            ) : !remoteCameraActive ? (
-              <div className="flex flex-col items-center">
-                <User className="h-20 w-20 text-gray-700 mb-4" />
-                <p className="text-gray-400">Waiting for partner's video...</p>
-              </div>
-            ) : (
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                playsInline
-                className="h-full w-full object-cover"
-              />
-            )}
-          </div>
-
-          {/* Self-view (bottom right) - always visible on mobile */}
-          <AnimatePresence>
-            {(!hideControls || isMobile) && (
-              <motion.div 
-                className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800 shadow-lg z-20"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                onClick={(e) => e.stopPropagation()}
+                <span className="flex items-center"><Video className="h-4 w-4 mr-2" /> Video</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'chat' 
+                    ? 'bg-primary text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                }`}
+                aria-label="Show chat"
               >
-                {videoEnabled ? (
-                  <video
-                    ref={localVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                    <div className="flex flex-col items-center justify-center">
-                      <VideoOff className="h-8 w-8 text-gray-600" />
-                      <p className="text-[10px] text-gray-500 mt-1">Camera off</p>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Video controls overlay (bottom center) - always visible on mobile */}
-          <AnimatePresence>
-            {(!hideControls || isMobile) && (
-              <motion.div 
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-900/70 backdrop-blur-lg px-4 py-2 rounded-full shadow-lg z-20 border border-gray-800/30"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMicEnabled(!micEnabled);
-                  }}
-                  className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
-                    !micEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
-                  }`}
-                >
-                  {micEnabled ? <Mic className="h-4 w-4 sm:h-5 sm:w-5" /> : <MicOff className="h-4 w-4 sm:h-5 sm:w-5" />}
-                </button>
-                
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDisconnect();
-                  }}
-                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg shadow-red-500/20 ring-2 ring-red-500/50"
-                  aria-label="End call and disconnect"
-                >
-                  <Phone className="h-5 w-5 sm:h-6 sm:w-6 transform rotate-135" />
-                </button>
-                
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setVideoEnabled(!videoEnabled);
-                  }}
-                  className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
-                    !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
-                  }`}
-                  aria-label={videoEnabled ? "Turn camera off" : "Turn camera on"}
-                >
-                  {videoEnabled ? <Video className="h-4 w-4 sm:h-5 sm:w-5" /> : <VideoOff className="h-4 w-4 sm:h-5 sm:w-5" />}
-                </button>
-                
-                {/* Camera switch button for mobile devices */}
-                {isMobile && videoEnabled && (
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      webRTC.switchCamera().then(stream => {
-                        console.log('Camera switched successfully');
-                      }).catch(err => {
-                        console.error('Failed to switch camera:', err);
-                      });
-                    }}
-                    className="rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-800/80 text-white hover:bg-gray-700/90 shadow-md"
-                    aria-label="Switch between front and back camera"
-                  >
-                    <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </button>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {/* Tap instruction (shows briefly after hiding controls) */}
-          <AnimatePresence>
-            {hideControls && (
-              <motion.div 
-                className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-white text-sm bg-gray-900/50 backdrop-blur-sm px-4 py-2 rounded-full opacity-70 z-20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.7 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                Tap to show controls
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Right panel - Chat area */}
-        <div className="w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800 h-[50vh] md:h-full">
-          {/* Chat header with language toggle */}
-          <div className="p-2 sm:p-3 border-b border-gray-800 flex justify-between items-center">
-            <div className="flex items-center">
-              <h3 className="text-sm font-medium text-white mr-2">Messages</h3>
-              <TranslationTooltip />
-            </div>
-            
-            {/* Global translation toggle */}
-            <button
-              onClick={() => {
-                // Create a new state object with all messages set to the same translation state
-                const hasTranslatedMessages = messages.some(m => m.translatedContent);
-                if (!hasTranslatedMessages) return;
-                
-                const showTranslations = Object.values(showOriginalText).some(val => val === true);
-                const newState = {} as {[key: string]: boolean};
-                
-                messages.forEach(message => {
-                  if (message.translatedContent) {
-                    newState[message.id] = !showTranslations;
-                  }
-                });
-                
-                setShowOriginalText(newState);
-                
-                // Update and save translation preference to localStorage
-                const newPref = !showTranslations;
-                setShowTranslationPref(newPref);
-                try {
-                  localStorage.setItem('sw_show_translations', String(newPref));
-                } catch (error) {
-                  console.warn('Could not save translation preference to localStorage:', error);
-                }
-              }}
-              className="flex items-center text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300 hover:text-white transition-colors"
-            >
-              <Globe className="w-3 h-3 mr-1 text-blue-400" />
-              <span>
-                {Object.values(showOriginalText).some(val => val === true) 
-                  ? "Show All Translations" 
-                  : "Show All Originals"}
-              </span>
-            </button>
-          </div>
-          
-          {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div 
-                  className={`rounded-lg px-4 py-3 max-w-[80%] ${
-                    message.sender === 'me' 
-                      ? 'bg-blue-600 text-white ml-auto' 
-                      : 'bg-gray-800 text-white mr-auto'
-                  }`}
-                >
-                  {/* Helper function to detect RTL language */}
-                  {(() => {
-                    // Function to detect RTL languages like Arabic, Hebrew, Persian, etc.
-                    const isRTL = (text: string) => {
-                      const rtlChars = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-                      return rtlChars.test(text);
-                    };
-                    
-                    // Check if current message is in RTL language
-                    const isMessageRTL = message.detectedLanguage && 
-                      ['ar', 'he', 'fa', 'ur'].includes(message.detectedLanguage.toLowerCase().split('-')[0]);
-                    
-                    // Or detect RTL directly from text if language is not specified
-                    const contentRTL = isMessageRTL || isRTL(message.content);
-                    
-                    // Show shimmer loading effect for messages being translated
-                    if (translatingMessages[message.id]) {
-                      return (
-                        <div>
-                          {/* Apply RTL text direction if needed */}
-                          <p 
-                            className="text-sm" 
-                            dir={contentRTL ? "rtl" : "ltr"}
-                            style={{ textAlign: contentRTL ? "right" : "left" }}
-                          >
-                            {message.content}
-                          </p>
-                          
-                          <div className="mt-3 space-y-1.5">
-                            <div className="flex items-center gap-1 text-blue-300">
-                              <Globe className="w-3 h-3 animate-pulse" />
-                              <span className="text-xs animate-pulse">Translating...</span>
-                            </div>
-                            <TranslationShimmer width="80%" height="16px" />
-                            <TranslationShimmer width="60%" height="16px" />
-                          </div>
-                        </div>
-                      );
-                    }
-                    // Display translated content if available and not showing original
-                    else if (message.translatedContent && !showOriginalText[message.id]) {
-                      return (
-                        <div>
-                          <p className="text-sm">{message.translatedContent}</p>
-                          {message.detectedLanguage && (
-                            <div className="flex items-center justify-between mt-1.5 border-t border-white/10 pt-1">
-                              <span className="text-xs text-gray-300">
-                                <span className="inline-flex items-center">
-                                  <Globe className="w-3 h-3 mr-1 text-blue-300" /> 
-                                  {message.detectedLanguage}
-                                </span>
-                              </span>
-                              <button 
-                                onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: true}))}
-                                className="text-xs px-2 py-0.5 bg-gray-700/50 hover:bg-gray-700 rounded text-blue-300 hover:text-blue-200 transition-colors"
-                              >
-                                Original
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div>
-                          {/* Apply RTL text direction if needed */}
-                          <p 
-                            className="text-sm" 
-                            dir={contentRTL ? "rtl" : "ltr"}
-                            style={{ textAlign: contentRTL ? "right" : "left" }}
-                          >
-                            {message.content}
-                          </p>
-                          
-                          {message.translatedContent && (
-                            <div className="flex justify-end mt-1.5 border-t border-white/10 pt-1">
-                              <button 
-                                onClick={() => setShowOriginalText(prev => ({...prev, [message.id]: false}))}
-                                className="text-xs px-2 py-0.5 bg-blue-600/50 hover:bg-blue-600 rounded text-white transition-colors flex items-center"
-                              >
-                                <Globe className="w-3 h-3 mr-1" /> Translated
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                  })()}
-                  <p className="text-xs opacity-70 mt-1 text-right">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          {/* Chat input area */}
-          <div className="p-3 sm:p-4 border-t border-gray-800 bg-gray-900">
-            <div className="relative">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  setInputMessage(newValue);
-
-                  // Detect RTL text
-                  const rtlChars = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-                  setIsInputRTL(rtlChars.test(newValue));
-                }}
-                onKeyDown={handleKeyPress}
-                placeholder="Type a message..."
-                dir={isInputRTL ? "rtl" : "ltr"}
-                style={{ 
-                  textAlign: isInputRTL ? "right" : "left",
-                  paddingLeft: isInputRTL ? "3rem" : "1rem",
-                  paddingRight: isInputRTL ? "1rem" : "3rem"
-                }}
-                className="w-full bg-gray-800 text-white rounded-full py-2 sm:py-3 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-              />
-              <button 
-                onClick={handleSendMessage}
-                className={`absolute ${isInputRTL ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-blue-600 rounded-full text-white`}
-                aria-label="Send message"
-              >
-                <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="flex items-center"><MessageSquare className="h-4 w-4 mr-2" /> Chat</span>
               </button>
             </div>
-            
-            {/* Action buttons below chat */}
-            <div className="mt-3 sm:mt-4 flex justify-between">
+          </div>
+        )}
+
+        <FlexContainer
+          className={`flex-1 w-full overflow-hidden ${isMobile ? 'pt-12' : ''}`}
+          direction={{ 
+            mobile: "column",
+            tablet: "row",
+            desktop: "row"
+          }}
+          fullHeight={true}
+        >
+          {/* Video panel - conditionally show/hide based on activeTab on mobile */}
+          <div 
+            className={`w-full md:w-1/2 h-[45vh] md:h-full relative bg-black cursor-pointer ${
+              isMobile && activeTab !== 'video' ? 'hidden' : ''
+            }`} 
+            onClick={() => setHideControls(!hideControls)}
+          >
+            {/* Video content here */}
+            <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+              {isConnecting ? (
+                <div className="text-white">Connecting...</div>
+              ) : !remoteCameraActive ? (
+                <div className="flex flex-col items-center">
+                  <User className="h-20 w-20 text-gray-700 mb-4" />
+                  <p className="text-gray-400">Waiting for partner's video...</p>
+                </div>
+              ) : (
+                <video
+                  ref={remoteVideoRef}
+                  autoPlay
+                  playsInline
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+
+            {/* Self-view */}
+            <div className="absolute bottom-4 right-4 w-1/4 max-w-[200px] aspect-video rounded-lg overflow-hidden border-2 border-gray-700 bg-gray-800 shadow-lg z-20">
+              {videoEnabled ? (
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                  <div className="flex flex-col items-center justify-center">
+                    <VideoOff className="h-8 w-8 text-gray-600" />
+                    <p className="text-[10px] text-gray-500 mt-1">Camera off</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Video controls */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-900/70 backdrop-blur-lg px-4 py-2 rounded-full shadow-lg z-20 border border-gray-800/30">
               <button 
-                onClick={onDisconnect}
-                className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg flex items-center shadow-md min-w-[80px] justify-center"
-                aria-label="Stop chat and disconnect"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMicEnabled(!micEnabled);
+                }}
+                className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
+                  !micEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
+                }`}
               >
-                <X className="h-4 w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden xs:inline">Disconnect</span>
-                <span className="xs:hidden">Stop</span>
+                {micEnabled ? <Mic className="h-4 w-4 sm:h-5 sm:w-5" /> : <MicOff className="h-4 w-4 sm:h-5 sm:w-5" />}
               </button>
               
               <button 
-                onClick={onFindNext}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg flex items-center shadow-md min-w-[80px] justify-center"
-                aria-label="Skip to next person"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDisconnect();
+                }}
+                className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg shadow-red-500/20 ring-2 ring-red-500/50"
+                aria-label="End call and disconnect"
               >
-                <SkipForward className="h-4 w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden xs:inline">Skip to Next</span>
-                <span className="xs:hidden">Next</span>
+                <Phone className="h-5 w-5 sm:h-6 sm:w-6 transform rotate-135" />
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setVideoEnabled(!videoEnabled);
+                }}
+                className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
+                  !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
+                }`}
+                aria-label={videoEnabled ? "Turn camera off" : "Turn camera on"}
+              >
+                {videoEnabled ? <Video className="h-4 w-4 sm:h-5 sm:w-5" /> : <VideoOff className="h-4 w-4 sm:h-5 sm:w-5" />}
               </button>
             </div>
           </div>
-        </div>
-      </FlexContainer>
+
+          {/* Chat panel - conditionally show/hide based on activeTab on mobile */}
+          <div 
+            className={`w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800 h-[50vh] md:h-full ${
+              isMobile && activeTab !== 'chat' ? 'hidden' : ''
+            }`}
+          >
+            {/* Chat header */}
+            <div className="p-2 sm:p-3 border-b border-gray-800 flex justify-between items-center">
+              <div className="flex items-center">
+                <h3 className="text-sm font-medium text-white mr-2">Messages</h3>
+              </div>
+              <button
+                onClick={onFindNext}
+                className="bg-gray-800 hover:bg-gray-700 text-white text-xs font-medium py-1 px-3 rounded-full flex items-center"
+              >
+                <SkipForward className="h-3 w-3 mr-1" />
+                <span>Find Next</span>
+              </button>
+            </div>
+            
+            {/* Chat messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {messages.map(message => (
+                <div 
+                  key={message.id} 
+                  className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div 
+                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      message.sender === 'me' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-gray-800 text-gray-100'
+                    }`}
+                  >
+                    <p>{message.content}</p>
+                    {message.translatedContent && (
+                      <p className="text-sm mt-1 opacity-80">{message.translatedContent}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Chat input */}
+            <div className="p-3 border-t border-gray-800">
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Type a message..."
+                  className="w-full bg-gray-800 text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button 
+                  onClick={handleSendMessage}
+                  disabled={!inputMessage.trim()}
+                  className="ml-2 bg-primary hover:bg-primary/90 text-white rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </FlexContainer>
+      </div>
       
-      {/* Error messages */}
+      {/* Connection error message */}
       {connectionError && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-gray-900 rounded-lg p-6 max-w-md mx-4">
