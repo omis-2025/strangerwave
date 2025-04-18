@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   FaVideo, FaComments, FaShieldAlt, FaGlobe, FaCoins, FaMobile, 
-  FaVideo as FaVideoIcon, FaRandom, FaBan, FaStar, FaPalette
+  FaVideo as FaVideoIcon, FaRandom, FaBan, FaStar, FaPalette,
+  FaQuestionCircle, FaAngleDown, FaAngleUp, FaArrowRight
 } from 'react-icons/fa';
 import { FaInfinity } from 'react-icons/fa6';
 import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alternative icons
@@ -26,6 +27,7 @@ export default function LandingPage() {
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [autoScrollPaused, setAutoScrollPaused] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
   
   // Auto-scroll testimonials every 5 seconds
