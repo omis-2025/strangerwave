@@ -4,11 +4,16 @@ import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { pool } from "./db";
+import { checkSecrets } from "./utils/secretsCheck";
+
+// Check for required API secrets at startup
+checkSecrets(['STRIPE_SECRET_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET']);
 
 // Import route modules
 import authRoutes from "./routes/auth";
 import paymentRoutes from "./routes/payment";
 import chatRoutes from "./routes/chat";
+import paypalRoutes from "./routes/paypal";
 
 const app = express();
 
@@ -78,6 +83,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/paypal', paypalRoutes);
 
 (async () => {
   const server = await registerRoutes(app);
