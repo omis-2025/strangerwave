@@ -229,8 +229,20 @@ export default function LandingPage() {
             </Link>
           </motion.div>
           
-          {/* Trust Badges for mobile */}
+          {/* Social Proof and Trust Badges for mobile */}
           <div className="mt-8 w-full">
+            <div className="mb-4 flex justify-center items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-gray-800/50 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2"
+              >
+                <FaGlobe className="text-blue-400 h-4 w-4 animate-pulse" />
+                <span className="text-sm font-medium text-gray-300">Used in 50+ countries worldwide</span>
+                <span className="text-xs bg-gray-700 rounded-full px-2 py-0.5 text-gray-300">⭐ 4.7/5</span>
+              </motion.div>
+            </div>
             <TrustBadgesGroup />
           </div>
         </div>
@@ -330,8 +342,20 @@ export default function LandingPage() {
               </Link>
             </motion.div>
             
-            {/* Trust Badges for desktop */}
+            {/* Social Proof and Trust Badges for desktop */}
             <div className="mt-8">
+              <div className="mb-4 flex">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-gray-800/50 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2"
+                >
+                  <FaGlobe className="text-blue-400 h-4 w-4 animate-pulse" />
+                  <span className="text-sm font-medium text-gray-300">Used in 50+ countries worldwide</span>
+                  <span className="text-xs bg-gray-700 rounded-full px-2 py-0.5 text-gray-300">⭐ 4.7/5</span>
+                </motion.div>
+              </div>
               <TrustBadgesGroup />
             </div>
           </div>
@@ -366,6 +390,16 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold mb-4">Why Choose StrangerWave?</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             StrangerWave redefines random chats with premium features designed for better connections.
+          </p>
+          <p className="text-amber-500 text-sm font-medium mt-2 flex items-center justify-center gap-1">
+            <motion.span 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="inline-block"
+            >
+              <FaCoins className="h-3 w-3" />
+            </motion.span>
+            Premium from just $4.99/month — cancel anytime.
           </p>
         </div>
 
