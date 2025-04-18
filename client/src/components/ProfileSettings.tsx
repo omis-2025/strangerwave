@@ -23,7 +23,7 @@ interface LanguageOption {
   nativeName: string;
 }
 
-type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
+type GenderOption = 'any' | 'male' | 'female' | 'transgender';
 
 interface GenderOptionType {
   value: GenderOption;
@@ -46,34 +46,10 @@ const genderOptions: GenderOptionType[] = [
     description: 'Identify as female'
   },
   { 
-    value: 'non-binary', 
-    label: 'Non-Binary', 
-    icon: <User className="h-6 w-6 text-purple-500" />,
-    description: 'Identify as non-binary'
-  },
-  { 
     value: 'transgender', 
     label: 'Transgender', 
     icon: <User className="h-6 w-6 text-indigo-500" />,
     description: 'Identify as transgender'
-  },
-  { 
-    value: 'genderqueer', 
-    label: 'Genderqueer', 
-    icon: <User className="h-6 w-6 text-green-500" />,
-    description: 'Identify as genderqueer'
-  },
-  { 
-    value: 'gender-fluid', 
-    label: 'Gender-fluid', 
-    icon: <User className="h-6 w-6 text-teal-500" />,
-    description: 'Identify as gender-fluid'
-  },
-  { 
-    value: 'other', 
-    label: 'Other', 
-    icon: <User className="h-6 w-6 text-amber-500" />,
-    description: 'Prefer a different identity'
   },
   { 
     value: 'any', 

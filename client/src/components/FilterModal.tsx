@@ -119,34 +119,10 @@ const genderOptions: GenderOptionType[] = [
     description: 'Chat with females only'
   },
   { 
-    value: 'non-binary', 
-    label: 'Non-Binary', 
-    icon: <User className="h-6 w-6 text-purple-500" />,
-    description: 'Chat with non-binary people only'
-  },
-  { 
     value: 'transgender', 
     label: 'Transgender', 
     icon: <User className="h-6 w-6 text-indigo-500" />,
     description: 'Chat with transgender people only'
-  },
-  { 
-    value: 'genderqueer', 
-    label: 'Genderqueer', 
-    icon: <User className="h-6 w-6 text-green-500" />,
-    description: 'Chat with genderqueer people only'
-  },
-  { 
-    value: 'gender-fluid', 
-    label: 'Gender-fluid', 
-    icon: <User className="h-6 w-6 text-teal-500" />,
-    description: 'Chat with gender-fluid people only'
-  },
-  { 
-    value: 'other', 
-    label: 'Other', 
-    icon: <User className="h-6 w-6 text-amber-500" />,
-    description: 'Chat with people of other gender identities'
   }
 ];
 

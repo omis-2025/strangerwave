@@ -3,7 +3,7 @@ import { useAuth } from "./useAuth";
 import { apiRequest } from "./queryClient";
 
 export interface ChatPreferences {
-  preferredGender: 'male' | 'female' | 'any' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
+  preferredGender: 'male' | 'female' | 'any' | 'transgender';
   country: string | null;
 }
 

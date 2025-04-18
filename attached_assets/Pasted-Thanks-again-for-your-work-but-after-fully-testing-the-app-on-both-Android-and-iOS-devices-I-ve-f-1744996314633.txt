@@ -1,0 +1,113 @@
+Thanks again for your work — but after fully testing the app on both Android and iOS devices, I’ve found multiple critical issues that must be fixed permanently. Some of these problems have been raised over 10 times before. Please go through every point below and confirm that they are all resolved — this is urgent and final before launch.
+
+🚨 Major Mobile Issues (iOS + Android)
+Text Cut Off / Alignment Issues
+
+Headings and text are missing characters on the left in multiple screens.
+→ Ensure all text and headings are fully visible and properly aligned on all screens.
+
+Screen Fit / Centering Bug
+
+The app layout is not centered or scaling properly. Content shifts left/right and doesn’t fit full phone width.
+→ The entire app must scale and center correctly on all devices, both portrait and landscape.
+
+Camera Disappears After Match
+
+Once users connect to a match, the camera feed disappears and shows only a non-functional text box.
+→ This must show video feed + working chat + visible Stop/Next buttons right after matching.
+
+Broken Chat System
+
+The messaging doesn’t work — messages are not sent or received between users.
+
+Remove any “demo text” or test content.
+→ Chat should be live and working reliably between matched users.
+
+Stop/Next Buttons Missing or Broken
+
+Stop and Next buttons are missing on mobile or appear only after tapping the screen randomly.
+
+Clicking “Next” or tapping screen often resets the whole app instead of skipping.
+→ Buttons must be always visible.
+→ "Next" must skip to the next user only, NOT return to the beginning.
+
+🎯 Filter Section Fixes
+Remove Unwanted Gender Options
+
+❌ Genderqueer
+
+❌ Genderfluid
+
+❌ Non-binary
+
+❌ Other
+
+Replace with Country Selector
+→ Add a clean “Choose Country” dropdown in the filter section after clicking Start Chat.
+
+💳 Pricing Page Fixes
+Landing Page Bug
+
+The landing page disappears after 1 second — this must be fixed immediately.
+
+Correct Pricing Plans:
+
+Premium: $4.99/month
+
+VIP: $7.99/month
+
+Modern Pricing Plan Design (Important)
+
+Completely redesign the Premium and VIP plans to look modern, clean, and attractive.
+
+Use icons for benefits like “Unlimited Skips,” “VIP Badge,” “Priority Matching,” etc.
+
+Use better spacing, hover animations, and highlight one plan as ‘Best Value’
+
+Use a clear color difference between the two plans to guide user choice. → Please follow the visual mockup I already sent you as a design direction.
+
+🧠 AI Moderation (Important for User Safety)
+To ensure compliance with Terms of Use and create a safer community, please add the following system:
+
+✅ AI or keyword detector to monitor chat and video sessions
+
+❌ Automatically ban or mute users who:
+
+Use vulgar/inappropriate words (e.g., “fuck”, “sex”, racial slurs, etc.)
+
+Show nudity, underwear, or sexual content on video
+
+✅ Add detection logic and warning/muting system
+
+✅ Allow us to manually update blocklist with new words/phrases
+
+This is crucial to avoid misuse and protect the platform legally and reputationally.
+
+✅ Summary of Final Fixes Needed
+Fix layout and text cutoff on iOS + Android
+
+Ensure app fits screen and centers properly
+
+Show working camera + chat after match
+
+Remove demo text; enable real-time messaging
+
+Make Stop and Next buttons always visible + functional
+
+Fix "Next" to only skip to new match (not reset)
+
+Remove unwanted gender options
+
+Add "Choose Country" selector
+
+Fix disappearing landing page
+
+Correct Premium/VIP pricing
+
+Redesign pricing cards to look modern with icons
+
+Add AI moderation for inappropriate language and behavior
+
+🚨 Please confirm all of these are fixed and fully tested before marking anything complete. I need everything working 100% across all mobile devices — this is no longer acceptable to repeat fixes over and over.
+
+Let me know when done. Thank you.
