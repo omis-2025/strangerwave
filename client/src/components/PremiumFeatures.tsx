@@ -30,7 +30,7 @@ const plans = [
   {
     id: 'premium',
     name: 'Premium',
-    price: '$2.99',
+    price: '$4.99',
     period: 'monthly',
     features: [
       { name: 'Random Matching', included: true },

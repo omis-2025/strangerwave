@@ -85,8 +85,8 @@ const regionalPricing = {
   // Southeast Asia regional pricing
   southeastAsia: {
     premium: {
-      monthly: 2.99,
-      yearly: 29.99
+      monthly: 3.99,
+      yearly: 39.99
     },
     vip: {
       monthly: 5.99,
