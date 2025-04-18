@@ -174,9 +174,15 @@ class AnalyticsService {
         const app = getApp();
         this.firebaseAnalytics = getAnalytics(app);
         this.analyticsSupported = true;
-        console.log('Analytics initialized successfully');
+        
+        // Log initialization only in development mode
+        if (import.meta.env.DEV) {
+          console.log('Analytics initialized successfully');
+        }
       } else {
-        console.log('Firebase Analytics not supported in this environment');
+        if (import.meta.env.DEV) {
+          console.log('Firebase Analytics not supported in this environment');
+        }
         this.analyticsSupported = false;
       }
     } catch (error) {
@@ -192,7 +198,10 @@ class AnalyticsService {
    */
   public trackEvent(eventName: string, params: EventParams = {}): void {
     if (!this.analyticsSupported) {
-      console.log(`[Analytics] Event not tracked (analytics not supported): ${eventName}`, params);
+      // Only log in development mode
+      if (import.meta.env.DEV) {
+        console.log(`[Analytics] Event not tracked (analytics not supported): ${eventName}`, params);
+      }
       return;
     }
 
@@ -203,7 +212,11 @@ class AnalyticsService {
       }
 
       // Here we can add other analytics providers like Mixpanel, Amplitude, etc.
-      console.log(`[Analytics] Tracked event: ${eventName}`, params);
+      
+      // Only log in development mode
+      if (import.meta.env.DEV) {
+        console.log(`[Analytics] Tracked event: ${eventName}`, params);
+      }
     } catch (error) {
       console.error(`[Analytics] Error tracking event ${eventName}:`, error);
     }

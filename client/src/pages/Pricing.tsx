@@ -17,74 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getPricingPlans, trackPricingEvent } from '@/lib/pricingVariants';
+import abTesting, { PricingVariant } from '@/lib/abTesting';
 
-// Pricing data structure
-const pricingPlans = [
-  {
-    id: 'free',
-    name: 'Free',
-    description: 'Access to basic features with some limitations',
-    prices: {
-      monthly: 0,
-      yearly: 0
-    },
-    features: [
-      { text: 'Random matching', included: true },
-      { text: 'Basic chat functionality', included: true },
-      { text: 'Limited video time (5 minutes)', included: true },
-      { text: 'Standard support', included: true },
-      { text: 'Ad-supported experience', included: true },
-      { text: 'Basic filters', included: true }
-    ],
-    popular: false,
-    color: 'bg-gray-400',
-    buttonText: 'Current Plan'
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    description: 'Enhanced features for serious users',
-    prices: {
-      monthly: 2.99,
-      yearly: 29.99
-    },
-    features: [
-      { text: 'No ads or interruptions', included: true },
-      { text: 'Priority matching', included: true },
-      { text: 'Profile customization', included: true },
-      { text: 'Extended video time (30 minutes)', included: true },
-      { text: 'VIP customer support', included: false },
-      { text: 'Exclusive filters', included: false }
-    ],
-    popular: false,
-    color: 'bg-blue-500',
-    highlight: 'Most Affordable',
-    trial: '7-day free trial',
-    buttonText: 'Start Free Trial'
-  },
-  {
-    id: 'vip',
-    name: 'VIP',
-    description: 'All premium features plus exclusive benefits',
-    prices: {
-      monthly: 7.99,
-      yearly: 79.99
-    },
-    features: [
-      { text: 'No ads or interruptions', included: true },
-      { text: 'Priority matching', included: true },
-      { text: 'Profile customization', included: true },
-      { text: 'Unlimited video time', included: true },
-      { text: 'VIP customer support', included: true },
-      { text: 'Exclusive filters', included: true }
-    ],
-    popular: true,
-    color: 'bg-purple-600',
-    highlight: 'Most Popular',
-    discount: '16% discount on yearly',
-    buttonText: 'Subscribe Now'
-  }
-];
+// Get pricing plans based on the user's A/B test variant
+const pricingPlans = getPricingPlans();
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);

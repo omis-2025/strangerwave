@@ -8,7 +8,10 @@ import { Capacitor } from '@capacitor/core';
 
 // Initialize Firebase Analytics
 initializeAnalytics().then(() => {
-  console.log('Analytics initialized in main.tsx');
+  // Only log in development mode
+  if (import.meta.env.DEV) {
+    console.log('Analytics initialized in main.tsx');
+  }
   
   // Track app initialization
   analytics.trackNavigation(NavigationEvent.AppOpen, {
@@ -29,7 +32,11 @@ if (Capacitor.isNativePlatform()) {
   // that doesn't require the @capacitor/app package
   document.addEventListener('visibilitychange', () => {
     const isActive = document.visibilityState === 'visible';
-    console.log('App state changed. Is active:', isActive);
+    
+    // Only log in development mode
+    if (import.meta.env.DEV) {
+      console.log('App state changed. Is active:', isActive);
+    }
     // Session tracker already handles visibility changes
   });
 }
