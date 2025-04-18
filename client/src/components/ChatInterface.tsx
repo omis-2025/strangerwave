@@ -893,24 +893,30 @@ export default function ChatInterface({
       {/* Chat Input */}
       <div className="bg-gray-900 p-2 sm:p-3 border-t border-gray-800">
         <form className="flex flex-col" onSubmit={handleSubmit}>
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             <div className="relative flex-1">
               <input
                 type="text"
                 ref={inputRef}
                 placeholder="Type a message..."
-                className="w-full bg-gray-700 text-gray-200 text-sm sm:text-base rounded-full py-2 sm:py-2.5 px-3 sm:px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-lg"
+                className="w-full bg-gray-700 text-gray-200 text-sm sm:text-base rounded-full py-3 sm:py-3 px-4 sm:px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-primary/70 shadow-lg border-0"
                 value={messageInput}
                 onChange={handleInputChange}
+                style={{ 
+                  fontSize: '16px', // Prevents iOS zoom on focus
+                  WebkitAppearance: 'none' // Removes iOS styling 
+                }}
+                aria-label="Message input"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center text-gray-400">
                 <motion.button 
                   type="button" 
-                  className="p-1 hover:text-gray-200"
+                  className="p-1.5 hover:text-gray-200"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="Attach image"
                 >
-                  <Image className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Image className="h-5 w-5 sm:h-5 sm:w-5" />
                 </motion.button>
               </div>
             </div>
