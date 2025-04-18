@@ -119,7 +119,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl font-bold mb-4"
+            className="text-4xl font-bold mb-2"
           >
             Connect with the World,
             <div className="relative inline-block mt-2">
@@ -132,6 +132,15 @@ export default function LandingPage() {
               />
             </div>
           </motion.h2>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-lg text-gray-400 mb-4 font-medium"
+          >
+            Meet new people through fast, anonymous chats — no sign-up required.
+          </motion.p>
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -183,10 +192,18 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 className="w-full"
               >
-                <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 w-full sm:w-auto">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <FaVideo className="h-4 w-4 relative z-10 group-hover:animate-pulse" />
-                  <span className="relative z-10">Start Chatting</span>
+                <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-95 group-hover:scale-100" />
+                  <div className="relative z-10 flex items-center">
+                    <FaVideo className="h-4 w-4 animate-pulse mr-2" />
+                    <motion.span 
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: [1, 0.8, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      Start Chatting
+                    </motion.span>
+                  </div>
                 </Button>
               </motion.div>
             </Link>
@@ -239,6 +256,15 @@ export default function LandingPage() {
               </div>
             </motion.h2>
             
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="text-xl text-gray-400 mb-4 font-medium"
+            >
+              Meet new people through fast, anonymous chats — no sign-up required.
+            </motion.p>
+            
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -268,10 +294,18 @@ export default function LandingPage() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <FaVideo className="h-4 w-4 relative z-10 group-hover:animate-pulse" />
-                    <span className="relative z-10">Start Chatting</span>
+                  <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 shadow-md hover:shadow-lg transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-95 group-hover:scale-100" />
+                    <div className="relative z-10 flex items-center">
+                      <FaVideo className="h-4 w-4 animate-pulse mr-2" />
+                      <motion.span 
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: [1, 0.8, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        Start Chatting
+                      </motion.span>
+                    </div>
                   </Button>
                 </motion.div>
               </Link>
