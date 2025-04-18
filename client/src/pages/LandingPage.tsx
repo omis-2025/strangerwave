@@ -815,7 +815,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, period, feature
 
   // Calculate yearly savings
   const getYearlySavings = () => {
-    if (title === "Premium" && price === "$2.99") {
+    if (title === "Premium" && price === "$4.99") {
       return "Save 16% with yearly billing";
     }
     if (title === "VIP" && price === "$7.99") {
