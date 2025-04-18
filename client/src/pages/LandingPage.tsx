@@ -11,7 +11,7 @@ import {
 import { FaInfinity } from 'react-icons/fa6';
 import { RiChatSmile2Line, RiChatSmileLine } from 'react-icons/ri'; // Using alternative icons
 import { motion } from 'framer-motion';
-import { MessageSquare, Video, Check, Crown, AlertCircle } from 'lucide-react';
+import { MessageSquare, Video, Check, Crown, AlertCircle, X } from 'lucide-react';
 import StaticImage from '@/components/StaticImage';
 import { TrustBadgesGroup, PaymentProviderLogos, SecurityTestimonial } from '@/components/TrustBadges';
 
