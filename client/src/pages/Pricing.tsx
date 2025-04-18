@@ -333,50 +333,85 @@ export default function Pricing() {
 
   return (
     <div className="container mx-auto py-16 px-4">
-      {/* Limited Time Offer Banner with Countdown Timer */}
+      {/* Enhanced Limited Time Offer Banner with Countdown Timer */}
       <div className="max-w-5xl mx-auto -mt-8 mb-12">
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3 flex items-center justify-center">
-          <span className="animate-pulse inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/20 text-amber-600 mr-3">
-            <Timer className="h-4 w-4" />
-          </span>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-center">
-            <p className="text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
-              <span className="font-bold">Limited Time Offer:</span> 30% off yearly VIP plan ending in 
+        <div className="bg-gradient-to-r from-amber-500/15 to-amber-600/10 backdrop-blur-sm border border-amber-500/40 rounded-xl px-5 py-4 flex items-center justify-center shadow-md relative overflow-hidden">
+          {/* Animated pulse background */}
+          <div className="absolute inset-0 bg-amber-500/5 animate-pulse"></div>
+          
+          {/* Timer icon with enhanced animation */}
+          <div className="relative z-10 mr-4">
+            <div className="animate-pulse inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-amber-400/30 to-amber-600/20 text-amber-500 border border-amber-500/30 shadow-inner">
+              <Timer className="h-5 w-5" />
+            </div>
+          </div>
+          
+          {/* Offer text with better layout */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-center relative z-10">
+            <p className="text-sm sm:text-base font-medium text-amber-700 dark:text-amber-400">
+              <span className="font-extrabold">Limited Time Offer:</span> 30% off yearly VIP plan ending in 
             </p>
             <div className="flex items-center mt-1 sm:mt-0 sm:ml-2">
-              <div className="bg-amber-500/20 text-amber-700 dark:text-amber-500 font-mono rounded px-2 py-0.5 text-sm sm:text-base font-bold flex items-center">
+              <div className="bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-700 dark:text-amber-400 font-mono rounded-md px-3 py-1 text-sm sm:text-base font-bold flex items-center shadow-inner border border-amber-500/20">
                 {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
               </div>
-              <span className="ml-2 text-sm sm:text-base font-medium text-amber-700 dark:text-amber-500">
-                Use code <span className="font-mono bg-amber-500/20 px-2 py-0.5 rounded">WAVE30</span>
+              <span className="ml-2 text-sm sm:text-base font-medium text-amber-700 dark:text-amber-400">
+                Use code <button 
+                  className="font-mono bg-gradient-to-r from-amber-400/20 to-amber-500/20 px-3 py-1 rounded-md shadow-sm border border-amber-500/30 hover:bg-amber-500/30 transition-colors duration-200 group relative"
+                  onClick={() => {
+                    navigator.clipboard.writeText('WAVE30');
+                    toast({ 
+                      title: "Code copied!",
+                      description: "Paste it at checkout to get 30% off"
+                    });
+                  }}
+                >
+                  WAVE30
+                  <span className="absolute -right-1 -top-1 text-[0.6rem] bg-amber-500/90 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    📋
+                  </span>
+                </button>
               </span>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="text-center max-w-3xl mx-auto mb-12">
-        <h1 className="text-4xl font-bold mb-3">Choose Your Plan</h1>
-        <p className="text-lg text-muted-foreground mb-8">
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <h1 className="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">Choose Your Plan</h1>
+        <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
           Upgrade your chat experience with premium features and no interruptions.
         </p>
         
-        <div className="flex items-center justify-center mb-8">
-          <Label htmlFor="billing-toggle" className={`mr-2 ${!yearly ? 'font-medium' : 'text-muted-foreground'}`}>
-            Monthly
-          </Label>
-          <Switch 
-            id="billing-toggle" 
-            checked={yearly} 
-            onCheckedChange={(value) => {
-              setYearly(value);
-              // Track when user switches between monthly and yearly billing
-              trackPricingEvent('billing_period_change', value ? 'yearly' : 'monthly');
-            }} 
-          />
-          <Label htmlFor="billing-toggle" className={`ml-2 ${yearly ? 'font-medium' : 'text-muted-foreground'}`}>
-            Yearly <span className="text-emerald-500 ml-1">(Save 16%)</span>
-          </Label>
+        {/* Enhanced toggle with animation */}
+        <div className="inline-flex items-center justify-center mb-10 bg-muted/30 p-2 rounded-xl border border-border/50 shadow-sm">
+          <div className="relative flex items-center p-1 z-10">
+            <div 
+              className={`absolute inset-0 ${yearly ? 'translate-x-full' : ''} transition-transform duration-300 ease-out bg-primary/10 border border-primary/20 rounded-lg shadow-sm`} 
+              style={{ width: '50%' }}
+            />
+            <button
+              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${!yearly ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => {
+                setYearly(false);
+                trackPricingEvent('billing_period_change', 'monthly');
+              }}
+            >
+              Monthly
+            </button>
+            <button
+              className={`relative z-10 px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${yearly ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => {
+                setYearly(true);
+                trackPricingEvent('billing_period_change', 'yearly');
+              }}
+            >
+              Yearly
+              <span className="ml-2 inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                Save 16%
+              </span>
+            </button>
+          </div>
         </div>
       </div>
       
