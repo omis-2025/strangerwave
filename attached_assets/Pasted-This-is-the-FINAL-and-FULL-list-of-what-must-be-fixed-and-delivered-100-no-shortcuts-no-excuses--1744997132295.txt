@@ -1,0 +1,152 @@
+This is the FINAL and FULL list of what must be fixed and delivered 100% — no shortcuts, no excuses.
+
+I’ve invested too much time and money into this project, and I’m tired of ongoing bugs and half-working features. This app must be fully optimized, protected, stable, and ready to scale — or it's not worth continuing. Please read this carefully and take it seriously.
+
+🔧 CORE FUNCTIONALITY FIXES
+Landing Page Bug
+
+Fix issue where landing page disappears after 1 second — it must stay visible until the user acts.
+
+Match/Next Bug
+
+“Next” button sometimes restarts the whole app instead of skipping to the next person.
+
+This MUST be fixed. “Next” = move to a new match, never restart.
+
+Text + Video Chat System
+
+Video disappears after match; text and video must work together in real-time like Omegle.
+
+Text messages must send and be received immediately — not fake “demo” messages.
+
+“Stop” and “Next” Buttons
+
+These buttons are missing on mobile. They must be visible and functional on all devices.
+
+Camera Flip
+
+Add camera switch option (front/back) during video chat for mobile.
+
+Identify Gender & Country
+
+Clearly show the matched user’s gender and country in a modern UI format.
+
+🧭 FILTERS SYSTEM FIX
+Fix Gender Filters
+
+REMOVE: Genderqueer, Genderfluid, Non-binary, Other.
+
+Keep only: Male, Female
+
+Add Country Filter
+
+Add dropdown to let users choose the country they want to match with.
+
+🛡️ SAFETY SYSTEM (PROTECTION FROM BAD USERS)
+AI / Toxic Language Filter
+
+Auto-detect and ban users who use:
+
+Vulgar/explicit words like “fuck,” “sex,” “horny,” etc.
+
+Show nudity, underwear, or violate rules
+
+✅ Bonus: Add flag/report feature so users can help moderate.
+
+Auto-Ban & Ban Log System
+
+Offenders should be auto-banned and logged, with reason + timestamp.
+
+💰 PRICING SYSTEM
+Pricing Fix & Modern Look
+
+Premium = $4.99/month
+
+VIP = $7.99/month (add yearly discount: 16%)
+
+Redesign this section with:
+
+Modern layout
+
+Icons, checkmarks for benefits
+
+Animations on hover
+
+Benefits like “No ads,” “Priority Match,” “Exclusive Filters,” etc.
+
+Fix Stripe Payment Logic
+
+Buttons must link to correct Stripe product IDs and handle errors properly.
+
+Auto-unban users after payment.
+
+📱 UI/UX & DESIGN FIXES
+Responsive Layout
+
+App MUST work on all screen sizes (iOS, Android, tablets, laptops).
+
+No text should be cut off, layout broken, or elements outside the screen.
+
+Fix Alignment
+
+Fully center all app content. No misaligned boxes or buttons.
+
+Modern UI Look
+
+Remove old split-screen layout.
+
+Use dark mode, soft gradients, animated transitions.
+
+Clean, simple, TikTok-level UI polish.
+
+Video Size Fix
+
+Video should take 50/50 of screen or auto-resize responsively.
+
+🔒 STABILITY, PERFORMANCE, & OPTIMIZATION
+Fix Random Crashes
+
+App must NOT crash on tap, next, or video connect.
+
+Optimize Memory + Data Usage
+
+Ensure no memory leaks, excessive RAM usage, or video lag.
+
+Fast Loading Time
+
+App should load in <2s, even on slow networks.
+
+Reduce Server Errors (500s/404s)
+
+No missing endpoints, broken routing, or console errors.
+
+Security Best Practices
+
+Prevent code injection, script abuse, or token leaks.
+
+Use input sanitization and rate limits where needed.
+
+Persistent Settings
+
+Save user language, filters, and login session — even after refresh.
+
+🔎 TEST BEFORE DELIVERY
+✅ You must test:
+
+On Android + iOS
+
+On slow network (3G/4G)
+
+With 50+ users active
+
+Across all filters, chat types, pricing logic
+
+In both languages (English + other translations if any)
+
+🚨 Final Notes
+I’m trusting you to fix this once and for all. If these issues can’t be fixed properly, I need to know so I can stop wasting time and money.
+
+This is your final checklist. Once everything here is 100% done and stable, we’ll move forward.
+
+Let’s finish this the right way.
+

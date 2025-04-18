@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { User, UsersRound, ArrowRight, X, MessageSquare } from "lucide-react";
 
-type GenderOption = 'any' | 'male' | 'female' | 'transgender';
+type GenderOption = 'any' | 'male' | 'female';
 
 interface GenderOptionType {
   value: GenderOption;
