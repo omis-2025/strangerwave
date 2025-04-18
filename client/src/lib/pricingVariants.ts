@@ -51,8 +51,8 @@ const standardPricing = {
 // Discount pricing variant (30% lower prices)
 const discountPricing = {
   premium: {
-    monthly: 1.99,
-    yearly: 19.99
+    monthly: 4.99,
+    yearly: 49.99
   },
   vip: {
     monthly: 5.99,
@@ -63,8 +63,8 @@ const discountPricing = {
 // Premium pricing variant (higher prices, perceived higher value)
 const premiumPricing = {
   premium: {
-    monthly: 3.99,
-    yearly: 39.99
+    monthly: 4.99,
+    yearly: 49.99
   },
   vip: {
     monthly: 9.99,
