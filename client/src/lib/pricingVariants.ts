@@ -39,8 +39,8 @@ export interface PricingPlan {
 // Standard pricing plans (default)
 const standardPricing = {
   premium: {
-    monthly: 2.99,
-    yearly: 29.99
+    monthly: 4.99,
+    yearly: 49.99
   },
   vip: {
     monthly: 7.99,
@@ -85,8 +85,8 @@ const regionalPricing = {
   // Southeast Asia regional pricing
   southeastAsia: {
     premium: {
-      monthly: 1.99,
-      yearly: 19.99
+      monthly: 2.99,
+      yearly: 29.99
     },
     vip: {
       monthly: 5.99,
@@ -96,8 +96,8 @@ const regionalPricing = {
   // Latin America regional pricing
   latinAmerica: {
     premium: {
-      monthly: 2.49,
-      yearly: 24.99
+      monthly: 3.49,
+      yearly: 34.99
     },
     vip: {
       monthly: 6.99,
@@ -307,7 +307,7 @@ export function getPricingPlans() {
   
   // Check if pricing and features have the necessary properties
   // This handles potential type issues when pricing might not have a 'vip' property
-  const premiumPricing = pricing.premium || { monthly: 2.99, yearly: 29.99 };
+  const premiumPricing = pricing.premium || { monthly: 4.99, yearly: 49.99 };
   const premiumFeatures = features.premium || [];
   const vipPricing = (pricing as any).vip || { monthly: 7.99, yearly: 79.99 };
   const vipFeatures = (features as any).vip || [];

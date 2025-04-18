@@ -500,14 +500,14 @@ export default function Pricing() {
                   
                   {/* Trial and Discount Badges */}
                   <div className="flex flex-wrap gap-2 mt-3">
-                    {plan.trial && (
+                    {(plan as any).trial && (
                       <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
-                        <span className="mr-1">✦</span> {plan.trial}
+                        <span className="mr-1">✦</span> {(plan as any).trial}
                       </div>
                     )}
-                    {plan.discount && (
+                    {(plan as any).discount && (
                       <div className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600">
-                        <span className="mr-1">★</span> {plan.discount}
+                        <span className="mr-1">★</span> {(plan as any).discount}
                       </div>
                     )}
                   </div>
@@ -521,7 +521,7 @@ export default function Pricing() {
                   </div>
                   
                   <ul className="space-y-4 text-sm">
-                    {plan.features.map((feature, index) => (
+                    {plan.features.map((feature: {text: string, included: boolean}, index: number) => (
                       <li key={index} className="flex items-start group/feature">
                         {feature.included ? (
                           <div className={`flex-shrink-0 rounded-full p-0.5 mr-2 mt-0.5
