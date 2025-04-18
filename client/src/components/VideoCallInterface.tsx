@@ -265,32 +265,32 @@ export default function VideoCallInterface({
   }, [videoEnabled, micEnabled, isMobile]);
   
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-900 relative overflow-hidden">
+    <div className="flex flex-col h-full max-h-[100vh] bg-gray-900 relative overflow-hidden">
       {/* Top header/status bar */}
       <div className="bg-gray-900 p-3 border-b border-gray-800 flex justify-between items-center z-10">
         <div className="flex items-center">
-          <span className="text-primary font-medium mr-6">StrangerWave</span>
+          <span className="text-primary font-medium mr-3 sm:mr-6 truncate">StrangerWave</span>
           <div className="flex items-center">
-            <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-            <span className="text-sm text-green-500">Connected</span>
+            <div className="w-2 h-2 rounded-full bg-green-500 mr-1 sm:mr-2"></div>
+            <span className="text-xs sm:text-sm text-green-500">Connected</span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="hidden sm:flex items-center">
             <UserRound className="h-3 w-3 mr-1 text-blue-400" />
-            <span className="text-xs text-gray-300">9,995 users online</span>
+            <span className="text-xs text-gray-300">9,995 online</span>
           </div>
           <button 
-            className="bg-gray-800 hover:bg-gray-700 text-white text-xs font-medium py-1 px-3 rounded-full flex items-center"
+            className="bg-gray-800 hover:bg-gray-700 text-white text-xs font-medium py-1 px-2 sm:px-3 rounded-full flex items-center"
           >
             <Shield className="h-3 w-3 mr-1 text-red-400" />
-            Report
+            <span>Report</span>
           </button>
         </div>
       </div>
 
-      {/* Main content area - split 50/50 on desktop */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      {/* Main content area - full height on mobile, split 50/50 on desktop */}
+      <div className="flex-1 flex flex-col md:flex-row w-full overflow-hidden">
         {/* Left panel - Video takes half the screen on desktop */}
         <div 
           className="w-full md:w-1/2 h-full relative bg-black cursor-pointer" 
@@ -508,9 +508,9 @@ export default function VideoCallInterface({
         </div>
 
         {/* Right panel - Chat area */}
-        <div className="w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800">
+        <div className="w-full md:w-1/2 flex flex-col bg-gray-900 border-l border-gray-800 h-[50vh] md:h-full">
           {/* Chat header with language toggle */}
-          <div className="p-3 border-b border-gray-800 flex justify-between items-center">
+          <div className="p-2 sm:p-3 border-b border-gray-800 flex justify-between items-center">
             <div className="flex items-center">
               <h3 className="text-sm font-medium text-white mr-2">Messages</h3>
               <TranslationTooltip />
@@ -555,7 +555,7 @@ export default function VideoCallInterface({
           </div>
           
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3">
             {messages.map((message) => (
               <motion.div
                 key={message.id}
