@@ -181,7 +181,7 @@ export default function Demo() {
               <TabsContent value="premium" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Price:</span>
-                  <span className="text-xl font-bold">$2.99/month</span>
+                  <span className="text-xl font-bold">$4.99/month</span>
                 </div>
                 <ul className="space-y-2">
                   <li className="flex items-center">

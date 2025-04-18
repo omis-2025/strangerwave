@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Crown, Zap, MapPin, User, Users, Video, Shield, Coins, Check, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
