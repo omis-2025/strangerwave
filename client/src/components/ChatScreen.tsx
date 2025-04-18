@@ -123,6 +123,18 @@ export default function ChatScreen() {
     setChatState('disconnected');
   };
   
+  const handleFindNext = () => {
+    // This function will handle finding a new partner without returning to the welcome screen
+    // First disconnect from current chat
+    chatService.disconnect();
+    
+    // Small delay to ensure proper disconnection before joining queue again
+    setTimeout(() => {
+      setChatState('connecting');
+      chatService.joinQueue(preferences);
+    }, 300);
+  };
+  
   const handleToggleVideoChat = (useVideo: boolean) => {
     setUseVideoChat(useVideo);
   };
@@ -224,6 +236,7 @@ export default function ChatScreen() {
           onSendMessage={chatService.sendMessage}
           onTyping={chatService.setTyping}
           onDisconnect={handleDisconnect}
+          onFindNext={handleFindNext}
           onReport={() => setShowReportModal(true)}
         />
       )}

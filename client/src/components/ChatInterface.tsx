@@ -28,6 +28,7 @@ interface ChatInterfaceProps {
   onSendMessage: (content: string) => void;
   onTyping: (isTyping: boolean) => void;
   onDisconnect: () => void;
+  onFindNext?: () => void; // Adding dedicated prop for finding next stranger
   onReport: () => void;
 }
 
@@ -38,6 +39,7 @@ export default function ChatInterface({
   onSendMessage,
   onTyping,
   onDisconnect,
+  onFindNext,
   onReport
 }: ChatInterfaceProps) {
   const { user } = useAuth();
@@ -271,6 +273,14 @@ export default function ChatInterface({
     });
   };
   
+  // Local handler for the "Next" button, fallback if onFindNext isn't provided
+  const handleFindNext = () => {
+    // If the parent didn't provide an onFindNext handler, use onDisconnect as a fallback
+    if (onDisconnect) {
+      onDisconnect();
+    }
+  };
+  
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-gray-800 shadow-lg">
       {/* Chat Header */}
@@ -311,7 +321,7 @@ export default function ChatInterface({
             <Button 
               variant="ghost" 
               size={isMobile ? "sm" : "default"}
-              onClick={onDisconnect} /* reusing onDisconnect to skip to next stranger */
+              onClick={onFindNext || handleFindNext}
               className="text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors mr-1 p-1 sm:p-2"
               title="Skip to next stranger"
             >
