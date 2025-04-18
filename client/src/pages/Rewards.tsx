@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +15,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import EmptyState from "@/components/EmptyState";
 import Loader from "@/components/Loader";
+import { useLocation } from 'wouter';
+import analytics, { RewardEvent, ReferralEvent } from '@/lib/analytics';
 
 // Type definitions for referral system
 interface ReferralCode {
@@ -79,6 +81,18 @@ const RewardsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("streaks");
   const [copied, setCopied] = useState(false);
   const userId = user?.userId;
+  const [location] = useLocation();
+
+  // Track page view on component mount
+  useEffect(() => {
+    if (user) {
+      analytics.trackPageView(location, "Rewards Page");
+      analytics.trackRewardEvent(RewardEvent.ViewRewards, {
+        user_id: userId,
+        trust_level: getTrustLevel()?.level,
+      });
+    }
+  }, [user, userId, location]);
   
   // Fetch streaks data
   const { data: streaks, isLoading: streaksLoading, error: streaksError } = useQuery({
@@ -248,6 +262,14 @@ const RewardsPage: React.FC = () => {
       navigator.clipboard.writeText(referralCode.code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      
+      // Track code copy event
+      analytics.trackReferralEvent(ReferralEvent.ShareCode, {
+        user_id: userId,
+        code: referralCode.code,
+        copy_method: 'clipboard',
+      });
+      
       toast({
         title: "Code copied!",
         description: "Referral code copied to clipboard.",
@@ -257,10 +279,27 @@ const RewardsPage: React.FC = () => {
 
   const handleGenerateCode = () => {
     generateCodeMutation.mutate();
+    
+    // Track code generation event
+    analytics.trackReferralEvent(ReferralEvent.GenerateCode, {
+      user_id: userId,
+    });
   };
 
   const handleClaimReward = (rewardId: number) => {
     claimRewardMutation.mutate(rewardId);
+    
+    // Find the reward being claimed
+    const reward = referralRewards?.find((r: ReferralReward) => r.id === rewardId);
+    
+    // Track reward claim event
+    analytics.trackRewardEvent(RewardEvent.ClaimReward, {
+      user_id: userId,
+      reward_id: rewardId,
+      reward_name: reward?.name,
+      reward_type: reward?.type,
+      referral_count: qualifiedReferrals,
+    });
   };
 
   // Get app URL for sharing
@@ -301,7 +340,40 @@ const RewardsPage: React.FC = () => {
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(value) => {
+          setActiveTab(value);
+          
+          // Track tab change events
+          if (value === "referrals") {
+            analytics.trackReferralEvent(ReferralEvent.ViewLeaderboard, {
+              user_id: userId,
+              referral_count: referrals?.length || 0,
+              converted_count: qualifiedReferrals,
+            });
+          } else if (value === "achievements") {
+            analytics.trackRewardEvent(RewardEvent.ViewRewards, {
+              user_id: userId,
+              achievement_count: achievements?.length || 0,
+              section: "unlocked",
+            });
+          } else if (value === "locked") {
+            analytics.trackRewardEvent(RewardEvent.ViewRewards, {
+              user_id: userId,
+              achievement_count: lockedAchievements?.length || 0,
+              section: "locked",
+            });
+          } else if (value === "streaks") {
+            analytics.trackRewardEvent(RewardEvent.ViewRewards, {
+              user_id: userId,
+              streak_count: streaks?.length || 0,
+              section: "streaks",
+            });
+          }
+        }} 
+        className="space-y-4"
+      >
         <TabsList className="grid grid-cols-4 md:w-[500px]">
           <TabsTrigger value="streaks">
             <Calendar className="mr-2 h-4 w-4" />
@@ -482,6 +554,14 @@ const RewardsPage: React.FC = () => {
                         <span className="truncate">{getReferralUrl()}</span>
                         <Button size="sm" variant="ghost" onClick={() => {
                           navigator.clipboard.writeText(getReferralUrl());
+                          
+                          // Track link copy event
+                          analytics.trackReferralEvent(ReferralEvent.ShareCode, {
+                            user_id: userId,
+                            code: referralCode?.code,
+                            copy_method: 'link',
+                          });
+                          
                           toast({
                             title: "Link copied!",
                             description: "Referral link copied to clipboard.",
