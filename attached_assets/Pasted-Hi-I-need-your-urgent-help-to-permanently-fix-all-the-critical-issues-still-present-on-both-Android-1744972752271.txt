@@ -1,0 +1,60 @@
+Hi, I need your urgent help to permanently fix all the critical issues still present on both Android and iOS devices after repeated testing. Despite multiple revisions, many problems persist — and they need to be resolved once and for all. Please read this carefully and ensure everything is addressed properly.
+
+🔧 High Priority Mobile Issues:
+1. UI Alignment & Layout Issues:
+
+The app is not centered properly on Android and iOS. The layout appears shifted, cutting off header text and elements, especially on iPhones.
+
+The design should be centered, responsive, and fit the full screen of any device without overflowing or shrinking.
+
+No visual should be “split” or misaligned — all components must auto-adjust based on screen size.
+
+2. Chat Connection & Video Bug:
+
+After matching, the video camera disappears and only a broken full-screen text panel remains.
+
+Text messaging doesn’t work — input isn’t responsive or visible.
+
+Video must stay active after match, with camera views and text chat working in parallel.
+
+3. Missing & Broken Buttons:
+
+"Stop" and "Next" buttons are missing on mobile after a match is made.
+
+When the chat ends, there is no clear way to return or re-enter queue.
+
+Clicking on the screen randomly shows "Next", but clicking it resets the entire process instead of just moving to the next match. This is incorrect behavior.
+
+4. Initial Matching Screen Design:
+
+When starting the match process, the UI is completely broken — layout is chaotic with overlapping or misaligned elements.
+
+This screen must be polished: clean design, centered content, smooth animation while searching.
+
+5. Filter Panel Bugs:
+
+The country selection is missing from the filter panel — this is a critical feature.
+
+Replace “genderqueer” and “genderfluid” options with “Choose Country” filter instead.
+
+Filters must be functional and visually clean.
+
+🛠️ What You Need to Do:
+✅ Fix full-screen layout issues for all screen sizes (Android & iOS)
+✅ Ensure camera + video + text chat all work together after match
+✅ Always show Stop (red) and Next buttons consistently
+✅ Make Next button only skip to next match — it should NOT reset chat flow
+✅ Fix initial match screen UI — remove clutter, polish layout
+✅ Add working country filter — let users choose which country they want to match with
+✅ Remove unnecessary genders: replace with country-only match filter
+✅ Do full test on real Android & iOS devices after these fixes
+
+🚨 Final Notes:
+This is the 10th+ time I’ve reported these same bugs. Each time I’m told it’s fixed, but after testing, I find the same problems again. This is affecting launch readiness, UX, and trust in the build process.
+
+Please take this seriously and ensure all these fixes are implemented, tested on real mobile devices, and confirmed working properly.
+I want the app to look and function like a polished, premium mobile experience — no more patchy or half-finished fixes.
+
+Let me know once these are resolved, and if you need me to record a screen video to clarify anything, I’m happy to do that.
+
+Thanks!
