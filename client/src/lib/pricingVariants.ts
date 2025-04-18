@@ -1,5 +1,40 @@
 import abTesting, { PricingVariant } from './abTesting';
-// No need to import countries as we define our own list directly in this file
+import analytics from './analytics';
+
+// Define proper types for our pricing structure
+export interface PricePoint {
+  monthly: number;
+  yearly: number;
+}
+
+export interface PlanFeature {
+  text: string;
+  included: boolean;
+}
+
+export interface PricingTier {
+  premium: PricePoint;
+  vip?: PricePoint;
+}
+
+export interface FeatureSet {
+  premium: PlanFeature[];
+  vip?: PlanFeature[];
+}
+
+export interface PricingPlan {
+  id: string;
+  name: string;
+  description: string;
+  prices: PricePoint;
+  features: PlanFeature[];
+  popular: boolean;
+  color: string;
+  buttonText: string;
+  highlight?: string;
+  trial?: string;
+  discount?: string;
+}
 
 // Standard pricing plans (default)
 const standardPricing = {
@@ -197,17 +232,18 @@ export function getFeatureSets() {
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
   
   // Return feature set based on A/B variant
-  switch (variant) {
-    case PricingVariant.Premium:
+  if (variant) {
+    const variantString = variant.toString();
+    
+    if (variantString === PricingVariant.Premium.toString()) {
       return premiumFeatures;
-    case PricingVariant.Simplified:
+    } else if (variantString === PricingVariant.Simplified.toString()) {
       return simplifiedFeatures;
-    case PricingVariant.Standard:
-    case PricingVariant.Discount:
-    case PricingVariant.RegionalAdjusted:
-    default:
-      return standardFeatures;
+    }
   }
+  
+  // Default to standard features for all other variants
+  return standardFeatures;
 }
 
 /**
@@ -220,6 +256,7 @@ export function getPricingPlans() {
   
   // Get the A/B test variant for determining structure
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
+  const variantString = variant ? variant.toString() : PricingVariant.Standard.toString();
   
   // Base free plan (same for all variants)
   const freePlan = {
@@ -244,15 +281,20 @@ export function getPricingPlans() {
   };
   
   // For simplified variant, just return free and one premium tier
-  if (variant === PricingVariant.Simplified) {
+  if (variantString === PricingVariant.Simplified.toString()) {
+    // Handle the case where simplified pricing doesn't have a 'vip' tier
+    // Make sure pricing.premium and features.premium exist
+    const premiumPricing = pricing.premium || { monthly: 4.99, yearly: 49.99 };
+    const premiumFeatures = features.premium || [];
+    
     return [
       freePlan,
       {
         id: 'premium',
         name: 'Premium',
         description: 'All premium features in one simple plan',
-        prices: pricing.premium,
-        features: features.premium,
+        prices: premiumPricing,
+        features: premiumFeatures,
         popular: true,
         color: 'bg-purple-600',
         highlight: 'All-Inclusive',
@@ -263,6 +305,18 @@ export function getPricingPlans() {
     ];
   }
   
+  // Check if pricing and features have the necessary properties
+  // This handles potential type issues when pricing might not have a 'vip' property
+  const premiumPricing = pricing.premium || { monthly: 2.99, yearly: 29.99 };
+  const premiumFeatures = features.premium || [];
+  const vipPricing = (pricing as any).vip || { monthly: 7.99, yearly: 79.99 };
+  const vipFeatures = (features as any).vip || [];
+  
+  // Set special highlight for discount variant
+  const highlightText = variantString === PricingVariant.Discount.toString() 
+    ? 'Special Offer' 
+    : 'Most Affordable';
+  
   // For all other variants, return the standard 3-tier structure
   return [
     freePlan,
@@ -270,11 +324,11 @@ export function getPricingPlans() {
       id: 'premium',
       name: 'Premium',
       description: 'Enhanced features for serious users',
-      prices: pricing.premium,
-      features: features.premium,
+      prices: premiumPricing,
+      features: premiumFeatures,
       popular: false,
       color: 'bg-blue-500',
-      highlight: variant === PricingVariant.Discount ? 'Special Offer' : 'Most Affordable',
+      highlight: highlightText,
       trial: '7-day free trial',
       buttonText: 'Start Free Trial'
     },
@@ -282,8 +336,8 @@ export function getPricingPlans() {
       id: 'vip',
       name: 'VIP',
       description: 'All premium features plus exclusive benefits',
-      prices: pricing.vip,
-      features: features.vip,
+      prices: vipPricing,
+      features: vipFeatures,
       popular: true,
       color: 'bg-purple-600',
       highlight: 'Most Popular',

@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getPricingPlans, trackPricingEvent } from '@/lib/pricingVariants';
+import { getPricingPlans, trackPricingEvent, PricingPlan } from '@/lib/pricingVariants';
 import abTesting, { PricingVariant } from '@/lib/abTesting';
 
 // Get pricing plans based on the user's A/B test variant
@@ -43,6 +43,16 @@ export default function Pricing() {
   });
   
   // Countdown timer for limited time offer
+  // Track page view when component loads
+  useEffect(() => {
+    // Track pricing page view with the current pricing variant
+    const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
+    trackPricingEvent('pricing_page_view', 'any', { 
+      variant: variant.toString(),
+      timestamp: Date.now()
+    });
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -60,16 +70,7 @@ export default function Pricing() {
     return () => clearInterval(timer);
   }, []);
   
-  // Define a type for plan structure
-  type PricingPlan = {
-    id: string;
-    name: string;
-    prices: {
-      monthly: number;
-      yearly: number;
-    };
-    [key: string]: any; // For other properties
-  };
+  // Using the PricingPlan interface imported from pricingVariants.ts
   
   const openConfirmDialog = (plan: PricingPlan) => {
     if (!user) {
@@ -83,6 +84,13 @@ export default function Pricing() {
     
     const interval = yearly ? 'yearly' : 'monthly';
     const price = yearly ? plan.prices.yearly : plan.prices.monthly;
+    
+    // Track this pricing plan selection in our A/B testing system
+    trackPricingEvent('plan_selected', plan.id, { 
+      price,
+      billing_period: interval,
+      plan_name: plan.name
+    });
     
     setSelectedPlan({
       id: plan.id,
@@ -292,6 +300,37 @@ export default function Pricing() {
     }
   };
   
+  // Track successful conversions from URL parameters
+  useEffect(() => {
+    // Check if there's a successful payment completion from Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment_status');
+    const paymentPlan = localStorage.getItem('checkoutPlan');
+    
+    if (paymentStatus === 'success' && paymentPlan) {
+      // Clear the localStorage items
+      localStorage.removeItem('checkoutInProgress');
+      localStorage.removeItem('checkoutPlan');
+      
+      // Track the successful conversion in our A/B test system
+      trackPricingEvent('payment_success', paymentPlan, {
+        source: 'stripe',
+        plan: paymentPlan
+      });
+      
+      // Show success toast
+      toast({
+        title: "Payment Successful",
+        description: "Thank you for your purchase! Your account has been upgraded.",
+        variant: "default",
+      });
+      
+      // Clean URL parameters without refreshing the page
+      const newUrl = window.location.pathname;
+      window.history.pushState({}, '', newUrl);
+    }
+  }, [toast]);
+
   return (
     <div className="container mx-auto py-16 px-4">
       {/* Limited Time Offer Banner with Countdown Timer */}
@@ -329,7 +368,11 @@ export default function Pricing() {
           <Switch 
             id="billing-toggle" 
             checked={yearly} 
-            onCheckedChange={setYearly} 
+            onCheckedChange={(value) => {
+              setYearly(value);
+              // Track when user switches between monthly and yearly billing
+              trackPricingEvent('billing_period_change', value ? 'yearly' : 'monthly');
+            }} 
           />
           <Label htmlFor="billing-toggle" className={`ml-2 ${yearly ? 'font-medium' : 'text-muted-foreground'}`}>
             Yearly <span className="text-emerald-500 ml-1">(Save 16%)</span>
