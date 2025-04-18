@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star, Timer } from 'lucide-react';
+import { Loader2, Check, X, CreditCard, AlertCircle, Clock, Quote, Star, Timer, Crown } from 'lucide-react';
 import { TrustBadgesGroup, PaymentProviderLogos, SecurityTestimonial } from '@/components/TrustBadges';
 import {
   Dialog,
