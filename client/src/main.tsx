@@ -2,10 +2,26 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { initializeAnalytics } from "./lib/analytics";
+import analytics, { NavigationEvent } from "./lib/analytics";
+import sessionTracker from "./lib/sessionTracker";
 import { Capacitor } from '@capacitor/core';
 
 // Initialize Firebase Analytics
-initializeAnalytics();
+initializeAnalytics().then(() => {
+  console.log('Analytics initialized in main.tsx');
+  
+  // Track app initialization
+  analytics.trackNavigation(NavigationEvent.AppOpen, {
+    source: 'app_startup',
+    timestamp: Date.now()
+  });
+  
+  // Initialize session tracking
+  sessionTracker.init();
+  
+}).catch(error => {
+  console.error('Failed to initialize analytics:', error);
+});
 
 // Handle mobile app lifecycle events
 if (Capacitor.isNativePlatform()) {
@@ -14,7 +30,7 @@ if (Capacitor.isNativePlatform()) {
   document.addEventListener('visibilitychange', () => {
     const isActive = document.visibilityState === 'visible';
     console.log('App state changed. Is active:', isActive);
-    // You can log app state changes to analytics here
+    // Session tracker already handles visibility changes
   });
 }
 

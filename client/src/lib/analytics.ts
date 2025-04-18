@@ -1,19 +1,25 @@
 import { getAnalytics, logEvent, isSupported } from 'firebase/analytics';
 import { getApp } from 'firebase/app';
 
-// Function to initialize analytics
-export async function initializeAnalytics(): Promise<void> {
+/**
+ * Initialize analytics providers
+ * This function is exported for use in main.tsx to initialize analytics early
+ */
+export async function initializeAnalytics(): Promise<any> {
   try {
     // Initialize Firebase Analytics if supported
     if (await isSupported()) {
       const app = getApp();
-      getAnalytics(app);
+      const analyticsInstance = getAnalytics(app);
       console.log('Firebase Analytics initialized successfully');
+      return analyticsInstance;
     } else {
       console.log('Firebase Analytics not supported in this environment');
+      return null;
     }
   } catch (error) {
     console.error('Error initializing analytics:', error);
+    return null;
   }
 }
 
@@ -29,7 +35,9 @@ export enum EventCategory {
   Settings = 'settings',
   Engagement = 'engagement',
   Performance = 'performance',
-  Error = 'error'
+  Error = 'error',
+  Notification = 'notification',
+  VideoQuality = 'video_quality'
 }
 
 // User navigation & session tracking events
@@ -98,6 +106,38 @@ export enum SettingsEvent {
   UpdateProfileSettings = 'update_profile_settings',
   EnableTranslation = 'enable_translation',
   DisableTranslation = 'disable_translation',
+}
+
+// Notification events
+export enum NotificationEvent {
+  Received = 'notification_received',
+  Opened = 'notification_opened',
+  Dismissed = 'notification_dismissed',
+  PermissionChanged = 'notification_permission_changed',
+  SubscriptionChanged = 'notification_subscription_changed',
+}
+
+// Video quality events
+export enum VideoQualityEvent {
+  QualityChanged = 'video_quality_changed',
+  Frozen = 'video_frozen',
+  PacketLoss = 'video_packet_loss',
+  Lag = 'video_lag',
+  ConnectionIssue = 'video_connection_issue',
+  LowBandwidth = 'video_low_bandwidth',
+  BufferingStart = 'video_buffering_start',
+  BufferingEnd = 'video_buffering_end',
+}
+
+// Session tracking events
+export enum SessionEvent {
+  Start = 'session_start',
+  End = 'session_end',
+  Timeout = 'session_timeout',
+  Background = 'app_to_background',
+  Foreground = 'app_to_foreground',
+  InactivityDetected = 'inactivity_detected',
+  ActivityResumed = 'activity_resumed',
 }
 
 // Parameters interface for type checking
@@ -268,6 +308,51 @@ class AnalyticsService {
       error_type: errorType,
       error_message: errorMessage,
       ...errorContext,
+    });
+  }
+
+  /**
+   * Track notification events
+   */
+  public trackNotification(event: NotificationEvent, params: EventParams = {}): void {
+    this.trackEvent(event, {
+      ...params,
+      event_category: EventCategory.Notification,
+    });
+  }
+
+  /**
+   * Track video quality events
+   */
+  public trackVideoQuality(event: VideoQualityEvent, params: EventParams = {}): void {
+    this.trackEvent(event, {
+      ...params,
+      event_category: EventCategory.VideoQuality,
+    });
+  }
+
+  /**
+   * Track session events
+   */
+  public trackSession(event: SessionEvent, params: EventParams = {}): void {
+    this.trackEvent(event, {
+      ...params,
+      event_category: EventCategory.Session,
+    });
+  }
+
+  /**
+   * Track session duration
+   * @param durationInSeconds Session duration in seconds
+   * @param sessionType Type of session (e.g., 'app', 'chat', 'video')
+   * @param additionalParams Additional parameters to track
+   */
+  public trackSessionDuration(durationInSeconds: number, sessionType: string, additionalParams: EventParams = {}): void {
+    this.trackEvent('session_duration', {
+      event_category: EventCategory.Session,
+      duration_seconds: durationInSeconds,
+      session_type: sessionType,
+      ...additionalParams,
     });
   }
 }
