@@ -52,6 +52,8 @@ export default function VideoCallInterface({
   // Media stream refs
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  // Reference to store the local media stream to prevent it from being lost between matches
+  const localMediaStreamRef = useRef<MediaStream | null>(null);
   
   // Connection and permission states
   const [isConnecting, setIsConnecting] = useState(true);
