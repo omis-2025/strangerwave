@@ -102,9 +102,9 @@ interface TrustBadgeProps {
 
 export function TrustBadge({ icon, text, className = "" }: TrustBadgeProps) {
   return (
-    <div className={`flex items-center gap-2 bg-gray-900/90 border border-gray-800 backdrop-blur-sm rounded-lg px-3 py-2 ${className}`}>
-      <span className="text-blue-500">{icon}</span>
-      <span className="text-sm font-medium text-gray-300">{text}</span>
+    <div className={`flex items-center gap-1.5 sm:gap-2 bg-gray-900/90 border border-gray-800 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 ${className}`}>
+      <span className="text-blue-500 shrink-0">{icon}</span>
+      <span className="text-xs sm:text-sm font-medium text-gray-300 whitespace-nowrap">{text}</span>
     </div>
   );
 }
@@ -128,7 +128,7 @@ export function PaymentProviderLogos() {
 // Create a Trust Badges group component
 export function TrustBadgesGroup() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 mb-4 max-w-full overflow-hidden">
       <TrustBadge 
         icon={<LockIcon />} 
         text="256-bit encryption" 

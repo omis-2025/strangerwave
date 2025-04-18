@@ -439,11 +439,11 @@ export default function VideoCallInterface({
                     e.stopPropagation();
                     setMicEnabled(!micEnabled);
                   }}
-                  className={`rounded-full w-10 h-10 flex items-center justify-center ${
+                  className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
                     !micEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
                   }`}
                 >
-                  {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+                  {micEnabled ? <Mic className="h-4 w-4 sm:h-5 sm:w-5" /> : <MicOff className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
                 
                 <button 
@@ -451,10 +451,10 @@ export default function VideoCallInterface({
                     e.stopPropagation();
                     onDisconnect();
                   }}
-                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-red-500/20 ring-2 ring-red-500/50"
+                  className="bg-red-500/90 hover:bg-red-600 text-white rounded-full w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg shadow-red-500/20 ring-2 ring-red-500/50"
                   aria-label="End call and disconnect"
                 >
-                  <Phone className="h-6 w-6 transform rotate-135" />
+                  <Phone className="h-5 w-5 sm:h-6 sm:w-6 transform rotate-135" />
                 </button>
                 
                 <button 
@@ -462,12 +462,12 @@ export default function VideoCallInterface({
                     e.stopPropagation();
                     setVideoEnabled(!videoEnabled);
                   }}
-                  className={`rounded-full w-10 h-10 flex items-center justify-center ${
+                  className={`rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center ${
                     !videoEnabled ? 'bg-red-500/90 text-white' : 'bg-gray-800/80 text-white hover:bg-gray-700/90'
                   }`}
                   aria-label={videoEnabled ? "Turn camera off" : "Turn camera on"}
                 >
-                  {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+                  {videoEnabled ? <Video className="h-4 w-4 sm:h-5 sm:w-5" /> : <VideoOff className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
                 
                 {/* Camera switch button for mobile devices */}
@@ -481,10 +481,10 @@ export default function VideoCallInterface({
                         console.error('Failed to switch camera:', err);
                       });
                     }}
-                    className="rounded-full w-10 h-10 flex items-center justify-center bg-gray-800/80 text-white hover:bg-gray-700/90"
+                    className="rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-800/80 text-white hover:bg-gray-700/90 shadow-md"
                     aria-label="Switch between front and back camera"
                   >
-                    <Camera className="h-5 w-5" />
+                    <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 )}
               </motion.div>
@@ -668,7 +668,7 @@ export default function VideoCallInterface({
           </div>
           
           {/* Chat input area */}
-          <div className="p-4 border-t border-gray-800 bg-gray-900">
+          <div className="p-3 sm:p-4 border-t border-gray-800 bg-gray-900">
             <div className="relative">
               <input
                 type="text"
@@ -689,34 +689,35 @@ export default function VideoCallInterface({
                   paddingLeft: isInputRTL ? "3rem" : "1rem",
                   paddingRight: isInputRTL ? "1rem" : "3rem"
                 }}
-                className="w-full bg-gray-800 text-white rounded-full py-3 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full bg-gray-800 text-white rounded-full py-2 sm:py-3 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               />
               <button 
                 onClick={handleSendMessage}
-                className={`absolute ${isInputRTL ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-blue-600 rounded-full text-white`}
+                className={`absolute ${isInputRTL ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-blue-600 rounded-full text-white`}
+                aria-label="Send message"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </button>
             </div>
             
             {/* Action buttons below chat */}
-            <div className="mt-4 flex justify-between">
+            <div className="mt-3 sm:mt-4 flex justify-between">
               <button 
                 onClick={onDisconnect}
-                className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center shadow-md"
+                className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg flex items-center shadow-md min-w-[80px] justify-center"
                 aria-label="Stop chat and disconnect"
               >
-                <X className="h-4 w-4 mr-2" />
+                <X className="h-4 w-4 mr-1.5 sm:mr-2" />
                 <span className="hidden xs:inline">Disconnect</span>
                 <span className="xs:hidden">Stop</span>
               </button>
               
               <button 
                 onClick={onFindNext}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg flex items-center shadow-md"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg flex items-center shadow-md min-w-[80px] justify-center"
                 aria-label="Skip to next person"
               >
-                <SkipForward className="h-4 w-4 mr-2" />
+                <SkipForward className="h-4 w-4 mr-1.5 sm:mr-2" />
                 <span className="hidden xs:inline">Skip to Next</span>
                 <span className="xs:hidden">Next</span>
               </button>
