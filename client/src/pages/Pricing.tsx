@@ -415,94 +415,172 @@ export default function Pricing() {
         </div>
       </div>
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {pricingPlans.map((plan) => (
-          <Card 
+          <div 
             key={plan.id}
-            className={`relative ${plan.popular ? 'border-2 border-primary shadow-lg' : 'border-border'} transition-all duration-200 hover:shadow-lg`}
+            className={`relative group transition-all duration-500 ${plan.id === 'premium' ? 'lg:-translate-y-4' : ''}`}
           >
-            {plan.highlight && (
-              <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/3">
-                <div className={`${plan.popular ? 'bg-primary' : 'bg-blue-500'} text-primary-foreground text-sm font-medium py-1 px-3 rounded-full`}>
-                  {plan.highlight}
+            {/* Popular/Best Value Badge */}
+            {plan.id === 'premium' && (
+              <div className="absolute -top-5 left-0 right-0 flex justify-center z-10">
+                <div className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-md border border-blue-400 flex items-center gap-2">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  Most Popular
                 </div>
               </div>
             )}
-            <CardHeader className="pb-3">
-              <CardTitle className="text-2xl">{plan.name}</CardTitle>
-              {plan.description && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {plan.description}
-                </p>
+            
+            {/* VIP Badge */}
+            {plan.id === 'vip' && (
+              <div className="absolute -top-5 left-0 right-0 flex justify-center z-10">
+                <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-md border border-amber-400 flex items-center gap-2">
+                  <Crown className="h-3.5 w-3.5" />
+                  Best Value
+                </div>
+              </div>
+            )}
+            
+            <Card 
+              className={`relative h-full overflow-hidden transition-all duration-300
+                ${plan.id === 'free' 
+                  ? 'border border-border shadow-sm hover:shadow-md hover:border-border/80' 
+                  : plan.id === 'premium'
+                    ? 'border-2 border-blue-500 shadow-lg hover:shadow-xl hover:shadow-blue-500/10'
+                    : 'border-2 border-primary shadow-lg hover:shadow-xl hover:shadow-primary/10'
+                }
+                ${plan.id === 'vip' ? 'bg-gradient-to-b from-background via-background to-primary/5' : ''}
+              `}
+            >
+              {/* Highlight for VIP - Crown in corner */}
+              {plan.id === 'vip' && (
+                <div className="absolute top-3 right-3 text-amber-500">
+                  <Crown className="h-5 w-5" />
+                </div>
               )}
-              {/* Removed CardDescription and used div with similar styling to avoid DOM nesting errors */}
-              <div className="mt-3 text-sm text-muted-foreground">
-                <div className="flex items-baseline">
-                  {plan.id === 'free' ? (
-                    <span className="text-3xl font-bold text-foreground">Free</span>
+              
+              {/* Card decorative elements */}
+              {plan.id !== 'free' && (
+                <div className="absolute inset-0 overflow-hidden opacity-10">
+                  <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full 
+                    ${plan.id === 'premium' ? 'bg-blue-500/20' : 'bg-primary/20'}`} />
+                  <div className={`absolute -left-10 -bottom-10 w-40 h-40 rounded-full 
+                    ${plan.id === 'premium' ? 'bg-blue-500/20' : 'bg-primary/20'}`} />
+                </div>
+              )}
+              
+              <CardHeader className="pb-2 relative z-10">
+                <CardTitle className={`text-2xl font-bold flex items-center gap-2
+                  ${plan.id === 'premium' ? 'text-blue-500' : plan.id === 'vip' ? 'text-primary' : ''}`}>
+                  {plan.name}
+                </CardTitle>
+                
+                {plan.description && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {plan.description}
+                  </p>
+                )}
+                
+                <div className="mt-4 text-sm">
+                  <div className="flex items-baseline">
+                    {plan.id === 'free' ? (
+                      <span className="text-4xl font-extrabold">Free</span>
+                    ) : (
+                      <>
+                        <span className="text-sm font-normal text-muted-foreground mr-1">$</span>
+                        <span className="text-4xl font-extrabold">
+                          {yearly ? plan.prices.yearly : plan.prices.monthly}
+                        </span>
+                        <span className="text-muted-foreground ml-1.5 text-sm">
+                          {yearly ? '/year' : '/month'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Trial and Discount Badges */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {plan.trial && (
+                      <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
+                        <span className="mr-1">✦</span> {plan.trial}
+                      </div>
+                    )}
+                    {plan.discount && (
+                      <div className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600">
+                        <span className="mr-1">★</span> {plan.discount}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="relative z-10">
+                <div className="space-y-4">
+                  <div className="border-b border-muted pb-1 mb-4">
+                    <h4 className="text-sm font-medium">Features included:</h4>
+                  </div>
+                  
+                  <ul className="space-y-4 text-sm">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start group/feature">
+                        {feature.included ? (
+                          <div className={`flex-shrink-0 rounded-full p-0.5 mr-2 mt-0.5
+                            ${plan.id === 'premium' 
+                              ? 'text-blue-500 bg-blue-500/10' 
+                              : plan.id === 'vip' 
+                                ? 'text-primary bg-primary/10' 
+                                : 'text-emerald-500'
+                            }`}>
+                            <Check className="h-3.5 w-3.5" />
+                          </div>
+                        ) : (
+                          <X className="h-4 w-4 text-muted-foreground mr-2 mt-0.5 flex-shrink-0" />
+                        )}
+                        <span className={feature.included 
+                          ? 'group-hover/feature:translate-x-0.5 transition-transform duration-200' 
+                          : 'text-muted-foreground'}>
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+              
+              <CardFooter className="relative z-10 pt-4">
+                <Button 
+                  className={`w-full rounded-lg font-medium transition-all duration-300 ${
+                    plan.id === 'free' 
+                      ? 'bg-transparent border-border hover:bg-muted text-foreground hover:text-foreground hover:border-muted-foreground' 
+                      : plan.id === 'premium'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg hover:shadow-blue-500/20 text-white border-none'
+                        : 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary hover:to-primary shadow-md hover:shadow-lg hover:shadow-primary/20 text-white border-none'
+                  }`}
+                  size="lg"
+                  onClick={() => plan.id !== 'free' ? openConfirmDialog(plan) : null}
+                  disabled={loading !== null || plan.id === 'free'}
+                >
+                  {loading === plan.id ? (
+                    <div className="flex items-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>Processing...</span>
+                    </div>
                   ) : (
-                    <>
-                      <span className="text-3xl font-bold text-foreground">
-                        ${yearly ? plan.prices.yearly : plan.prices.monthly}
-                      </span>
-                      <span className="text-muted-foreground ml-1">
-                        {yearly ? '/year' : '/month'}
-                      </span>
-                    </>
-                  )}
-                </div>
-                {plan.trial && (
-                  <div className="mt-2 inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
-                    <span className="mr-1">✦</span> {plan.trial}
-                  </div>
-                )}
-                {plan.discount && (
-                  <div className="mt-2 inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600">
-                    <span className="mr-1">★</span> {plan.discount}
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="border-b border-muted pb-1 mb-4">
-                  <h4 className="text-sm font-medium">Features included:</h4>
-                </div>
-                <ul className="space-y-3 text-sm">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      {feature.included ? (
-                        <Check className="h-4 w-4 text-emerald-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-center justify-center">
+                      {plan.id === 'free' ? (
+                        <>Current Plan</>
                       ) : (
-                        <X className="h-4 w-4 text-muted-foreground mr-2 mt-0.5 flex-shrink-0" />
+                        <>
+                          {plan.buttonText || (plan.id === 'premium' ? 'Start Free Trial' : 'Subscribe Now')}
+                          {plan.id !== 'free' && <CreditCard className="ml-2 h-4 w-4" />}
+                        </>
                       )}
-                      <span className={feature.included ? '' : 'text-muted-foreground'}>
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className={`w-full ${plan.id === 'vip' ? 'bg-primary hover:bg-primary/90' : ''} ${plan.id === 'premium' ? 'bg-blue-500 hover:bg-blue-600 text-white' : ''}`}
-                size="lg"
-                variant={plan.id === 'free' ? 'outline' : 'default'}
-                onClick={() => plan.id !== 'free' ? openConfirmDialog(plan) : null}
-                disabled={loading !== null || plan.id === 'free'}
-              >
-                {loading === plan.id ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    {plan.buttonText || 'Subscribe Now'}
-                    {plan.id !== 'free' && <CreditCard className="ml-2 h-4 w-4" />}
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
+                    </div>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         ))}
       </div>
       
@@ -533,74 +611,134 @@ export default function Pricing() {
       </div>
       
       {/* Side-by-Side Plan Comparison */}
-      <div className="mt-20 mb-10 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-10">Plan Comparison</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+      <div className="mt-24 mb-16 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
+            Detailed Plan Comparison
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Compare all features side by side to find the perfect plan for your needs
+          </p>
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-border/50 shadow-md">
+          <table className="w-full border-collapse bg-card/50 backdrop-blur-sm">
             <thead>
-              <tr className="border-b">
-                <th className="py-4 px-6 text-left">Features</th>
-                <th className="py-4 px-6 text-center">Free</th>
-                <th className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground font-bold">Premium</th>
-                <th className="py-4 px-6 text-center bg-primary/10">VIP</th>
+              <tr className="border-b border-border/70">
+                <th className="py-5 px-6 text-left bg-muted/30">
+                  <span className="text-lg font-medium">Features</span>
+                </th>
+                <th className="py-5 px-8 text-center">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg font-medium text-foreground/90">Free</span>
+                    <span className="text-xs text-muted-foreground">Basic plan</span>
+                  </div>
+                </th>
+                <th className="py-5 px-8 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg font-medium text-blue-500">Premium</span>
+                    <span className="text-xs text-blue-500/80">Most popular</span>
+                  </div>
+                </th>
+                <th className="py-5 px-8 text-center bg-primary/10 dark:bg-primary/20">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg font-medium text-primary">VIP</span>
+                    <span className="text-xs text-primary/80">Best value</span>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Video chat duration</td>
                 <td className="py-4 px-6 text-center">5 minutes</td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">30 minutes</td>
-                <td className="py-4 px-6 text-center bg-primary/10">Unlimited</td>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <span className="font-medium">30 minutes</span>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <span className="font-medium text-primary">Unlimited</span>
+                </td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Matching speed</td>
                 <td className="py-4 px-6 text-center">Standard</td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">Priority</td>
-                <td className="py-4 px-6 text-center bg-primary/10">Highest priority</td>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <span className="font-medium">Priority</span>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <span className="font-medium text-primary">Highest priority</span>
+                </td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Profile customization</td>
-                <td className="py-4 px-6 text-center"><X className="h-5 w-5 text-muted-foreground mx-auto" /></td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
-                <td className="py-4 px-6 text-center bg-primary/10"><Check className="h-5 w-5 text-emerald-500 mx-auto" /></td>
+                <td className="py-4 px-6 text-center">
+                  <div className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-muted-foreground/30">
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </td>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/10 border border-blue-500/30">
+                    <Check className="h-4 w-4 text-blue-500" />
+                  </div>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 border border-primary/30">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                </td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Ad experience</td>
                 <td className="py-4 px-6 text-center">With ads</td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">Ad-free</td>
-                <td className="py-4 px-6 text-center bg-primary/10">Ad-free</td>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <span className="font-medium">Ad-free</span>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <span className="font-medium">Ad-free</span>
+                </td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Customer support</td>
                 <td className="py-4 px-6 text-center">Standard</td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">Priority</td>
-                <td className="py-4 px-6 text-center bg-primary/10">VIP (24/7)</td>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <span className="font-medium">Priority</span>
+                </td>
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <span className="font-medium text-primary">VIP (24/7)</span>
+                </td>
               </tr>
-              <tr className="border-b">
+              <tr className="border-b border-border/30 hover:bg-muted/10 transition-colors duration-150">
                 <td className="py-4 px-6 font-medium">Advanced filters</td>
                 <td className="py-4 px-6 text-center">Basic only</td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">Most filters</td>
-                <td className="py-4 px-6 text-center bg-primary/10">All filters</td>
-              </tr>
-              <tr>
-                <td className="py-4 px-6"></td>
-                <td className="py-4 px-6 text-center">
-                  <span className="inline-block font-medium">Current Plan</span>
+                <td className="py-4 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
+                  <span className="font-medium">Most filters</span>
                 </td>
-                <td className="py-4 px-6 text-center bg-blue-600/30 dark:bg-blue-700/50 text-foreground">
+                <td className="py-4 px-6 text-center bg-primary/10 dark:bg-primary/20">
+                  <span className="font-medium text-primary">All filters</span>
+                </td>
+              </tr>
+              <tr className="hover:bg-muted/10 transition-colors duration-150">
+                <td className="py-6 px-6"></td>
+                <td className="py-6 px-6 text-center">
+                  <span className="inline-block py-2 px-4 font-medium bg-muted/50 rounded-md border border-border/50">
+                    Current Plan
+                  </span>
+                </td>
+                <td className="py-6 px-6 text-center bg-blue-600/10 dark:bg-blue-700/20">
                   <Button 
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-none shadow-md hover:shadow-lg hover:shadow-blue-500/20"
                     onClick={() => openConfirmDialog(pricingPlans[1])}
                     disabled={loading !== null}
+                    size="lg"
                   >
                     Start Free Trial
                   </Button>
                 </td>
-                <td className="py-4 px-6 text-center bg-primary/10">
+                <td className="py-6 px-6 text-center bg-primary/10 dark:bg-primary/20">
                   <Button 
-                    className="bg-primary hover:bg-primary/90 text-white"
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary hover:to-primary text-white border-none shadow-md hover:shadow-lg hover:shadow-primary/20"
                     onClick={() => openConfirmDialog(pricingPlans[2])}
                     disabled={loading !== null}
+                    size="lg"
                   >
                     Subscribe Now
                   </Button>
