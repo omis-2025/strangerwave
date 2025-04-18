@@ -1,0 +1,91 @@
+Thanks for your work so far. After testing the app on both Android and iOS devices , I've found multiple critical issues that must be fixed permanently . Some of these problems have been raised before — please go through this carefully and make sure everything is resolved properly this time.
+
+🚨Major Issues (Mobile Devices)
+Text Cut Off on Mobile
+
+Headings and text are getting cut off on the left side on both Android and iOS.
+→ All text should be fully visible and aligned across devices.
+
+App Not Centered / Screen Fit Issues
+
+The layout is not centered or scaling properly. It shifts left/right and doesn't fully fit the screen.
+→ The app must scale and center properly on all phones — full responsive layout with no visual shift.
+
+Video Chat Connection Bug
+
+After matching, the camera disappears and the screen shows only a text chat view that doesn't work.
+→ The user should see the video feed + working chat + visible controls after match connects.
+
+Missing or Broken Chat Controls
+
+Stop and Next buttons are missing or hidden.
+
+After ending a session, there's no visible way to return — tapping the screen sometimes shows “Next,” but pressing it restarts the entire session instead of skipping.
+→ Fix this: “Next” should only skip to a new user , not reset the app.
+
+Chat System Not Working
+
+Messages typed are not being received by the matched user.
+→ There should be no “demo mode” — the chat must send/receive messages live and reliably between both users.
+
+🛠️ Filter Section Fixes
+After "Let's Start Chat" — Remove These Genders:
+
+❌ Genderqueer
+
+❌ Genderfluid
+
+❌ Non-binary
+
+❌ Other
+
+Add “Choose Country” Instead
+
+Replace the extra gender options with a country selector dropdown , so users can match by country.
+
+🎨 Pricing Plan Issues
+Landing Page Bug
+
+The landing page loads and disappears after 1 second — this must be fixed so users can see it and interact.
+
+Fix the Pricing Amounts:
+
+Premium Plan: $4.99/month
+
+VIP Plan: $7.99/month
+→ Update these in both monthly and yearly views accordingly.
+
+Improve Visual Design
+
+The pricing section needs to look more professional and premium:
+
+Better spacing between plans
+
+Modern icons and color styles
+
+Clearer plan labels (eg, “Most Affordable”, “Best Value”)
+
+Smoother buttons and layout
+
+📌 I've attached a visual mockup to follow for styling — please use it to polish this section.
+
+✅ Summary of New Tasks
+Fix layout cut-off and screen fit issues
+
+Fix camera disappearing + broken chat view
+
+Fix broken/missing Stop + Next buttons
+
+Ensure “Next” does NOT restart the app
+
+Make chat fully functional (live messaging only)
+
+Remove unwanted gender options in filter
+
+Add “Choose Country” selector
+
+Fix pricing to $4.99 and $7.99
+
+Stop landing page from disappearing
+
+Upgrade

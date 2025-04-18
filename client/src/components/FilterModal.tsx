@@ -19,7 +19,7 @@ interface FilterModalProps {
   initialPreferences: ChatPreferences;
 }
 
-type GenderOption = 'any' | 'male' | 'female' | 'non-binary' | 'transgender' | 'genderqueer' | 'gender-fluid' | 'other';
+type GenderOption = 'any' | 'male' | 'female' | 'transgender';
 
 // Enhanced countries list with flag codes
 const countries = [
