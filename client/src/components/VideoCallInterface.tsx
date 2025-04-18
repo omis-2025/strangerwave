@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Video, Mic, MicOff, VideoOff, Phone, Camera, SkipForward, User, Shield, X, UserRound, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import webRTC from '@/lib/mobileWebRTC';
+import { ResponsiveContainer, FlexContainer } from '@/components/ui/responsive-container';
 import PermissionErrorModal from './PermissionErrorModal';
 import ConnectionStatusToast from './ConnectionStatusToast';
 import CountryDisplay from './CountryDisplay';
@@ -265,7 +266,10 @@ export default function VideoCallInterface({
   }, [videoEnabled, micEnabled, isMobile]);
   
   return (
-    <div className="flex flex-col h-full max-h-[100vh] bg-gray-900 relative overflow-hidden">
+    <ResponsiveContainer 
+      className="flex flex-col h-full bg-gray-900 relative overflow-hidden" 
+      fixOverflow={true}
+    >
       {/* Top header/status bar */}
       <div className="bg-gray-900 p-3 border-b border-gray-800 flex justify-between items-center z-10">
         <div className="flex items-center">
@@ -289,11 +293,19 @@ export default function VideoCallInterface({
         </div>
       </div>
 
-      {/* Main content area - full height on mobile, split 50/50 on desktop */}
-      <div className="flex-1 flex flex-col md:flex-row w-full overflow-hidden">
-        {/* Left panel - Video takes half the screen on desktop */}
+      {/* Main content area - flex layout that adapts properly to mobile */}
+      <FlexContainer
+        className="flex-1 w-full overflow-hidden"
+        direction={{ 
+          mobile: "column",
+          tablet: "row",
+          desktop: "row"
+        }}
+        fullHeight={true}
+      >
+        {/* Left panel - Video takes full width on mobile, half on desktop */}
         <div 
-          className="w-full md:w-1/2 h-[50vh] md:h-full relative bg-black cursor-pointer" 
+          className="w-full md:w-1/2 h-[45vh] md:h-full relative bg-black cursor-pointer" 
           onClick={() => setHideControls(!hideControls)}
         >
           {/* Country flag displays */}
@@ -724,7 +736,7 @@ export default function VideoCallInterface({
             </div>
           </div>
         </div>
-      </div>
+      </FlexContainer>
       
       {/* Error messages */}
       {connectionError && (
@@ -756,6 +768,6 @@ export default function VideoCallInterface({
         status={connectionStatus} 
         onClose={() => setConnectionStatus(null)}
       />
-    </div>
+    </ResponsiveContainer>
   );
 }
