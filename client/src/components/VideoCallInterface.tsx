@@ -293,7 +293,7 @@ export default function VideoCallInterface({
       <div className="flex-1 flex flex-col md:flex-row w-full overflow-hidden">
         {/* Left panel - Video takes half the screen on desktop */}
         <div 
-          className="w-full md:w-1/2 h-full relative bg-black cursor-pointer" 
+          className="w-full md:w-1/2 h-[50vh] md:h-full relative bg-black cursor-pointer" 
           onClick={() => setHideControls(!hideControls)}
         >
           {/* Country flag displays */}
