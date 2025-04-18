@@ -111,19 +111,18 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto py-20 flex flex-col md:flex-row items-center">
-        <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+      {/* Hero Section - Improved layout for both mobile and desktop */}
+      <section className="container mx-auto py-12 md:py-20 max-w-7xl">
+        {/* Mobile version (stacked) */}
+        <div className="flex flex-col items-center text-center md:hidden">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-4xl font-bold mb-4"
           >
-            Connect with the World, {" "}
-            <span 
-              className="relative inline-block"
-            >
+            Connect with the World,
+            <div className="relative inline-block mt-2">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Instantly</span>
               <motion.span 
                 className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-400/20 blur-xl z-[-1] rounded-lg"
@@ -131,38 +130,60 @@ export default function LandingPage() {
                 animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               />
-            </span>
+            </div>
           </motion.h2>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="relative rounded-xl overflow-hidden border shadow-xl w-full max-w-md mb-8"
+          >
+            <img 
+              src={heroImage} 
+              alt="StrangerWave in action" 
+              className="w-full rounded-xl"
+              onLoad={() => setHeroImageLoaded(true)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+              <div className="flex items-center justify-center gap-2 text-white">
+                <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span>8,543 users online now</span>
+              </div>
+            </div>
+          </motion.div>
+          
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg text-muted-foreground mb-6"
+            className="text-lg text-muted-foreground mb-6 max-w-md"
           >
             StrangerWave brings you authentic connections through text and video chat with people around the globe. Safe, high-quality, and designed for meaningful interactions.
           </motion.p>
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex gap-4"
+            className="flex flex-col sm:flex-row gap-4 w-full justify-center"
           >
             <Link href="/chat" onClick={() => {
               console.log("Start chatting clicked - setting navigation flag");
               localStorage.setItem('startChatting', 'true');
-              // Track user interaction
               try {
                 if (window.gtag) window.gtag('event', 'start_chatting_click');
               } catch (e) {
                 console.warn("Analytics tracking error:", e);
               }
-            }}>
+            }} className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="w-full"
               >
-                <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90">
+                <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 w-full sm:w-auto">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <FaVideo className="h-4 w-4 relative z-10 group-hover:animate-pulse" />
                   <span className="relative z-10">Start Chatting</span>
@@ -171,20 +192,19 @@ export default function LandingPage() {
             </Link>
             <Link href="/pricing" onClick={() => {
               console.log("Go premium clicked");
-              // Don't set startChatting flag for premium link - we want users to see the pricing page
-              // Track user interaction
               try {
                 if (window.gtag) window.gtag('event', 'premium_click');
               } catch (e) {
                 console.warn("Analytics tracking error:", e);
               }
-            }}>
+            }} className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="w-full"
               >
-                <Button size="lg" variant="outline" className="gap-2 group border-primary hover:border-primary/80 transition-colors">
+                <Button size="lg" variant="outline" className="gap-2 group border-primary hover:border-primary/80 transition-colors w-full sm:w-auto">
                   <FaCoins className="h-4 w-4 text-primary group-hover:animate-spin-slow" />
                   <span>View Pricing</span>
                 </Button>
@@ -192,31 +212,117 @@ export default function LandingPage() {
             </Link>
           </motion.div>
           
-          {/* Trust Badges below hero CTA buttons */}
-          <div className="mt-8">
+          {/* Trust Badges for mobile */}
+          <div className="mt-8 w-full">
             <TrustBadgesGroup />
           </div>
         </div>
-        <div className="md:w-1/2">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="relative rounded-xl overflow-hidden border shadow-xl"
-          >
-            <img 
-              src={heroImage} 
-              alt="StrangerWave in action" 
-              className="w-full rounded-xl"
-              onLoad={() => setHeroImageLoaded(true)}
-              />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-              <div className="flex items-center gap-2 text-white">
-                <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span>8,543 users online now</span>
+        
+        {/* Desktop version (side by side) */}
+        <div className="hidden md:flex md:flex-row md:items-center md:justify-between">
+          <div className="w-5/12 pr-8">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-5xl font-bold mb-6"
+            >
+              <div className="mb-2">Connect with the World,</div>
+              <div className="relative inline-block">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Instantly</span>
+                <motion.span 
+                  className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-400/20 blur-xl z-[-1] rounded-lg"
+                  initial={{ opacity: 0.5, scale: 1 }}
+                  animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                />
               </div>
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-lg text-muted-foreground mb-8"
+            >
+              StrangerWave brings you authentic connections through text and video chat with people around the globe. Safe, high-quality, and designed for meaningful interactions.
+            </motion.p>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex gap-4"
+            >
+              <Link href="/chat" onClick={() => {
+                console.log("Start chatting clicked - setting navigation flag");
+                localStorage.setItem('startChatting', 'true');
+                try {
+                  if (window.gtag) window.gtag('event', 'start_chatting_click');
+                } catch (e) {
+                  console.warn("Analytics tracking error:", e);
+                }
+              }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Button size="lg" className="gap-2 group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <FaVideo className="h-4 w-4 relative z-10 group-hover:animate-pulse" />
+                    <span className="relative z-10">Start Chatting</span>
+                  </Button>
+                </motion.div>
+              </Link>
+              <Link href="/pricing" onClick={() => {
+                console.log("Go premium clicked");
+                try {
+                  if (window.gtag) window.gtag('event', 'premium_click');
+                } catch (e) {
+                  console.warn("Analytics tracking error:", e);
+                }
+              }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Button size="lg" variant="outline" className="gap-2 group border-primary hover:border-primary/80 transition-colors">
+                    <FaCoins className="h-4 w-4 text-primary group-hover:animate-spin-slow" />
+                    <span>View Pricing</span>
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            {/* Trust Badges for desktop */}
+            <div className="mt-8">
+              <TrustBadgesGroup />
             </div>
-          </motion.div>
+          </div>
+          
+          <div className="w-7/12 flex justify-center items-center">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="relative rounded-xl overflow-hidden border shadow-2xl w-full max-w-2xl ml-4"
+            >
+              <img 
+                src={heroImage} 
+                alt="StrangerWave in action" 
+                className="w-full rounded-xl"
+                onLoad={() => setHeroImageLoaded(true)}
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                <div className="flex items-center gap-2 text-white">
+                  <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                  <span>8,543 users online now</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
