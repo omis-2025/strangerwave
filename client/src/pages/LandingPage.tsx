@@ -22,13 +22,94 @@ import sarahProfile from '@/assets/profiles/sarah.png';
 import miguelProfile from '@/assets/profiles/miguel.png';
 import aidenProfile from '@/assets/profiles/aiden.png';
 
+// FAQ Item Component
+const FAQItem = ({ 
+  id, 
+  question, 
+  answer, 
+  isExpanded, 
+  onToggle 
+}: { 
+  id: number; 
+  question: string; 
+  answer: string; 
+  isExpanded: boolean; 
+  onToggle: () => void; 
+}) => {
+  return (
+    <motion.div 
+      className="border-b border-gray-800 py-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: id * 0.1 }}
+    >
+      <button 
+        onClick={onToggle}
+        className="flex justify-between items-center w-full text-left py-2"
+      >
+        <div className="flex items-center gap-3">
+          <FaQuestionCircle className="text-primary" />
+          <h3 className="text-lg font-medium">{question}</h3>
+        </div>
+        <div className="text-gray-400">
+          {isExpanded ? <FaAngleUp /> : <FaAngleDown />}
+        </div>
+      </button>
+      
+      <motion.div 
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ 
+          height: isExpanded ? "auto" : 0,
+          opacity: isExpanded ? 1 : 0
+        }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        <div className="py-3 px-8 text-gray-300">
+          {answer}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('features');
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [autoScrollPaused, setAutoScrollPaused] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
   const testimonialsRef = useRef<HTMLDivElement>(null);
+  
+  // FAQ data
+  const faqData = [
+    {
+      id: 1,
+      question: "Is StrangerWave really anonymous?",
+      answer: "Yes, StrangerWave is designed with privacy in mind. You can chat without creating an account or sharing personal information. We don't store chat history beyond the current session, and your connections are always randomized."
+    },
+    {
+      id: 2,
+      question: "Do I need to sign up?",
+      answer: "No sign-up is required to start chatting. Simply visit the site, agree to our community guidelines, and you can start connecting with people around the world instantly."
+    },
+    {
+      id: 3,
+      question: "What does Premium include?",
+      answer: "Premium membership ($4.99/month) includes ad-free experience, priority matching, advanced filters, HD video quality, unlimited matches, and a premium badge on your profile. VIP tier ($7.99/month) adds Ultra HD video, extended chat history, priority support, and custom themes."
+    },
+    {
+      id: 4,
+      question: "How does matching work?",
+      answer: "Our intelligent matching system connects you with people based on your preferences. Free users get basic matching, while Premium users enjoy priority in the queue and can use advanced filters like country, interests, and language."
+    },
+    {
+      id: 5,
+      question: "Is StrangerWave safe to use?",
+      answer: "We prioritize safety with AI-powered content moderation, clear community guidelines, and an easy reporting system. All users must be 18+ to use the platform, and we actively monitor for inappropriate behavior."
+    }
+  ];
   
   // Auto-scroll testimonials every 5 seconds
   useEffect(() => {
@@ -46,6 +127,40 @@ export default function LandingPage() {
     
     return () => clearInterval(interval);
   }, [autoScrollPaused]);
+  
+  // Exit-intent popup detection
+  useEffect(() => {
+    // Don't show the popup on mobile devices (touch devices don't have mouse leave events)
+    if ('ontouchstart' in document.documentElement) return;
+    
+    // Only trigger the exit popup once per session
+    if (localStorage.getItem('exitPopupShown')) return;
+    
+    const handleMouseLeave = (e: MouseEvent) => {
+      // Only trigger when the mouse moves to the top of the page
+      if (e.clientY <= 5 && !localStorage.getItem('exitPopupShown')) {
+        setShowExitPopup(true);
+        // Mark that we've shown the popup
+        localStorage.setItem('exitPopupShown', 'true');
+        
+        try {
+          if (window.gtag) window.gtag('event', 'exit_popup_shown');
+        } catch (e) {
+          console.warn("Analytics tracking error:", e);
+        }
+      }
+    };
+    
+    // Wait a few seconds before adding the listener to avoid accidental triggers
+    const timer = setTimeout(() => {
+      document.addEventListener('mouseleave', handleMouseLeave);
+    }, 5000);
+    
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
   
   const testimonialsData = [
     {
@@ -712,6 +827,45 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="container mx-auto py-16">
+        <div className="max-w-3xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Got questions about StrangerWave? We've got answers.
+            </p>
+          </motion.div>
+          
+          <div className="bg-gray-900/50 rounded-xl p-6 md:p-8 backdrop-blur-sm border border-gray-800">
+            {faqData.map((item) => (
+              <FAQItem 
+                key={item.id}
+                id={item.id}
+                question={item.question}
+                answer={item.answer}
+                isExpanded={expandedFaq === item.id}
+                onToggle={() => setExpandedFaq(expandedFaq === item.id ? null : item.id)}
+              />
+            ))}
+            
+            <div className="mt-6 pt-4 text-center">
+              <Link href="/chat">
+                <Button className="gap-2">
+                  <FaArrowRight className="h-4 w-4" />
+                  <span>Start Chatting Now</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="container mx-auto py-16 mb-8">
         <div className="bg-primary/10 rounded-xl p-8 text-center">
@@ -780,6 +934,74 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      
+      {/* Exit Intent Popup */}
+      {showExitPopup && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowExitPopup(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ type: "spring", damping: 15 }}
+            className="bg-gray-900 rounded-xl max-w-lg w-full border border-gray-800 shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              <button 
+                className="absolute top-4 right-4 text-gray-400 hover:text-white p-1"
+                onClick={() => setShowExitPopup(false)}
+              >
+                <X className="h-5 w-5" />
+              </button>
+              
+              <div className="p-6 pt-10 pb-8 text-center">
+                <motion.div
+                  animate={{ rotate: [0, -5, 0, 5, 0] }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mx-auto mb-5 bg-primary/20 w-16 h-16 rounded-full flex items-center justify-center"
+                >
+                  <FaVideo className="text-primary h-8 w-8" />
+                </motion.div>
+                
+                <h3 className="text-2xl font-bold mb-2">Wait! Don't leave yet.</h3>
+                <p className="text-muted-foreground mb-6">
+                  You're only one click away from chatting with interesting people from around the world. Try StrangerWave for free!
+                </p>
+                
+                <div className="space-y-4">
+                  <Link href="/chat" onClick={() => {
+                    setShowExitPopup(false);
+                    localStorage.setItem('startChatting', 'true');
+                    try {
+                      if (window.gtag) window.gtag('event', 'exit_popup_conversion');
+                    } catch (e) {
+                      console.warn("Analytics tracking error:", e);
+                    }
+                  }}>
+                    <Button className="w-full gap-2">
+                      <FaRandom className="h-4 w-4" />
+                      <span>Try Free Chat Now</span>
+                    </Button>
+                  </Link>
+                  
+                  <Button variant="ghost" onClick={() => setShowExitPopup(false)}>
+                    No thanks
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-800 py-3 px-6 text-center text-sm text-gray-400">
+                No sign-up required. Start chatting instantly.
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
