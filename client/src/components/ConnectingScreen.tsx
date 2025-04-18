@@ -214,14 +214,14 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
         </div>
       </div>
 
-      {/* Main content - desktop layout is side by side, mobile is stacked */}
+      {/* Main content - optimized for mobile with stacked layout */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Left panel - Video preview (takes half the screen on desktop) */}
+        {/* Video preview (full width on mobile, half on desktop) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="w-full md:w-1/2 h-full relative bg-black flex-shrink-0"
+          className="w-full md:w-1/2 h-[40vh] md:h-full relative bg-black flex-shrink-0"
         >
           <video
             ref={videoRef}
@@ -244,24 +244,36 @@ export default function ConnectingScreen({ onCancel }: ConnectingScreenProps) {
             <p className="text-gray-400 text-xs mt-1">You can adjust your camera or microphone settings now</p>
           </div>
 
-          {/* Camera controls - moved to centered bottom of video */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-3">
+          {/* Mobile-optimized camera controls */}
+          <div className="absolute bottom-10 left-0 right-0 flex justify-center space-x-4 px-4">
             <Button
               size="sm"
               variant="secondary"
-              className={`rounded-full w-12 h-12 p-0 flex items-center justify-center shadow-lg ${!micEnabled ? 'bg-red-500 text-white' : 'bg-gray-800/80 text-white'}`}
+              className={`rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-xl border-2 ${!micEnabled ? 'bg-red-500 text-white border-red-400' : 'bg-gray-800/90 text-white border-gray-700'}`}
               onClick={toggleMic}
+              aria-label={micEnabled ? "Mute microphone" : "Unmute microphone"}
             >
-              {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+              {micEnabled ? <Mic className="h-6 w-6" /> : <MicOff className="h-6 w-6" />}
             </Button>
             
             <Button
               size="sm"
               variant="secondary"
-              className={`rounded-full w-12 h-12 p-0 flex items-center justify-center shadow-lg ${!videoEnabled ? 'bg-red-500 text-white' : 'bg-gray-800/80 text-white'}`}
+              className={`rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-xl border-2 ${!videoEnabled ? 'bg-red-500 text-white border-red-400' : 'bg-gray-800/90 text-white border-gray-700'}`}
               onClick={toggleVideo}
+              aria-label={videoEnabled ? "Turn off camera" : "Turn on camera"}
             >
-              {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              {videoEnabled ? <Video className="h-6 w-6" /> : <VideoOff className="h-6 w-6" />}
+            </Button>
+            
+            <Button
+              size="sm"
+              variant="secondary"
+              className="rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-xl bg-primary/90 text-white border-2 border-primary"
+              onClick={onCancel}
+              aria-label="Cancel search"
+            >
+              <X className="h-6 w-6" />
             </Button>
           </div>
 
