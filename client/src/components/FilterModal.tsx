@@ -245,74 +245,27 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                   e.preventDefault();
                   handleSave();
                 }}>
-                  {/* Gender Preference */}
+                  {/* Country Selection - Emphasized and shown first */}
                   <div className="mb-6">
                     <div className="flex items-center mb-3">
-                      <Users className="h-4 w-4 text-primary mr-2" />
-                      <Label className="text-white font-medium">I want to chat with:</Label>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-3">
-                      {genderOptions.map((option) => (
-                        <motion.div
-                          key={option.value}
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
-                          className={`
-                            p-3 rounded-lg flex items-center cursor-pointer transition-all border
-                            ${preferredGender === option.value 
-                              ? 'bg-primary/10 border-primary/30 shadow-sm shadow-primary/10' 
-                              : 'bg-gray-800/70 border-gray-700 hover:border-gray-600'}
-                          `}
-                          onClick={() => setPreferredGender(option.value)}
-                        >
-                          <div className={`
-                            w-10 h-10 rounded-full flex items-center justify-center mr-3 
-                            ${preferredGender === option.value ? 'bg-primary/10' : 'bg-gray-800'}
-                          `}>
-                            {option.icon}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-white">{option.label}</div>
-                            <div className="text-xs text-gray-400">{option.description}</div>
-                          </div>
-                          <div className={`
-                            w-5 h-5 rounded-full border-2 flex-shrink-0
-                            ${preferredGender === option.value 
-                              ? 'border-primary bg-primary/30' 
-                              : 'border-gray-600'}
-                          `}>
-                            {preferredGender === option.value && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="w-full h-full rounded-full bg-primary scale-50"
-                              />
-                            )}
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Country Selection */}
-                  <div className="mb-6">
-                    <div className="flex items-center mb-3">
-                      <Globe className="h-4 w-4 text-primary mr-2" />
-                      <Label htmlFor="country" className="text-white font-medium">
+                      <Globe className="h-5 w-5 text-primary mr-2" />
+                      <Label htmlFor="country" className="text-white font-medium text-lg">
                         Match with people from:
                       </Label>
                     </div>
                     
+                    {/* Enhanced country selection for mobile */}
                     <div className="relative">
                       <Select
                         value={country || "any"}
                         onValueChange={(value) => setCountry(value === "any" ? null : value)}
                       >
-                        <SelectTrigger className="w-full bg-gray-800 text-white border-gray-700 py-3 h-auto">
+                        <SelectTrigger className="w-full bg-gray-900 text-white border border-primary/30 shadow-sm shadow-primary/10 py-4 h-auto text-lg">
                           <div className="flex items-center space-x-2">
-                            {getCurrentCountry().flag && (
-                              <span className={`fi fi-${getCurrentCountry().flag} text-base`}></span>
+                            {getCurrentCountry().flag ? (
+                              <span className={`fi fi-${getCurrentCountry().flag} text-xl`}></span>
+                            ) : (
+                              <Globe className="h-5 w-5 text-primary" />
                             )}
                             <SelectValue placeholder="Any Country" />
                           </div>
@@ -322,13 +275,14 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                           <div className="px-2 pt-1 pb-2 sticky top-0 bg-gray-800 z-10 border-b border-gray-700">
                             <div className="relative">
                               <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-gray-400" />
+                                <Search className="h-4 w-4 text-primary" />
                               </div>
                               <input
-                                className="pl-8 pr-8 py-2 w-full bg-gray-900 border border-gray-700 rounded-md text-white text-sm"
-                                placeholder="Search country..."
+                                className="pl-8 pr-8 py-3 w-full bg-gray-900 border border-primary/30 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                placeholder="Type a country name to search..."
                                 value={countrySearch}
                                 onChange={(e) => setCountrySearch(e.target.value)}
+                                autoFocus
                               />
                               {countrySearch && (
                                 <button
@@ -471,13 +425,29 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                       </Select>
                     </div>
                     
-                    {/* Country hint */}
-                    <p className="text-xs text-gray-400 mt-2">
-                      {country === null 
-                        ? "You'll be matched with people from around the world"
-                        : `You'll be matched with people from ${getCurrentCountry().name}`
-                      }
-                    </p>
+                    {/* Enhanced country hint with flags */}
+                    <div className="flex items-center mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                      {country === null ? (
+                        <>
+                          <div className="flex items-center space-x-1 mr-2">
+                            <span className="fi fi-us text-sm"></span>
+                            <span className="fi fi-fr text-sm"></span>
+                            <span className="fi fi-jp text-sm"></span>
+                            <span className="fi fi-br text-sm"></span>
+                          </div>
+                          <p className="text-sm text-gray-300">
+                            You'll be matched with people from around the world
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <span className={`fi fi-${getCurrentCountry().flag} text-xl mr-2`}></span>
+                          <p className="text-sm text-gray-300">
+                            You'll be matched with people from <span className="text-white font-semibold">{getCurrentCountry().name}</span>
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Preview of matches */}
@@ -515,27 +485,33 @@ export default function FilterModal({ isOpen, onClose, onSave, initialPreference
                   </motion.div>
                   
                   <div className="flex flex-col gap-3">
-                    {/* Main "Start Chat" button */}
-                    <Button 
+                    {/* Mobile-optimized "Start Chat" button */}
+                    <motion.button 
                       type="button" 
-                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:bg-gradient-to-r hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-4 h-auto rounded-lg transition-all shadow-lg relative flex items-center justify-center"
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:bg-gradient-to-r hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-5 h-auto rounded-xl transition-all shadow-lg relative flex items-center justify-center text-lg"
                       disabled={starting}
                       onClick={handleStartChat}
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.02 }}
                     >
                       {starting ? (
                         <>
-                          <span className="opacity-0">Start Chat Now</span>
+                          <span className="opacity-0">Start Matching Now</span>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <div className="h-6 w-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                           </div>
                         </>
                       ) : (
                         <>
-                          <Play className="h-5 w-5 mr-2" />
-                          Start Chat Now
+                          {country && getCurrentCountry().flag ? (
+                            <span className={`fi fi-${getCurrentCountry().flag} text-xl mr-2`}></span>
+                          ) : (
+                            <Globe className="h-5 w-5 mr-2" />
+                          )}
+                          Start Matching Now
                         </>
                       )}
-                    </Button>
+                    </motion.button>
                     
                     {/* Secondary buttons */}
                     <div className="flex gap-3">
