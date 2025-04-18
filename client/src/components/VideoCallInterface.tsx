@@ -117,6 +117,26 @@ export default function VideoCallInterface({
         setIsConnecting(false);
         setConnectionStatus('connected');
         setTimeout(() => setConnectionStatus(null), 3000); // Hide after 3 seconds
+        
+        // When connected, ensure the local video stream is reattached if needed
+        if (localMediaStreamRef.current && localVideoRef.current) {
+          if (localVideoRef.current.srcObject !== localMediaStreamRef.current) {
+            console.log('Reattaching local stream to video element after connection state change');
+            localVideoRef.current.srcObject = localMediaStreamRef.current;
+            
+            // Make sure video autoplays
+            try {
+              const playPromise = localVideoRef.current.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                  console.warn('Auto-play was prevented for local video after reconnection:', error);
+                });
+              }
+            } catch (playError) {
+              console.warn('Error playing local video after reconnection:', playError);
+            }
+          }
+        }
       } else if (state === 'disconnected') {
         setConnectionStatus('disconnected');
       } else if (state === 'failed' || state === 'closed') {
@@ -162,6 +182,9 @@ export default function VideoCallInterface({
           console.log(`Attempting to get local stream (attempt ${retryCount + 1}/${maxRetries})`);
           const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled);
           
+          // Store a reference to the local stream
+          localMediaStreamRef.current = localStream;
+          
           // Attach local stream to video element
           if (localVideoRef.current && localStream) {
             console.log('Attaching local stream to video element');
@@ -206,7 +229,24 @@ export default function VideoCallInterface({
     // Clean up when component unmounts
     return () => {
       console.log('Cleaning up WebRTC resources');
+      
+      // Save a reference to our local media stream before we close the connection
+      const savedStream = localMediaStreamRef.current;
+      
+      // Here's the trick: we're going to manually save the tracks before closing
+      const savedTracks = savedStream?.getTracks() || [];
+      
+      // Close the WebRTC connection - this normally stops all tracks
       webRTC.close();
+      
+      // But we don't want the tracks to be completely stopped when finding a new match
+      // So we only stop the tracks if component is truly unmounting (not just disconnecting)
+      if (window.onbeforeunload) {
+        console.log('Page is unloading, stopping all media tracks');
+        savedTracks.forEach(track => track.stop());
+      } else {
+        console.log('Preserving media tracks for potential reconnection');
+      }
     };
   }, [videoEnabled, micEnabled, isMobile]);
 
