@@ -16,6 +16,58 @@ import { useToast } from "@/hooks/use-toast";
 import EmptyState from "@/components/EmptyState";
 import Loader from "@/components/Loader";
 
+// Type definitions for referral system
+interface ReferralCode {
+  id: number;
+  userId: number;
+  code: string;
+  isActive: boolean;
+  isCreatorCode?: boolean;
+  bonusPercentage?: number;
+  createdAt: string;
+}
+
+interface Referral {
+  id: number;
+  referrerId: number;
+  referredId: number;
+  referralCode: string;
+  status: 'pending' | 'converted';
+  rewardClaimed: boolean;
+  createdAt: string;
+  referredUser?: {
+    id: number;
+    username: string;
+  };
+}
+
+interface ReferralReward {
+  id: number;
+  name: string;
+  description: string;
+  type: 'premium_days' | 'tokens' | 'other';
+  value: any;
+  requiredReferrals: number;
+  isActive: boolean;
+}
+
+interface UserReferralReward {
+  id: number;
+  userId: number;
+  rewardId: number;
+  appliedAt: string;
+  expiresAt?: string;
+  reward: ReferralReward;
+}
+
+interface LeaderboardEntry {
+  user: {
+    id: number;
+    username: string;
+  };
+  referralCount: number;
+}
+
 interface AchievementWithUserData extends UserAchievement {
   achievement: Achievement;
 }
@@ -219,11 +271,11 @@ const RewardsPage: React.FC = () => {
 
   // Check if user has already claimed a reward
   const isRewardClaimed = (rewardId: number) => {
-    return userReferralRewards?.some(r => r.rewardId === rewardId);
+    return userReferralRewards?.some((r: UserReferralReward) => r.rewardId === rewardId);
   };
 
   // Count qualified referrals for progress bars
-  const qualifiedReferrals = referrals?.filter(r => r.status === "converted")?.length || 0;
+  const qualifiedReferrals = referrals?.filter((r: Referral) => r.status === "converted")?.length || 0;
   
   const trustLevel = getTrustLevel();
   const lockedAchievements = getLockedAchievements();
@@ -493,7 +545,7 @@ const RewardsPage: React.FC = () => {
                           <h3 className="font-medium">Recent Referrals</h3>
                         </div>
                         <div className="max-h-[200px] overflow-y-auto">
-                          {referrals.slice(0, 5).map((referral) => (
+                          {referrals.slice(0, 5).map((referral: Referral) => (
                             <div key={referral.id} className="flex items-center justify-between p-3 border-b last:border-0">
                               <div>
                                 <p className="font-medium">{referral.referredUser?.username || 'Anonymous'}</p>
@@ -544,7 +596,7 @@ const RewardsPage: React.FC = () => {
                   </div>
                 ) : leaderboard && leaderboard.length > 0 ? (
                   <div className="space-y-4">
-                    {leaderboard.map((entry, index) => (
+                    {leaderboard.map((entry: LeaderboardEntry, index: number) => (
                       <div key={entry.user.id} className="flex items-center gap-3">
                         <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold ${
                           index === 0 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
@@ -593,7 +645,7 @@ const RewardsPage: React.FC = () => {
                 </div>
               ) : referralRewards && referralRewards.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {referralRewards.map((reward) => {
+                  {referralRewards.map((reward: ReferralReward) => {
                     const claimed = isRewardClaimed(reward.id);
                     const progress = Math.min(100, (qualifiedReferrals / reward.requiredReferrals) * 100);
                     const isEligible = qualifiedReferrals >= reward.requiredReferrals;
