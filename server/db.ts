@@ -36,29 +36,11 @@ function checkDatabaseEnvironment() {
 // Initialize the database connection
 function initializeDatabase() {
   try {
-    console.log('console.log('Connecting to PostgreSQL database...');
-const MAX_RETRIES = 5;
-const RETRY_DELAY = 2000;
-
-let retryCount = 0;
-const connectWithRetry = async () => {
-  try {
-    await db.connect();
-    console.log('✅ Successfully connected to PostgreSQL database');
-  } catch (err) {
-    retryCount++;
-    console.error(`Database connection attempt ${retryCount} failed:`, err);
-    if (retryCount < MAX_RETRIES) {
-      console.log(`Retrying in ${RETRY_DELAY/1000} seconds...`);
-      setTimeout(connectWithRetry, RETRY_DELAY);
-    } else {
-      console.error('Failed to connect to database after maximum retries');
-      process.exit(1);
-    }
-  }
-};
-
-connectWithRetry();');
+    console.log('Connecting to PostgreSQL database...');
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 2000;
+    
+    // We'll handle retries within the pool connection test below
     
     // Configure the pool
     const poolConfig: any = { 
