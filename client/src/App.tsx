@@ -17,6 +17,7 @@ import CreatorModePage from "@/pages/CreatorModePage";
 import DemoDashboardPage from "./pages/DemoDashboardPage";
 import DemoAccessPage from "./pages/DemoAccessPage";
 import Demo from "./pages/Demo";
+import FoodSourceDemo from "./pages/FoodSourceDemo";
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -149,6 +150,7 @@ function Router() {
         <Route path="/analytics-demo" component={DemoDashboardPage} />
         <Route path="/payment-success" component={PaymentSuccess} />
         <Route path="/demo" component={Demo} />
+        <Route path="/foodsource" component={FoodSourceDemo} />
         <Route path="/payment-canceled">
           {() => (
             <motion.div

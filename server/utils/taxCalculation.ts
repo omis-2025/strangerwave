@@ -14,7 +14,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
  * @param {string} params.customerLocation The customer location as country code (e.g., 'ES')
  * @param {string} params.customerPostalCode The customer postal code (optional)
  * @param {string} params.customerCity The customer city (optional)
- * @param {string} params.productDescription Description of the product (optional)
+ * Note: Product description is not supported by Stripe Tax API
  * @returns {Promise<{taxAmount: number, totalAmount: number, taxRate: number, calculationId: string}>}
  */
 export async function calculateTax({

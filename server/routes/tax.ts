@@ -37,7 +37,6 @@ const taxCalculationSchema = z.object({
  * - customerLocation: string (country code)
  * - customerPostalCode: string (optional)
  * - customerCity: string (optional)
- * - productDescription: string (optional)
  * 
  * Response includes:
  * - taxAmount: number (in cents)
