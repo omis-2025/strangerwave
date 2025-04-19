@@ -2,9 +2,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2023-10-16'
-    })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : undefined;
 
 /**
@@ -24,15 +22,13 @@ export async function calculateTax({
   currency = 'eur',
   customerLocation,
   customerPostalCode,
-  customerCity,
-  productDescription = 'Food items'
+  customerCity
 }: {
   amount: number;
   currency?: string;
   customerLocation: string;
   customerPostalCode?: string;
   customerCity?: string;
-  productDescription?: string;
 }) {
   if (!stripe) {
     throw new Error('Stripe is not configured');
@@ -55,14 +51,13 @@ export async function calculateTax({
           amount, // The amount to calculate tax on (in cents)
           reference: 'food_item',
           tax_behavior: 'exclusive', // Tax is added to the amount
-          description: productDescription,
         },
       ],
     });
 
     // Extract results from calculation
-    const taxAmount = calculation.tax_breakdown[0]?.tax_amount || 0;
-    const taxRate = calculation.tax_breakdown[0]?.tax_rate_details?.percentage || 0;
+    const taxAmount = calculation.tax_breakdown?.[0]?.amount || 0;
+    const taxRate = calculation.tax_breakdown?.[0]?.tax_rate_details?.percentage_decimal || 0;
     const totalAmount = amount + taxAmount;
 
     return {
@@ -82,10 +77,9 @@ export async function calculateTax({
  * Only call this when the payment is successful
  * 
  * @param {string} calculationId The tax calculation ID from Stripe
- * @param {string} customerId The Stripe customer ID
  * @returns {Promise<void>}
  */
-export async function createTaxTransaction(calculationId: string, customerId: string) {
+export async function createTaxTransaction(calculationId: string) {
   if (!stripe) {
     throw new Error('Stripe is not configured');
   }
@@ -94,8 +88,8 @@ export async function createTaxTransaction(calculationId: string, customerId: st
     // Create a tax transaction using the previous calculation
     await stripe.tax.transactions.createFromCalculation({
       calculation: calculationId,
-      reference: `food_txn_${Date.now()}`,
-      customer: customerId,
+      reference: `food_txn_${Date.now()}`
+      // Customer ID handling is managed internally by Stripe through the calculation
     });
     
     console.log(`Tax transaction created for calculation ${calculationId}`);

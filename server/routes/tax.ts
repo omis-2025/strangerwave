@@ -25,10 +25,7 @@ const taxCalculationSchema = z.object({
   customerCity: z.string()
     .optional()
     .describe("Customer city"),
-  productDescription: z.string()
-    .optional()
-    .default("Food items")
-    .describe("Description of the product for tax purposes"),
+  // productDescription removed as it's not supported by Stripe's API
 });
 
 /**
@@ -67,8 +64,7 @@ router.post('/calculate', async (req, res) => {
       currency: data.currency,
       customerLocation: data.customerLocation,
       customerPostalCode: data.customerPostalCode,
-      customerCity: data.customerCity,
-      productDescription: data.productDescription
+      customerCity: data.customerCity
     });
 
     res.json(result);
@@ -87,20 +83,19 @@ router.post('/calculate', async (req, res) => {
  * 
  * Request body should include:
  * - calculationId: string (from tax calculation)
- * - customerId: string (Stripe customer ID)
  */
 router.post('/transaction', async (req, res) => {
   try {
-    const { calculationId, customerId } = req.body;
+    const { calculationId } = req.body;
     
-    if (!calculationId || !customerId) {
+    if (!calculationId) {
       return res.status(400).json({
         error: 'Missing required fields',
-        message: 'calculationId and customerId are required'
+        message: 'calculationId is required'
       });
     }
     
-    await createTaxTransaction(calculationId, customerId);
+    await createTaxTransaction(calculationId);
     
     res.json({ success: true });
   } catch (error: any) {
