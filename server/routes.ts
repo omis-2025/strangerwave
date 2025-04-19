@@ -19,6 +19,7 @@ import creatorRoutes from "./routes/creator";
 import profileRoutes from "./routes/profile";
 import adminRoutes from "./routes/admin";
 import stripeRoutes from "./routes/stripe";
+import taxRoutes from "./routes/tax";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -406,6 +407,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register creator mode routes
   app.use('/api/creator', creatorRoutes);
+  
+  // Register tax calculation routes
+  app.use('/api/tax', taxRoutes);
   
   // Streak and Achievement routes
 
