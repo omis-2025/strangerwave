@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -23,35 +23,52 @@ console.log("Using Firebase configuration:", {
 });
 
 // Initialize Firebase
-console.log("Initializing Firebase with config");
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Global error handler for auth
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log('User authenticated:', user.uid);
+let app;
+try {
+  // Prevent multiple initializations
+  if (!getApps().length) {
+    console.log("Initializing Firebase with config");
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApp();
   }
-}, (error) => {
-  console.error('Auth state error:', error);
-});
-const db = getFirestore(app);
 
-// Initialize analytics in browser environment only
-if (typeof window !== 'undefined') {
-  // Dynamically import analytics to avoid server-side issues
-  import('firebase/analytics').then((module) => {
-    try {
-      const { getAnalytics } = module;
-      const analytics = getAnalytics(app);
-      console.log("Firebase Analytics initialized");
-    } catch (analyticsError) {
-      console.warn("Firebase Analytics initialization failed:", analyticsError);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Global error handler for auth
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log('User authenticated:', user.uid);
     }
-  }).catch(err => {
-    console.warn("Could not load Firebase Analytics:", err);
+  }, (error) => {
+    console.error('Auth state error:', error);
   });
+
+  // Handle unhandled promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+  });
+
+  // Initialize analytics in browser environment only
+  if (typeof window !== 'undefined') {
+    // Dynamically import analytics to avoid server-side issues
+    import('firebase/analytics').then((module) => {
+      try {
+        const { getAnalytics } = module;
+        const analytics = getAnalytics(app);
+        console.log("Firebase Analytics initialized");
+      } catch (analyticsError) {
+        console.warn("Firebase Analytics initialization failed:", analyticsError);
+      }
+    }).catch(err => {
+      console.warn("Could not load Firebase Analytics:", err);
+    });
+  }
+} catch (error) {
+  console.error("Firebase initialization failed:", error);
 }
+
 
 console.log("Firebase initialized successfully");
 
