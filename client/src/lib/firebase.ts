@@ -26,6 +26,15 @@ console.log("Using Firebase configuration:", {
 console.log("Initializing Firebase with config");
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// Global error handler for auth
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log('User authenticated:', user.uid);
+  }
+}, (error) => {
+  console.error('Auth state error:', error);
+});
 const db = getFirestore(app);
 
 // Initialize analytics in browser environment only
