@@ -24,9 +24,6 @@ console.log("Using Firebase configuration:", {
 
 // Initialize Firebase
 let app;
-let auth;
-let db;
-
 try {
   // Prevent multiple initializations
   if (!getApps().length) {
@@ -36,8 +33,8 @@ try {
     app = getApp();
   }
 
-  auth = getAuth(app);
-  db = getFirestore(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
   // Global error handler for auth
   auth.onAuthStateChanged((user) => {
@@ -68,11 +65,12 @@ try {
       console.warn("Could not load Firebase Analytics:", err);
     });
   }
-  
-  console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization failed:", error);
 }
+
+
+console.log("Firebase initialized successfully");
 
 // Export the Firebase instances
 export { app, auth, db };
