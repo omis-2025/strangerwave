@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -16,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and get a reference to the service
-const auth: Auth = getAuth(app);
+export const auth: Auth = getAuth(app);
 const db = getFirestore(app);
 
 // Global error handler for auth
@@ -50,7 +49,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Export the Firebase instances
-export { app, auth, db };
+export { app, db };
 
 // For anonymous sign-in
 export const signInAnonymouslyWithFirebase = async () => {
