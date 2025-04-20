@@ -1,5 +1,6 @@
+
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, signInAnonymously, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -15,22 +16,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and get a reference to the service
-const auth = getAuth(app);
+const auth: Auth = getAuth(app);
 const db = getFirestore(app);
 
 // Global error handler for auth
 auth.onAuthStateChanged((user) => {
-    if (user) {
-      console.log('User authenticated:', user.uid);
-    }
-  }, (error) => {
-    console.error('Auth state error:', error);
-  });
+  if (user) {
+    console.log('User authenticated:', user.uid);
+  }
+}, (error) => {
+  console.error('Auth state error:', error);
+});
 
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
-  });
+  console.error('Unhandled promise rejection:', event.reason);
+});
 
 // Initialize analytics in browser environment only
 if (typeof window !== 'undefined') {
@@ -47,7 +48,6 @@ if (typeof window !== 'undefined') {
     console.warn("Could not load Firebase Analytics:", err);
   });
 }
-
 
 // Export the Firebase instances
 export { app, auth, db };
