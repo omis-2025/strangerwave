@@ -1,43 +1,25 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Firebase configuration directly from Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyBhCaneh4UN0p-NB7VLfRqEw7lTlTo4sqk",
-  authDomain: "strangerwave-fbed8.firebaseapp.com",
-  projectId: "strangerwave-fbed8",
-  storageBucket: "strangerwave-fbed8.firebasestorage.app",
-  messagingSenderId: "720316631299",
-  appId: "1:720316631299:web:e45741afa949a2f8f3c136",
-  measurementId: "G-RHHQ0J4QY3"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Log configuration for debugging
-console.log("Using Firebase configuration:", {
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-  storageBucket: firebaseConfig.storageBucket,
-  apiKeyExists: Boolean(firebaseConfig.apiKey),
-  appIdExists: Boolean(firebaseConfig.appId)
-});
-
 // Initialize Firebase
-let app;
-try {
-  // Prevent multiple initializations
-  if (!getApps().length) {
-    console.log("Initializing Firebase with config");
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApp();
-  }
+const app = initializeApp(firebaseConfig);
 
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+// Initialize Firebase Authentication and get a reference to the service
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  // Global error handler for auth
-  auth.onAuthStateChanged((user) => {
+// Global error handler for auth
+auth.onAuthStateChanged((user) => {
     if (user) {
       console.log('User authenticated:', user.uid);
     }
@@ -45,32 +27,27 @@ try {
     console.error('Auth state error:', error);
   });
 
-  // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
   });
 
-  // Initialize analytics in browser environment only
-  if (typeof window !== 'undefined') {
-    // Dynamically import analytics to avoid server-side issues
-    import('firebase/analytics').then((module) => {
-      try {
-        const { getAnalytics } = module;
-        const analytics = getAnalytics(app);
-        console.log("Firebase Analytics initialized");
-      } catch (analyticsError) {
-        console.warn("Firebase Analytics initialization failed:", analyticsError);
-      }
-    }).catch(err => {
-      console.warn("Could not load Firebase Analytics:", err);
-    });
-  }
-} catch (error) {
-  console.error("Firebase initialization failed:", error);
+// Initialize analytics in browser environment only
+if (typeof window !== 'undefined') {
+  // Dynamically import analytics to avoid server-side issues
+  import('firebase/analytics').then((module) => {
+    try {
+      const { getAnalytics } = module;
+      const analytics = getAnalytics(app);
+      console.log("Firebase Analytics initialized");
+    } catch (analyticsError) {
+      console.warn("Firebase Analytics initialization failed:", analyticsError);
+    }
+  }).catch(err => {
+    console.warn("Could not load Firebase Analytics:", err);
+  });
 }
 
-
-console.log("Firebase initialized successfully");
 
 // Export the Firebase instances
 export { app, auth, db };
