@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 
 export default function FeedbackForm() {
   const [feedback, setFeedback] = useState('');
+  const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -20,6 +21,7 @@ export default function FeedbackForm() {
         description: "Your feedback has been submitted successfully.",
       });
       setFeedback('');
+      setRating(5);
     } catch (error) {
       toast({
         title: "Error",
@@ -33,6 +35,23 @@ export default function FeedbackForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Rating</label>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setRating(value)}
+              className={`w-8 h-8 rounded ${
+                rating >= value ? 'bg-blue-500' : 'bg-gray-200'
+              }`}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+      </div>
       <Textarea
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}

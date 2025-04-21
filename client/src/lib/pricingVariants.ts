@@ -206,24 +206,28 @@ export const freePlan: Plan = {
   ],
   popular: false,
   color: 'bg-gray-400',
-  buttonText: 'Current Plan'
+  buttonText: 'Current Plan',
+  highlight: 'Start Free'
 };
 
 export const premiumPlan: Plan = {
   id: 'premium',
   name: 'Premium Plan',
   description: 'Unlock additional features and enhancements',
-  prices: { monthly: 2.99, yearly: 29.99 },
+  prices: { monthly: 4.99, yearly: 49.99 },
   features: [
     { text: 'Unlimited video time', included: true },
     { text: 'No ads', included: true },
     { text: 'Advanced filters', included: true },
     { text: 'Priority support', included: true },
-    { text: 'Access to exclusive events', included: true }
+    { text: 'Access to exclusive events', included: true },
+    { text: 'Premium badges', included: true }
   ],
   popular: true,
   color: 'bg-blue-400',
-  buttonText: 'Upgrade to Premium'
+  buttonText: 'Upgrade to Premium',
+  highlight: 'Most Popular',
+  trial: '7-day free trial'
 };
 
 
