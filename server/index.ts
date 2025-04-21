@@ -25,6 +25,18 @@ import chatRoutes from "./routes/chat";
 import paypalRoutes from "./routes/paypal";
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(express.json());
+app.use(cors());
+
+// Add routes here
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/referral', referralRoutes);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+});
 
 // Basic middleware
 app.use(express.json());

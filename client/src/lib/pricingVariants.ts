@@ -1,5 +1,6 @@
 import abTesting, { PricingVariant } from './abTesting';
 import analytics from './analytics';
+import { Plan } from '@/types/pricing';
 
 // Define proper types for our pricing structure
 export interface PricePoint {
@@ -35,6 +36,7 @@ export interface PricingPlan {
   trial?: string;
   discount?: string;
 }
+
 
 // Standard pricing plans (default)
 const standardPricing = {
@@ -166,13 +168,13 @@ function getUserCountry(): string {
   // Start with browser language as a fallback
   const browserLang = navigator.language || 'en-US';
   const defaultCountry = browserLang.split('-')[1] || 'US';
-  
+
   // Try to get stored country from previous geo detection
   const storedCountry = localStorage.getItem('user_country');
   if (storedCountry) {
     return storedCountry;
   }
-  
+
   // Return default if we can't detect (in a real implementation, we'd use IP-based detection)
   return defaultCountry;
 }
@@ -189,14 +191,50 @@ const southeastAsiaCountries = ['MY', 'ID', 'PH', 'VN', 'TH', 'SG'];
 // Latin America country codes
 const latinAmericaCountries = ['MX', 'BR', 'AR', 'CO', 'CL', 'PE'];
 
+export const freePlan: Plan = {
+  id: 'free',
+  name: 'Free Plan',
+  description: 'Access to basic features with some limitations',
+  prices: { monthly: 0, yearly: 0 },
+  features: [
+    { text: 'Random matching', included: true },
+    { text: 'Basic chat functionality', included: true },
+    { text: 'Limited video time (5 minutes)', included: true },
+    { text: 'Standard support', included: true },
+    { text: 'Ad-supported experience', included: true },
+    { text: 'Basic filters', included: true }
+  ],
+  popular: false,
+  color: 'bg-gray-400',
+  buttonText: 'Current Plan'
+};
+
+export const premiumPlan: Plan = {
+  id: 'premium',
+  name: 'Premium Plan',
+  description: 'Unlock additional features and enhancements',
+  prices: { monthly: 2.99, yearly: 29.99 },
+  features: [
+    { text: 'Unlimited video time', included: true },
+    { text: 'No ads', included: true },
+    { text: 'Advanced filters', included: true },
+    { text: 'Priority support', included: true },
+    { text: 'Access to exclusive events', included: true }
+  ],
+  popular: true,
+  color: 'bg-blue-400',
+  buttonText: 'Upgrade to Premium'
+};
+
+
 /**
  * Get the subscription pricing based on the user's A/B test variant and region
  */
 export function getSubscriptionPricing() {
   // Get the A/B test variant
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
-  
-  // Check if regional pricing should be applied 
+
+  // Check if regional pricing should be applied
   if (variant && variant.toString() === PricingVariant.RegionalAdjusted.toString()) {
     if (isInRegion(southeastAsiaCountries)) {
       return regionalPricing.southeastAsia;
@@ -206,11 +244,11 @@ export function getSubscriptionPricing() {
     // Fall back to standard pricing if not in a special region
     return standardPricing;
   }
-  
+
   // Return pricing based on A/B variant
   if (variant) {
     const variantString = variant.toString();
-    
+
     if (variantString === PricingVariant.Discount.toString()) {
       return discountPricing;
     } else if (variantString === PricingVariant.Premium.toString()) {
@@ -219,7 +257,7 @@ export function getSubscriptionPricing() {
       return simplifiedPricing;
     }
   }
-  
+
   // Default to standard pricing
   return standardPricing;
 }
@@ -230,18 +268,18 @@ export function getSubscriptionPricing() {
 export function getFeatureSets() {
   // Get the A/B test variant
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
-  
+
   // Return feature set based on A/B variant
   if (variant) {
     const variantString = variant.toString();
-    
+
     if (variantString === PricingVariant.Premium.toString()) {
       return premiumFeatures;
     } else if (variantString === PricingVariant.Simplified.toString()) {
       return simplifiedFeatures;
     }
   }
-  
+
   // Default to standard features for all other variants
   return standardFeatures;
 }
@@ -253,40 +291,18 @@ export function getPricingPlans() {
   // Get pricing and features based on A/B tests
   const pricing = getSubscriptionPricing();
   const features = getFeatureSets();
-  
+
   // Get the A/B test variant for determining structure
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
   const variantString = variant ? variant.toString() : PricingVariant.Standard.toString();
-  
-  // Base free plan (same for all variants)
-  const freePlan = {
-    id: 'free',
-    name: 'Free',
-    description: 'Access to basic features with some limitations',
-    prices: {
-      monthly: 0,
-      yearly: 0
-    },
-    features: [
-      { text: 'Random matching', included: true },
-      { text: 'Basic chat functionality', included: true },
-      { text: 'Limited video time (5 minutes)', included: true },
-      { text: 'Standard support', included: true },
-      { text: 'Ad-supported experience', included: true },
-      { text: 'Basic filters', included: true }
-    ],
-    popular: false,
-    color: 'bg-gray-400',
-    buttonText: 'Current Plan'
-  };
-  
+
   // For simplified variant, just return free and one premium tier
   if (variantString === PricingVariant.Simplified.toString()) {
     // Handle the case where simplified pricing doesn't have a 'vip' tier
     // Make sure pricing.premium and features.premium exist
     const premiumPricing = pricing.premium || { monthly: 4.99, yearly: 49.99 };
     const premiumFeatures = features.premium || [];
-    
+
     return [
       freePlan,
       {
@@ -304,34 +320,23 @@ export function getPricingPlans() {
       }
     ];
   }
-  
+
   // Check if pricing and features have the necessary properties
   // This handles potential type issues when pricing might not have a 'vip' property
   const premiumPricing = pricing.premium || { monthly: 4.99, yearly: 49.99 };
   const premiumFeatures = features.premium || [];
   const vipPricing = (pricing as any).vip || { monthly: 7.99, yearly: 79.99 };
   const vipFeatures = (features as any).vip || [];
-  
+
   // Set special highlight for discount variant
-  const highlightText = variantString === PricingVariant.Discount.toString() 
-    ? 'Special Offer' 
+  const highlightText = variantString === PricingVariant.Discount.toString()
+    ? 'Special Offer'
     : 'Most Affordable';
-  
+
   // For all other variants, return the standard 3-tier structure
   return [
     freePlan,
-    {
-      id: 'premium',
-      name: 'Premium',
-      description: 'Enhanced features for serious users',
-      prices: premiumPricing,
-      features: premiumFeatures,
-      popular: false,
-      color: 'bg-blue-500',
-      highlight: highlightText,
-      trial: '7-day free trial',
-      buttonText: 'Start Free Trial'
-    },
+    premiumPlan,
     {
       id: 'vip',
       name: 'VIP',
@@ -353,7 +358,7 @@ export function getPricingPlans() {
 export function trackPricingEvent(eventType: string, plan: string, additionalData: any = {}) {
   // Get the current A/B variant
   const variant = abTesting.getVariant('subscription_pricing_test', PricingVariant.Standard);
-  
+
   // Track the event with experiment information
   abTesting.trackConversion('subscription_pricing_test', eventType, additionalData.amount);
 }
