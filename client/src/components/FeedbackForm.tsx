@@ -15,7 +15,18 @@ export default function FeedbackForm() {
 
     try {
       setIsSubmitting(true);
-      // TODO: Implement feedback submission to server
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ feedback, rating })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+
       toast({
         title: "Thank you!",
         description: "Your feedback has been submitted successfully.",
