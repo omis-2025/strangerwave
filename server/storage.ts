@@ -37,82 +37,82 @@ export interface IStorage {
   updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
   updateStripeCustomerId(id: number, stripeCustomerId: string): Promise<User | undefined>;
   updateUserStripeInfo(id: number, data: {customerId: string, subscriptionId: string}): Promise<User | undefined>;
-  
+
   // Subscription methods
   activatePremium(userId: number, tier: string, expiryDate: Date): Promise<User | undefined>;
   deactivatePremium(userId: number): Promise<User | undefined>;
   getUserSubscriptionStatus(userId: number): Promise<{isActive: boolean, expiryDate?: Date, tier?: string}>;
-  
+
   // Chat preferences methods
   getChatPreferences(userId: number): Promise<ChatPreferences | undefined>;
   setChatPreferences(preferences: InsertChatPreferences): Promise<ChatPreferences>;
-  
+
   // Chat session methods
   createChatSession(session: InsertChatSession): Promise<ChatSession>;
   getChatSession(id: number): Promise<ChatSession | undefined>;
   endChatSession(id: number): Promise<ChatSession | undefined>;
   updateChatSession(id: number, updates: Partial<ChatSession>): Promise<ChatSession | undefined>;
-  
+
   // Messages methods
   createMessage(message: InsertMessage): Promise<Message>;
   getSessionMessages(sessionId: number): Promise<Message[]>;
-  
+
   // Reports methods
   createReport(report: InsertReport): Promise<Report>;
   getReports(resolved?: boolean): Promise<Report[]>;
   resolveReport(id: number): Promise<Report | undefined>;
-  
+
   // Waiting queue methods
   addToWaitingQueue(entry: InsertWaitingQueue): Promise<WaitingQueue>;
   removeFromWaitingQueue(userId: number): Promise<void>;
   getMatchingUsers(preferences: { preferredGender?: string, country?: string, preferredTopics?: string[] }): Promise<WaitingQueue[]>;
-  
+
   // Admin methods
   banUser(id: number): Promise<User | undefined>;
   unbanUser(id: number): Promise<User | undefined>;
   incrementBanCount(userId: number): Promise<User | undefined>;
   getAllUsers(filter?: { isBanned?: boolean }): Promise<User[]>;
-  
+
   // User Interaction Metrics methods
   getUserInteractionMetrics(userId: number): Promise<UserInteractionMetrics | undefined>;
   createUserInteractionMetrics(metrics: InsertUserInteractionMetrics): Promise<UserInteractionMetrics>;
   updateUserInteractionMetrics(userId: number, updates: Partial<UserInteractionMetrics>): Promise<UserInteractionMetrics | undefined>;
-  
+
   // User Interests methods
   getUserInterests(userId: number): Promise<UserInterests[]>;
   createUserInterest(interest: InsertUserInterests): Promise<UserInterests>;
   updateUserInterest(id: number, updates: Partial<UserInterests>): Promise<UserInterests | undefined>;
   deleteUserInterest(id: number): Promise<void>;
-  
+
   // Matching Feedback methods
   createMatchingFeedback(feedback: InsertMatchingFeedback): Promise<MatchingFeedback>;
   getSessionFeedback(sessionId: number): Promise<MatchingFeedback[]>;
-  
+
   // Matching Algorithm methods
   getMatchingAlgorithmConfig(id: number): Promise<MatchingAlgorithmConfig | undefined>;
   getActiveMatchingAlgorithms(): Promise<MatchingAlgorithmConfig[]>;
   createMatchingAlgorithmConfig(config: InsertMatchingAlgorithmConfig): Promise<MatchingAlgorithmConfig>;
   updateMatchingAlgorithmConfig(id: number, updates: Partial<MatchingAlgorithmConfig>): Promise<MatchingAlgorithmConfig | undefined>;
-  
+
   // User Algorithm Assignment methods
   getUserAlgorithmAssignment(userId: number): Promise<UserAlgorithmAssignment | undefined>;
   createUserAlgorithmAssignment(assignment: InsertUserAlgorithmAssignment): Promise<UserAlgorithmAssignment>;
   updateUserAlgorithmAssignment(userId: number, algorithmId: number): Promise<UserAlgorithmAssignment | undefined>;
-  
+
   // Achievement methods
   getAchievement(id: number): Promise<Achievement | undefined>;
   getAllAchievements(): Promise<Achievement[]>;
   getAchievementsByCategory(category: string): Promise<Achievement[]>;
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
   updateAchievement(id: number, updates: Partial<Achievement>): Promise<Achievement | undefined>;
-  
+
   // User Achievement methods
   getUserAchievements(userId: number): Promise<UserAchievement[]>;
   getUserAchievement(userId: number, achievementId: number): Promise<UserAchievement | undefined>;
   earnAchievement(userId: number, achievementId: number): Promise<UserAchievement>;
   markAchievementDisplayed(id: number): Promise<UserAchievement | undefined>;
   getUndisplayedAchievements(userId: number): Promise<Array<{ achievement: Achievement, userAchievement: UserAchievement }>>;
-  
+
   // User Streak methods
   getUserStreak(userId: number, streakType: string): Promise<UserStreak | undefined>;
   getUserStreaks(userId: number): Promise<UserStreak[]>;
@@ -151,6 +151,21 @@ export interface IStorage {
   updatePrivateRoom(id: number, updates: Partial<PrivateRoom>): Promise<PrivateRoom | undefined>;
   getUserPrivateRooms(userId: number): Promise<PrivateRoom[]>;
   getCreatorPrivateRooms(creatorId: number): Promise<PrivateRoom[]>;
+
+  getUserStats(userId: number): Promise<{
+    totalChats: number;
+    engagementScore: number;
+  }>;
+
+  getUserChatHistory(userId: number): Promise<{
+    date: string;
+    count: number;
+  }[]>;
+
+  getUserStreak(userId: number): Promise<{
+    current: number;
+    longest: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -192,14 +207,14 @@ export class DatabaseStorage implements IStorage {
   async updateStripeCustomerId(id: number, stripeCustomerId: string): Promise<User | undefined> {
     return this.updateUser(id, { stripeCustomerId });
   }
-  
+
   async updateUserStripeInfo(id: number, data: {customerId: string, subscriptionId: string}): Promise<User | undefined> {
     return this.updateUser(id, { 
       stripeCustomerId: data.customerId,
       stripeSubscriptionId: data.subscriptionId
     });
   }
-  
+
   async activatePremium(userId: number, tier: string, expiryDate: Date): Promise<User | undefined> {
     return this.updateUser(userId, {
       isPremium: true,
@@ -207,34 +222,34 @@ export class DatabaseStorage implements IStorage {
       premiumUntil: expiryDate
     });
   }
-  
+
   async deactivatePremium(userId: number): Promise<User | undefined> {
     return this.updateUser(userId, {
       isPremium: false,
       premiumUntil: null
     });
   }
-  
+
   async getUserSubscriptionStatus(userId: number): Promise<{isActive: boolean, expiryDate?: Date, tier?: string}> {
     const user = await this.getUser(userId);
-    
+
     if (!user) {
       return { isActive: false };
     }
-    
+
     const isActive = user.isPremium === true && user.premiumUntil && new Date(user.premiumUntil) > new Date();
-    
+
     return {
       isActive: isActive || false,
       expiryDate: user.premiumUntil || undefined,
       tier: user.premiumTier || undefined
     };
   }
-  
+
   async incrementBanCount(userId: number): Promise<User | undefined> {
     const user = await this.getUser(userId);
     if (!user) return undefined;
-    
+
     const banCount = (user.banCount || 0) + 1;
     return this.updateUser(userId, { banCount });
   }
@@ -254,10 +269,10 @@ export class DatabaseStorage implements IStorage {
     if (isNaN(userId)) {
       throw new Error("Invalid userId in chat preferences");
     }
-    
+
     // First try to find existing preferences
     const existingPreferences = await this.getChatPreferences(userId);
-    
+
     if (existingPreferences) {
       // Update existing preferences
       const [updatedPreferences] = await db
@@ -346,7 +361,7 @@ export class DatabaseStorage implements IStorage {
         .where(eq(reports.resolved, resolved))
         .orderBy(desc(reports.createdAt));
     }
-    
+
     return db
       .select()
       .from(reports)
@@ -366,7 +381,7 @@ export class DatabaseStorage implements IStorage {
   async addToWaitingQueue(insertEntry: InsertWaitingQueue): Promise<WaitingQueue> {
     // First, remove any existing entries for this user
     await this.removeFromWaitingQueue(insertEntry.userId);
-    
+
     // Then add the new entry
     const [entry] = await db
       .insert(waitingQueue)
@@ -384,7 +399,7 @@ export class DatabaseStorage implements IStorage {
   async getMatchingUsers(preferences: { preferredGender?: string, country?: string }): Promise<WaitingQueue[]> {
     // We need to use the 'or' and 'and' operators correctly for complex conditions
     let conditions = [];
-    
+
     if (preferences.preferredGender && preferences.preferredGender !== 'any') {
       // When user prefers a specific gender, find queue entries that either:
       // 1. Want any gender, or
@@ -396,7 +411,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
-    
+
     if (preferences.country) {
       // When user prefers a specific country, find queue entries that either:
       // 1. Have no country preference (null), or
@@ -408,7 +423,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
-    
+
     // If we have conditions, use them, otherwise select all
     if (conditions.length > 0) {
       return db
@@ -441,7 +456,7 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.isBanned, filter.isBanned))
         .orderBy(desc(users.lastActive));
     }
-    
+
     return db
       .select()
       .from(users)
@@ -457,7 +472,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedSession;
   }
-  
+
   // User Interaction Metrics methods
   async getUserInteractionMetrics(userId: number): Promise<UserInteractionMetrics | undefined> {
     const [metrics] = await db
@@ -466,7 +481,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userInteractionMetrics.userId, userId));
     return metrics;
   }
-  
+
   async createUserInteractionMetrics(metrics: InsertUserInteractionMetrics): Promise<UserInteractionMetrics> {
     const [newMetrics] = await db
       .insert(userInteractionMetrics)
@@ -474,7 +489,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newMetrics;
   }
-  
+
   async updateUserInteractionMetrics(userId: number, updates: Partial<UserInteractionMetrics>): Promise<UserInteractionMetrics | undefined> {
     const [updatedMetrics] = await db
       .update(userInteractionMetrics)
@@ -486,7 +501,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedMetrics;
   }
-  
+
   // User Interests methods
   async getUserInterests(userId: number): Promise<UserInterests[]> {
     return db
@@ -495,7 +510,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userInterests.userId, userId))
       .orderBy(desc(userInterests.weight));
   }
-  
+
   async createUserInterest(interest: InsertUserInterests): Promise<UserInterests> {
     const [newInterest] = await db
       .insert(userInterests)
@@ -503,7 +518,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newInterest;
   }
-  
+
   async updateUserInterest(id: number, updates: Partial<UserInterests>): Promise<UserInterests | undefined> {
     const [updatedInterest] = await db
       .update(userInterests)
@@ -512,13 +527,13 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedInterest;
   }
-  
+
   async deleteUserInterest(id: number): Promise<void> {
     await db
       .delete(userInterests)
       .where(eq(userInterests.id, id));
   }
-  
+
   // Matching Feedback methods
   async createMatchingFeedback(feedback: InsertMatchingFeedback): Promise<MatchingFeedback> {
     const [newFeedback] = await db
@@ -527,14 +542,14 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newFeedback;
   }
-  
+
   async getSessionFeedback(sessionId: number): Promise<MatchingFeedback[]> {
     return db
       .select()
       .from(matchingFeedback)
       .where(eq(matchingFeedback.sessionId, sessionId));
   }
-  
+
   // Matching Algorithm methods
   async getMatchingAlgorithmConfig(id: number): Promise<MatchingAlgorithmConfig | undefined> {
     const [config] = await db
@@ -543,14 +558,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(matchingAlgorithmConfig.id, id));
     return config;
   }
-  
+
   async getActiveMatchingAlgorithms(): Promise<MatchingAlgorithmConfig[]> {
     return db
       .select()
       .from(matchingAlgorithmConfig)
       .where(eq(matchingAlgorithmConfig.isActive, true));
   }
-  
+
   async createMatchingAlgorithmConfig(config: InsertMatchingAlgorithmConfig): Promise<MatchingAlgorithmConfig> {
     const [newConfig] = await db
       .insert(matchingAlgorithmConfig)
@@ -558,7 +573,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newConfig;
   }
-  
+
   async updateMatchingAlgorithmConfig(id: number, updates: Partial<MatchingAlgorithmConfig>): Promise<MatchingAlgorithmConfig | undefined> {
     const [updatedConfig] = await db
       .update(matchingAlgorithmConfig)
@@ -567,7 +582,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedConfig;
   }
-  
+
   // User Algorithm Assignment methods
   async getUserAlgorithmAssignment(userId: number): Promise<UserAlgorithmAssignment | undefined> {
     const [assignment] = await db
@@ -576,7 +591,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userAlgorithmAssignment.userId, userId));
     return assignment;
   }
-  
+
   async createUserAlgorithmAssignment(assignment: InsertUserAlgorithmAssignment): Promise<UserAlgorithmAssignment> {
     const [newAssignment] = await db
       .insert(userAlgorithmAssignment)
@@ -584,7 +599,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newAssignment;
   }
-  
+
   async updateUserAlgorithmAssignment(userId: number, algorithmId: number): Promise<UserAlgorithmAssignment | undefined> {
     const [updatedAssignment] = await db
       .update(userAlgorithmAssignment)
@@ -663,11 +678,11 @@ export class DatabaseStorage implements IStorage {
   async earnAchievement(userId: number, achievementId: number): Promise<UserAchievement> {
     // Check if the user already has this achievement
     const existingAchievement = await this.getUserAchievement(userId, achievementId);
-    
+
     if (existingAchievement) {
       return existingAchievement; // User already has this achievement
     }
-    
+
     // Create a new user achievement
     const [newUserAchievement] = await db
       .insert(userAchievements)
@@ -677,7 +692,7 @@ export class DatabaseStorage implements IStorage {
         displayed: false
       })
       .returning();
-    
+
     return newUserAchievement;
   }
 
@@ -701,7 +716,7 @@ export class DatabaseStorage implements IStorage {
           eq(userAchievements.displayed, false)
         )
       );
-    
+
     // Then get the actual achievement data for each one
     const result = await Promise.all(
       userAchievementsList.map(async (ua) => {
@@ -712,7 +727,7 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
-    
+
     return result.filter(item => item.achievement); // Filter out any null achievements
   }
 
@@ -757,10 +772,10 @@ export class DatabaseStorage implements IStorage {
   async updateLoginStreak(userId: number): Promise<UserStreak> {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    
+
     // Get the existing login streak or create a new one
     let streak = await this.getUserStreak(userId, 'login');
-    
+
     if (!streak) {
       // Create a new streak
       return this.createUserStreak({
@@ -777,23 +792,23 @@ export class DatabaseStorage implements IStorage {
         }
       });
     }
-    
+
     // Check if the streak was already updated today
     const lastUpdateDateStr = new Date(streak.lastUpdateDate).toISOString().split('T')[0];
     if (lastUpdateDateStr === todayStr) {
       return streak; // Already updated today
     }
-    
+
     // Calculate the difference in days
     const lastUpdate = new Date(streak.lastUpdateDate);
     const diffTime = Math.abs(today.getTime() - lastUpdate.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     let newCurrentStreak: number;
     let newLongestStreak: number = streak.longestStreak;
     let protectionUsed: boolean = streak.protectionUsed;
     let streakStartDate: Date | null = streak.streakStartDate;
-    
+
     if (diffDays === 1) {
       // Consecutive day
       newCurrentStreak = streak.currentStreak + 1;
@@ -813,18 +828,18 @@ export class DatabaseStorage implements IStorage {
       protectionUsed = false;
       streakStartDate = today;
     }
-    
+
     // Update streak history
     const history = streak.streakData?.history || [];
     const milestones = streak.streakData?.milestones || [];
-    
+
     history.push({ date: todayStr, count: newCurrentStreak });
-    
+
     // Add milestone if it's a significant number
     if ([3, 7, 14, 21, 30, 60, 90, 180, 365].includes(newCurrentStreak)) {
       milestones.push({ days: newCurrentStreak, achievedAt: todayStr });
     }
-    
+
     // Update the streak
     const updatedStreak = await this.updateUserStreak(streak.id, {
       currentStreak: newCurrentStreak,
@@ -837,17 +852,17 @@ export class DatabaseStorage implements IStorage {
         milestones
       }
     });
-    
+
     return updatedStreak!;
   }
 
   async updateChatStreak(userId: number): Promise<UserStreak> {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    
+
     // Get the existing chat streak or create a new one
     let streak = await this.getUserStreak(userId, 'chat');
-    
+
     if (!streak) {
       // Create a new streak
       return this.createUserStreak({
@@ -864,24 +879,24 @@ export class DatabaseStorage implements IStorage {
         }
       });
     }
-    
+
     // Check if the streak was already updated today
     const lastUpdateDateStr = new Date(streak.lastUpdateDate).toISOString().split('T')[0];
     if (lastUpdateDateStr === todayStr) {
       return streak; // Already updated today
     }
-    
+
     // The logic for chat streaks is the same as login streaks
     // Calculate the difference in days
     const lastUpdate = new Date(streak.lastUpdateDate);
     const diffTime = Math.abs(today.getTime() - lastUpdate.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     let newCurrentStreak: number;
     let newLongestStreak: number = streak.longestStreak;
     let protectionUsed: boolean = streak.protectionUsed;
     let streakStartDate: Date | null = streak.streakStartDate;
-    
+
     if (diffDays === 1) {
       // Consecutive day
       newCurrentStreak = streak.currentStreak + 1;
@@ -901,18 +916,18 @@ export class DatabaseStorage implements IStorage {
       protectionUsed = false;
       streakStartDate = today;
     }
-    
+
     // Update streak history
     const history = streak.streakData?.history || [];
     const milestones = streak.streakData?.milestones || [];
-    
+
     history.push({ date: todayStr, count: newCurrentStreak });
-    
+
     // Add milestone if it's a significant number
     if ([3, 7, 14, 21, 30, 60, 90, 180, 365].includes(newCurrentStreak)) {
       milestones.push({ days: newCurrentStreak, achievedAt: todayStr });
     }
-    
+
     // Update the streak
     const updatedStreak = await this.updateUserStreak(streak.id, {
       currentStreak: newCurrentStreak,
@@ -925,7 +940,7 @@ export class DatabaseStorage implements IStorage {
         milestones
       }
     });
-    
+
     return updatedStreak!;
   }
 
@@ -1197,6 +1212,21 @@ export class DatabaseStorage implements IStorage {
       .from(privateRooms)
       .where(eq(privateRooms.creatorId, creatorId))
       .orderBy(desc(privateRooms.requestedAt));
+  }
+
+  async getUserStats(userId: number): Promise<{ totalChats: number; engagementScore: number; }> {
+    //Implementation for getUserStats would go here.  This is a placeholder.
+    return { totalChats: 0, engagementScore: 0 };
+  }
+
+  async getUserChatHistory(userId: number): Promise<{ date: string; count: number; }[]> {
+    //Implementation for getUserChatHistory would go here. This is a placeholder.
+    return [];
+  }
+
+  async getUserStreak(userId: number): Promise<{ current: number; longest: number; }> {
+    //Implementation for getUserStreak would go here. This is a placeholder.
+    return { current: 0, longest: 0 };
   }
 }
 
