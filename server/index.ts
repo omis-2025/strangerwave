@@ -41,12 +41,6 @@ const PORT = process.env.PORT || 5000;
 // Apply CORS middleware early in the middleware chain
 app.use(cors(corsOptions));
 
-// Configure CORS before any routes
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

@@ -917,7 +917,7 @@ export class DatabaseStorage implements IStorage {
       if (newCurrentStreak > streak.longestStreak) {
         newLongestStreak = newCurrentStreak;
       }
-    } else ifif (diffDays === 2 && !streak.protectionUsed) {
+    } else if (diffDays === 2 && !streak.protectionUsed) {
       // Missed one day but can use streak protection
       newCurrentStreak = streak.currentStreak + 1;
       protectionUsed = true;
