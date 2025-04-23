@@ -95,6 +95,22 @@ StrangerWave implements a multi-faceted monetization strategy:
 
 ## Valuation Metrics
 
+### Projected Key Metrics (Beta Testing Phase):
+
+| Metric | Target/Projection | Industry Benchmark | Current Status |
+|--------|------------------|-------------------|----------------|
+| Daily Active Users | 5,400+ (target) | - | In beta testing |
+| Monthly Growth Rate | 20.3% MoM (projected) | 5-10% | Early stage |
+| Average Session Duration | 12.5 minutes (target) | 5.4 minutes | Being measured |
+| 7-Day Retention | 28% (target) | 15-20% | In validation |
+| Subscription Conversion | 8.7% (projected) | 2-5% | Not yet launched |
+| Monthly ARPU | $1.87 (projected) | $0.50-$1.20 | Pre-revenue |
+| Monthly Recurring Revenue | ~$121K (projected) | - | Not yet launched |
+| Annual Run Rate | ~$1.45M (projected) | - | Pre-revenue |
+
+Note: StrangerWave is currently in beta testing phase. All financial metrics are projections based on market research and early user behavior data. No actual revenue has been generated yet as monetization features are still being implemented and tested.
+
+
 ### Key Valuation Drivers
 
 1. **User Base Growth**: 100%+ YoY growth potential
