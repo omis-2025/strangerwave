@@ -15,6 +15,14 @@ import pgSession from "connect-pg-simple";
 import { pool } from "./db";
 import { checkSecrets } from "./utils/secretsCheck";
 
+// Configure CORS options
+const corsOptions = {
+  origin: true, // Allows all origins in development
+  credentials: true, // Allows cookies and authentication headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Check for required API secrets at startup
 checkSecrets(['STRIPE_SECRET_KEY', 'PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET']);
 
@@ -29,6 +37,9 @@ import referralRoutes from "./routes/referral"; // Added import for referralRout
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Apply CORS middleware early in the middleware chain
+app.use(cors(corsOptions));
 
 // Configure CORS before any routes
 app.use(cors({
