@@ -114,7 +114,7 @@ export interface IStorage {
   getUndisplayedAchievements(userId: number): Promise<Array<{ achievement: Achievement, userAchievement: UserAchievement }>>;
 
   // User Streak methods
-  getUserStreak(userId: number, streakType: string): Promise<UserStreak | undefined>;
+  getUserStreak(userId: number, streakType?: string): Promise<UserStreak | undefined | {current: number; longest: number}>;
   getUserStreaks(userId: number): Promise<UserStreak[]>;
   createUserStreak(streak: InsertUserStreak): Promise<UserStreak>;
   updateUserStreak(id: number, updates: Partial<UserStreak>): Promise<UserStreak | undefined>;
@@ -732,17 +732,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User Streak methods
-  async getUserStreak(userId: number, streakType: string): Promise<UserStreak | undefined> {
-    const [streak] = await db
-      .select()
-      .from(userStreaks)
-      .where(
-        and(
-          eq(userStreaks.userId, userId),
-          eq(userStreaks.streakType, streakType)
-        )
-      );
-    return streak;
+  async getUserStreak(userId: number, streakType?: string): Promise<UserStreak | undefined | {current: number; longest: number}> {
+    if (streakType) {
+      const [streak] = await db
+        .select()
+        .from(userStreaks)
+        .where(
+          and(
+            eq(userStreaks.userId, userId),
+            eq(userStreaks.streakType, streakType)
+          )
+        );
+      return streak;
+    } else {
+      const [streak] = await db
+        .select()
+        .from(userStreaks)
+        .where(eq(userStreaks.userId, userId))
+        .orderBy(desc(userStreaks.currentStreak))
+        .limit(1);
+
+      return {
+        current: streak?.currentStreak || 0,
+        longest: streak?.longestStreak || 0
+      };
+    }
   }
 
   async getUserStreaks(userId: number): Promise<UserStreak[]> {
@@ -903,7 +917,7 @@ export class DatabaseStorage implements IStorage {
       if (newCurrentStreak > streak.longestStreak) {
         newLongestStreak = newCurrentStreak;
       }
-    } else if (diffDays === 2 && !streak.protectionUsed) {
+    } else ifif (diffDays === 2 && !streak.protectionUsed) {
       // Missed one day but can use streak protection
       newCurrentStreak = streak.currentStreak + 1;
       protectionUsed = true;
