@@ -27,7 +27,7 @@ export interface ModerationResult {
     selfHarm: boolean;
     violence: boolean;
     selfPromotion: boolean;
-}
+  }
   autoBanned: boolean;
 }
 
@@ -87,23 +87,39 @@ export async function moderateMessage(
 
       // Parse the analysis
       const analysis = JSON.parse(analysisResponse.choices[0].message.content);
-      
+
       // Determine if the user should be auto-banned
       const toxicityScore = analysis.toxicityScore;
       const autoBan = toxicityScore >= AUTO_BAN_THRESHOLD;
-      
+
       // Handle different moderation cases
       if (autoBan) {
         await storage.banUser(userId);
         console.log(LOG_LEVELS.SEVERE, `User ${userId} auto-banned. Score: ${toxicityScore}`);
       } else if (toxicityScore >= WARNING_THRESHOLD) {
-        await storage.warnUser(userId, toxicityScore);
+        const warning = await storage.warnUser(userId, {
+          reason: "Your message contained inappropriate content",
+          toxicityScore,
+          categories: analysis.categories
+        });
+
+        // Send warning notification to user
+        sendToUser(userId, {
+          type: "warning",
+          warning: {
+            id: warning.id,
+            reason: warning.reason,
+            timestamp: warning.timestamp,
+            toxicityScore: warning.toxicityScore
+          }
+        });
+
         console.log(LOG_LEVELS.WARNING, `User ${userId} warned. Score: ${toxicityScore}`);
       } else if (toxicityScore >= REVIEW_THRESHOLD) {
         await storage.flagForReview(userId, content, toxicityScore);
         console.log(LOG_LEVELS.INFO, `User ${userId} flagged for review. Score: ${toxicityScore}`);
       }
-      
+
       // Return the detailed result
       return {
         isFlagged: true,
@@ -112,7 +128,7 @@ export async function moderateMessage(
         autoBanned: autoBan
       };
     }
-    
+
     // If not flagged by initial moderation, return clean result
     return {
       isFlagged: false,
@@ -132,4 +148,11 @@ export async function moderateMessage(
     console.error("Error performing message moderation:", error);
     return null;
   }
+}
+
+
+// Placeholder for sendToUser function -  Replace with actual implementation
+async function sendToUser(userId: number, notification: any) {
+  console.log(`Sending notification to user ${userId}:`, notification);
+  // Add your notification sending logic here (e.g., using email, in-app messages, etc.)
 }

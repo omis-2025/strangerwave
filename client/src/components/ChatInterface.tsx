@@ -20,6 +20,7 @@ import {
   type VideoQuality
 } from "@/lib/videoQualityService";
 import { motion, AnimatePresence } from "framer-motion";
+import WarningNotification from "./WarningNotification";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -48,7 +49,7 @@ export default function ChatInterface({
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const [viewingOriginalMessages, setViewingOriginalMessages] = useState<Set<number>>(new Set());
-  
+
   // Video chat state
   const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const [isMicrophoneMuted, setIsMicrophoneMuted] = useState(false);
@@ -60,21 +61,22 @@ export default function ChatInterface({
   const [videoEnabled, setVideoEnabled] = useState(true);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  
+
   // Video quality states
   const [currentVideoQuality, setCurrentVideoQuality] = useState<VideoQuality>('medium');
   const [networkQuality, setNetworkQuality] = useState<string>('Unknown connection');
   const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false);
   const [isManualQualityMode, setIsManualQualityMode] = useState<boolean>(false);
   const [isBandwidthSavingMode, setIsBandwidthSavingMode] = useState<boolean>(false);
-  
+  const [activeWarning, setActiveWarning] = useState(null);
+
   // Get network info on component mount and setup quality listener
   useEffect(() => {
     // For demo purposes, we'll check if the user object has premium status
     // In a real app, this would come from your subscription database
     const userHasPremium = user?.userId === 1 || Math.random() > 0.7;
     setIsPremiumUser(userHasPremium);
-    
+
     // Setup quality change listener
     const cleanupQualityListener = setupQualityChangeListener(
       (quality) => {
@@ -83,7 +85,7 @@ export default function ChatInterface({
       },
       userHasPremium
     );
-    
+
     return () => {
       cleanupQualityListener();
     };
@@ -96,38 +98,38 @@ export default function ChatInterface({
         // Determine optimal video quality based on network conditions
         const quality = determineOptimalVideoQuality(isPremiumUser);
         const videoConstraints = getVideoConstraints(quality);
-        
+
         setCurrentVideoQuality(quality);
         setNetworkQuality(getNetworkQualityDescription());
-        
+
         console.log(`Starting video with quality: ${quality}`, videoConstraints);
-        
+
         // Get user media with dynamic constraints
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: videoConstraints, 
           audio: true 
         });
-        
+
         setLocalStream(stream);
-        
+
         // Set local video
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
-        
+
         // Mock remote connection for demo purposes
         // In a real app, this would involve WebRTC connection setup
         setTimeout(() => {
           setIsRemoteStreamConnected(true);
-          
+
           // For demo, just use the same stream
           if (remoteVideoRef.current) {
             remoteVideoRef.current.srcObject = stream;
           }
         }, 2000);
-        
+
         setIsVideoCallActive(true);
-        
+
         // Monitor network quality changes during call
         const cleanupQualityListener = setupQualityChangeListener(
           (newQuality) => {
@@ -135,14 +137,14 @@ export default function ChatInterface({
               console.log(`Network conditions changed, quality updated to: ${newQuality}`);
               setCurrentVideoQuality(newQuality);
               setNetworkQuality(getNetworkQualityDescription());
-              
+
               // In a real implementation, we would adjust the stream constraints dynamically
               // This would involve renegotiating the WebRTC connection with new constraints
             }
           },
           isPremiumUser
         );
-        
+
         return () => {
           cleanupQualityListener();
         };
@@ -156,12 +158,12 @@ export default function ChatInterface({
         localStream.getTracks().forEach(track => track.stop());
         setLocalStream(null);
       }
-      
+
       setIsVideoCallActive(false);
       setIsRemoteStreamConnected(false);
     }
   };
-  
+
   const toggleMicrophone = () => {
     if (localStream) {
       const audioTracks = localStream.getAudioTracks();
@@ -172,7 +174,7 @@ export default function ChatInterface({
       }
     }
   };
-  
+
   const toggleCamera = () => {
     if (localStream) {
       const videoTracks = localStream.getVideoTracks();
@@ -183,23 +185,23 @@ export default function ChatInterface({
       }
     }
   };
-  
+
   // Switch between front and back cameras (for mobile devices)
   const switchCamera = async () => {
     try {
       console.log('Switching camera...');
       // Use the mobileWebRTC manager to switch cameras
       const newStream = await mobileWebRTC.switchCamera();
-      
+
       if (newStream) {
         // Update the local stream
         setLocalStream(newStream);
-        
+
         // Update the video element
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = newStream;
         }
-        
+
         console.log('Camera switched successfully');
       } else {
         console.error('Failed to switch camera');
@@ -208,17 +210,17 @@ export default function ChatInterface({
       console.error('Error switching camera:', error);
     }
   };
-  
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isPartnerTyping]);
-  
+
   // Focus on input when chat loads
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-  
+
   // For testing translation UI - remove in production
   const sendTestTranslatedMessage = () => {
     // This is just for UI testing - in real implementation messages will come from server with translation info
@@ -231,11 +233,11 @@ export default function ChatInterface({
       originalContent: "Hola, ¿cómo estás hoy?",
       detectedLanguage: "Spanish"
     };
-    
+
     // Since we don't have a direct onNewMessage prop, simulate receiving the message
     onSendMessage("/test-translation");
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim()) {
@@ -248,18 +250,18 @@ export default function ChatInterface({
       setMessageInput("");
     }
   };
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
     onTyping(e.target.value.length > 0);
   };
-  
+
   // Format timestamp for messages
   const formatMessageTime = (timestamp: Date) => {
     const date = new Date(timestamp);
     return format(date, 'h:mm a');
   };
-  
+
   // Toggle viewing original content
   const toggleOriginalContent = (messageId: number) => {
     setViewingOriginalMessages(prev => {
@@ -272,7 +274,7 @@ export default function ChatInterface({
       return newSet;
     });
   };
-  
+
   // Local handler for the "Next" button, fallback if onFindNext isn't provided
   const handleFindNext = () => {
     // If the parent didn't provide an onFindNext handler, use onDisconnect as a fallback
@@ -280,9 +282,27 @@ export default function ChatInterface({
       onDisconnect();
     }
   };
-  
+
+  const handleWarningAcknowledge = async (warningId) => {
+    try {
+      await fetch(`/api/warnings/${warningId}/acknowledge`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setActiveWarning(null);
+    } catch (error) {
+      console.error('Error acknowledging warning:', error);
+    }
+  };
+
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-gray-800 shadow-lg">
+    <div className="flex flex-col h-full">
+      {activeWarning && (
+        <WarningNotification
+          warning={activeWarning}
+          onAcknowledge={handleWarningAcknowledge}
+        />
+      )}
       {/* Chat Header */}
       <div className="bg-gray-900 p-2 sm:p-4 flex justify-between items-center border-b border-gray-800">
         <div className="flex items-center">
@@ -329,7 +349,7 @@ export default function ChatInterface({
               {!isMobile && <span className="ml-1 hidden sm:inline">Skip</span>}
             </Button>
           </motion.div>
-          
+
           {/* Video call button */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
@@ -343,7 +363,7 @@ export default function ChatInterface({
               {!isMobile && <span className="ml-1 hidden sm:inline">Video</span>}
             </Button>
           </motion.div>
-          
+
           {/* Premium badge (placeholder for monetization) */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
@@ -357,7 +377,7 @@ export default function ChatInterface({
               {!isMobile && <span className="ml-1 hidden sm:inline">Premium</span>}
             </Button>
           </motion.div>
-          
+
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
               variant="ghost" 
@@ -370,7 +390,7 @@ export default function ChatInterface({
               {!isMobile && <span className="ml-1 hidden sm:inline">Report</span>}
             </Button>
           </motion.div>
-          
+
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
             <Button 
               variant="ghost" 
@@ -385,7 +405,7 @@ export default function ChatInterface({
           </motion.div>
         </div>
       </div>
-      
+
       {/* Security badge - provides trust element */}
       <div className="bg-gray-800 py-1 px-2 flex justify-center items-center border-b border-gray-700">
         <div className="flex items-center space-x-1 text-xs text-gray-400 flex-wrap justify-center">
@@ -405,7 +425,7 @@ export default function ChatInterface({
           <span>Premium filters</span>
         </div>
       </div>
-      
+
       {/* Video Call Modal */}
       {isVideoCallActive && (
         <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
@@ -427,7 +447,7 @@ export default function ChatInterface({
               >
                 {isMicrophoneMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </Button>
-              
+
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -436,7 +456,7 @@ export default function ChatInterface({
               >
                 {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
               </Button>
-              
+
               {/* Switch camera button for mobile devices */}
               {isMobile && (
                 <Button 
@@ -448,7 +468,7 @@ export default function ChatInterface({
                   <FlipHorizontal className="h-5 w-5" />
                 </Button>
               )}
-              
+
               <Button 
                 variant="destructive" 
                 size="sm"
@@ -459,7 +479,7 @@ export default function ChatInterface({
               </Button>
             </div>
           </div>
-          
+
           {/* Video containers */}
           <div className="flex-1 flex flex-col sm:flex-row p-4 gap-4 relative">
             {/* Remote video (fullscreen) */}
@@ -472,7 +492,7 @@ export default function ChatInterface({
                     playsInline
                     className="w-full h-full object-cover"
                   />
-                  
+
                   {/* Audio level indicators */}
                   <div className="absolute bottom-4 left-4 flex items-center space-x-2 bg-black/40 rounded-full py-1 px-3">
                     <div className="relative h-3 flex items-center space-x-0.5">
@@ -494,7 +514,7 @@ export default function ChatInterface({
                     </div>
                     <span className="text-xs text-white">Audio</span>
                   </div>
-                  
+
                   {/* Connection quality indicator */}
                   <div className="absolute top-4 left-4 bg-black/40 rounded-full py-1 px-2 flex items-center">
                     <div className="flex space-x-0.5 mr-1">
@@ -541,7 +561,7 @@ export default function ChatInterface({
                       {isPremiumUser && <span className="ml-1 text-yellow-300">· Premium</span>}
                     </span>
                   </div>
-                  
+
                   {/* Video quality controls for premium users */}
                   {isPremiumUser && (
                     <div className="absolute top-4 right-4 bg-black/60 rounded-lg px-2 py-1.5 text-xs text-white">
@@ -562,7 +582,7 @@ export default function ChatInterface({
                           />
                         </div>
                       </div>
-                      
+
                       {/* Manual quality selector for premium users */}
                       {isManualQualityMode && (
                         <div className="flex flex-col gap-1 mt-2">
@@ -638,7 +658,7 @@ export default function ChatInterface({
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Bandwidth saving toggle */}
                       <div className="mt-2 flex items-center justify-between">
                         <span className="flex items-center">
@@ -649,11 +669,11 @@ export default function ChatInterface({
                           onClick={() => {
                             const newMode = !isBandwidthSavingMode;
                             setIsBandwidthSavingMode(newMode);
-                            
+
                             // If enabling bandwidth saving, drop quality to low
                             if (newMode) {
                               setCurrentVideoQuality('low');
-                              
+
                               // Apply the new constraints if we have an active stream
                               if (localStream) {
                                 const videoTracks = localStream.getVideoTracks();
@@ -689,7 +709,7 @@ export default function ChatInterface({
                   </div>
                 </div>
               )}
-              
+
               {/* Local video (pip) */}
               <div className="absolute bottom-4 right-4 w-32 h-24 sm:w-40 sm:h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 shadow-lg">
                 <video
@@ -704,7 +724,7 @@ export default function ChatInterface({
                     <VideoOff className="h-6 w-6 text-gray-500" />
                   </div>
                 )}
-                
+
                 {/* Camera switch button on the PIP view for mobile users */}
                 {isMobile && !isCameraOff && (
                   <div 
@@ -714,7 +734,7 @@ export default function ChatInterface({
                     <FlipHorizontal className="h-4 w-4 text-white" />
                   </div>
                 )}
-                
+
                 {/* Audio/Video status indicators */}
                 <div className="absolute bottom-1 right-1 flex space-x-1">
                   <div className={`rounded-full p-0.5 ${!isMicrophoneMuted ? 'bg-green-500/80' : 'bg-red-500/80'}`}>
@@ -727,7 +747,7 @@ export default function ChatInterface({
               </div>
             </div>
           </div>
-          
+
           {/* Text chat in video mode */}
           <div className="h-32 sm:h-40 bg-gray-900 border-t border-gray-800 p-2 flex flex-col">
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
@@ -746,7 +766,7 @@ export default function ChatInterface({
                 </div>
               ))}
             </div>
-            
+
             <div className="flex gap-2 p-1">
               <input
                 type="text"
@@ -785,10 +805,10 @@ export default function ChatInterface({
                   <User className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                 </motion.div>
               </div>
-              
+
               <h3 className="text-white text-sm sm:text-base font-medium mb-1">Start a conversation</h3>
               <p className="text-xs sm:text-sm text-center px-4 text-gray-400 mb-4">Say hello to your new chat partner!</p>
-              
+
               <div className="grid grid-cols-2 gap-2 max-w-xs w-full">
                 <motion.button
                   whileHover={{ scale: 1.03 }}
@@ -807,7 +827,7 @@ export default function ChatInterface({
                   🤔 Ask a question
                 </motion.button>
               </div>
-              
+
               <div className="mt-6 text-xs text-gray-500 flex items-center">
                 <Shield className="h-3 w-3 mr-1 text-green-500/70" />
                 <span>Messages are moderated for your safety</span>
@@ -815,12 +835,12 @@ export default function ChatInterface({
             </motion.div>
           </div>
         )}
-        
+
         {messages.map((message, index) => {
           const isSender = message.senderId === user?.userId;
           const isFirstInGroup = index === 0 || messages[index - 1].senderId !== message.senderId;
           const isLastInGroup = index === messages.length - 1 || messages[index + 1].senderId !== message.senderId;
-          
+
           return (
             <div
               key={message.id}
@@ -834,7 +854,7 @@ export default function ChatInterface({
                   </div>
                 </div>
               )}
-              
+
               <div className={`flex flex-col ${!isSender && !isFirstInGroup ? "pl-7 sm:pl-10" : ""}`}>
                 {/* User name and timestamp (only show for first message in group) */}
                 {isFirstInGroup && (
@@ -843,7 +863,7 @@ export default function ChatInterface({
                     <span className="text-xs text-gray-500">{formatMessageTime(message.timestamp)}</span>
                   </div>
                 )}
-                
+
                 {/* Message bubble */}
                 <div className={`
                   flex max-w-[80%] md:max-w-[70%]
@@ -858,7 +878,7 @@ export default function ChatInterface({
                   `}>
                     {/* Message content */}
                     {message.content}
-                    
+
                     {/* Translation indicator for translated messages */}
                     {message.isTranslated && (
                       <div className="mt-1 pt-1 border-t border-gray-600/30 flex items-center justify-between">
@@ -874,7 +894,7 @@ export default function ChatInterface({
                         </button>
                       </div>
                     )}
-                    
+
                     {/* Original message content */}
                     {message.isTranslated && viewingOriginalMessages.has(message.id) && message.originalContent && (
                       <div className="mt-1 pt-1 text-xs italic opacity-80">
@@ -887,7 +907,7 @@ export default function ChatInterface({
             </div>
           );
         })}
-        
+
         {/* Typing indicator */}
         {isPartnerTyping && (
           <div className="flex items-start mb-4 pl-7 sm:pl-10">
@@ -896,7 +916,7 @@ export default function ChatInterface({
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -944,7 +964,7 @@ export default function ChatInterface({
               </Button>
             </motion.div>
           </div>
-          
+
           {/* Trust elements below input */}
           <div className="flex justify-center mt-2">
             <div className="flex items-center px-2 py-1 bg-gray-800/50 rounded-full text-xs text-gray-400 space-x-2">
