@@ -10,6 +10,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
+import cors from "cors";
 import pgSession from "connect-pg-simple";
 import { pool } from "./db";
 import { checkSecrets } from "./utils/secretsCheck";
@@ -27,7 +28,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 // Add routes here
 app.use('/api/feedback', feedbackRoutes);
