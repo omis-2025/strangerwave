@@ -20,6 +20,7 @@ interface TimePreference {
 }
 
 interface MatchingPreferences {
+  userId: string; // Add userId to fix type error
   interests: string[];
   languagePreference: string;
   conversationStyle: string;
@@ -252,7 +253,7 @@ export function calculateCompatibilityScore(
   let score = 0;
 
   // 1. Interest compatibility (if both users have interests)
-  if (user1.interests && user2.interests) {
+  if (user1.interests && user2.interests && Array.isArray(user1.interests) && Array.isArray(user2.interests)) {
     score += calculateInterestCompatibility(user1.interests, user2.interests) * params.interestWeight;
   }
 
@@ -366,7 +367,11 @@ export class EnhancedAIMatching {
 }
 
 // New AI Matching Algorithm
-const openaiNew = new OpenAI();
+// Skip OpenAI initialization if the API key is not available
+// This allows the server to start without the OpenAI API key for sale preparation
+const openaiNew = process.env.OPENAI_API_KEY 
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 interface MatchScore {
   score: number;
@@ -375,6 +380,12 @@ interface MatchScore {
 }
 
 export async function findOptimalMatchNew(userId: string, availableUsers: string[]): Promise<string | null> {
+  // If OpenAI is not initialized, return a fallback result
+  if (!openaiNew) {
+    console.log('OpenAI not initialized, using fallback matching logic');
+    return availableUsers.length > 0 ? availableUsers[0] : null;
+  }
+  
   try {
     const userPreferences = await getUserPreferences(userId);
     let bestMatch = null;
