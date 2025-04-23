@@ -34,9 +34,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/referral', referralRoutes);
 
 app.listen(process.env.PORT || 5000, '0.0.0.0', () => {
-  console.log(`Server running on port ${process.env.PORT || 5000}`)
-})PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+  console.log(`Server running on port ${process.env.PORT || 5000}`);
 });
 
 // Basic middleware
