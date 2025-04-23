@@ -406,3 +406,29 @@ export default {
   updateUserLanguagePreference,
   getTranslationMetrics
 };
+import { TranslationServiceClient } from '@google-cloud/translate';
+
+export class RealTimeTranslation {
+  private translationClient: TranslationServiceClient;
+  
+  constructor(credentials: string) {
+    this.translationClient = new TranslationServiceClient({
+      credentials: JSON.parse(credentials)
+    });
+  }
+
+  async translateMessage(text: string, targetLanguage: string): Promise<string> {
+    try {
+      const [response] = await this.translationClient.translateText({
+        parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
+        contents: [text],
+        targetLanguageCode: targetLanguage,
+      });
+
+      return response.translations[0].translatedText;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return text; // Fallback to original text
+    }
+  }
+}
