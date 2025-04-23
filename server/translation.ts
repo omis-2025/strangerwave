@@ -1,8 +1,9 @@
 import { db } from './db';
 import { translationCache, supportedLanguages, translationMetrics, messages } from '@shared/schema';
 import { and, eq, sql } from 'drizzle-orm';
+import { TranslationServiceClient } from '@google-cloud/translate';
 
-// Language detection regular expressions (simplified)
+// Language detection regular expressions (simplified) - retained for fallback
 const LANGUAGE_PATTERNS: Record<string, RegExp> = {
   en: /\b(the|is|are|am|was|were|have|has|had|can|will|should|would|this|that|these|those)\b/i,
   es: /\b(el|la|los|las|es|son|está|están|tiene|tienen|haber|hacer|ser|estar|este|esta|estos|estas)\b/i,
@@ -29,203 +30,81 @@ interface TranslationProvider {
   detectLanguage: (text: string) => Promise<string>;
 }
 
-/**
- * Simple language detection and translation service
- * This is a placeholder implementation until we integrate with an external API
- */
-class BasicTranslationProvider implements TranslationProvider {
-  /**
-   * Detect the language of a text
-   * This is a simplified implementation that will be replaced with a more robust solution
-   */
-  async detectLanguage(text: string): Promise<string> {
-    if (!text || text.trim().length < 3) {
-      return 'en'; // Default to English for very short texts
-    }
 
-    // Simple pattern matching for common words
-    for (const [lang, pattern] of Object.entries(LANGUAGE_PATTERNS)) {
-      if (pattern.test(text)) {
-        return lang;
-      }
-    }
+class GoogleCloudTranslationProvider implements TranslationProvider {
+  private translationClient: TranslationServiceClient;
 
-    // Default to English if no patterns match
-    return 'en';
+  constructor(credentials: string) {
+    this.translationClient = new TranslationServiceClient({
+      credentials: JSON.parse(credentials)
+    });
   }
 
-  /**
-   * Translate text from source language to target language
-   * This placeholder implementation only handles a few common phrases
-   * and will be replaced with a real translation service
-   */
+  async detectLanguage(text: string): Promise<string> {
+    try {
+      const [result] = await this.translationClient.detectLanguage({
+        parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
+        content: text,
+      });
+      return result.languages[0].languageCode;
+    } catch (error) {
+      console.error('Google Cloud Translation - Language Detection Error:', error);
+      //Fallback to basic detection
+      return this.basicDetectLanguage(text);
+    }
+  }
+
+
   async translate(
     text: string,
     sourceLanguage: string,
     targetLanguage: string
   ): Promise<string> {
-    // Return original text if source and target languages are the same
-    if (sourceLanguage === targetLanguage) {
-      return text;
+    try {
+      const [response] = await this.translationClient.translateText({
+        parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
+        contents: [text],
+        targetLanguageCode: targetLanguage,
+        sourceLanguageCode: sourceLanguage,
+      });
+      return response.translations[0].translatedText;
+    } catch (error) {
+      console.error('Google Cloud Translation - Translation Error:', error);
+      // Fallback to basic translation if Google Cloud fails
+      return this.basicTranslate(text, sourceLanguage, targetLanguage);
     }
-
-    // Check translation cache first
-    const cached = await this.checkCache(text, sourceLanguage, targetLanguage);
-    if (cached) {
-      return cached;
-    }
-
-    // Placeholder translations for common phrases (English to Spanish example)
-    if (sourceLanguage === 'en' && targetLanguage === 'es') {
-      const translations: Record<string, string> = {
-        'hello': 'hola',
-        'hi': 'hola',
-        'how are you': 'cómo estás',
-        'good morning': 'buenos días',
-        'good afternoon': 'buenas tardes', 
-        'good evening': 'buenas noches',
-        'thank you': 'gracias',
-        'yes': 'sí',
-        'no': 'no',
-        'please': 'por favor',
-        'sorry': 'lo siento',
-        'goodbye': 'adiós',
-        'bye': 'adiós'
-      };
-
-      // Try to match simple phrases
-      const lowerText = text.toLowerCase();
-      for (const [eng, spa] of Object.entries(translations)) {
-        if (lowerText === eng || lowerText.includes(` ${eng} `)) {
-          const translated = text.replace(new RegExp(`\\b${eng}\\b`, 'gi'), spa);
-          // Store in cache
-          await this.storeInCache(text, sourceLanguage, targetLanguage, translated);
-          return translated;
-        }
-      }
-    }
-
-    // For now, if we can't translate, return original with a note
-    const result = `${text} [Translation not available: ${sourceLanguage} → ${targetLanguage}]`;
-    await this.storeInCache(text, sourceLanguage, targetLanguage, result);
-    
-    return result;
   }
 
-  /**
-   * Check if a translation exists in the cache
-   */
-  private async checkCache(
+  // Basic fallback methods in case Google Cloud Translate is unavailable
+
+  private basicDetectLanguage(text: string): string {
+    if (!text || text.trim().length < 3) {
+      return 'en'; // Default to English for very short texts
+    }
+    for (const [lang, pattern] of Object.entries(LANGUAGE_PATTERNS)) {
+      if (pattern.test(text)) {
+        return lang;
+      }
+    }
+    return 'en';
+  }
+
+
+  private basicTranslate(
     text: string,
     sourceLanguage: string,
     targetLanguage: string
-  ): Promise<string | null> {
-    try {
-      const start = performance.now();
-      const [cached] = await db
-        .select({ translatedText: translationCache.translatedText })
-        .from(translationCache)
-        .where(
-          and(
-            eq(translationCache.sourceText, text),
-            eq(translationCache.sourceLanguage, sourceLanguage),
-            eq(translationCache.targetLanguage, targetLanguage)
-          )
-        )
-        .limit(1);
-
-      if (cached) {
-        // Update cache metrics
-        await db.execute(
-          sql`UPDATE translation_cache 
-              SET use_count = use_count + 1, last_used_at = NOW() 
-              WHERE source_text = ${text} 
-              AND source_language = ${sourceLanguage} 
-              AND target_language = ${targetLanguage}`
-        );
-
-        // Update metrics for this language pair
-        await this.updateMetrics(sourceLanguage, targetLanguage, true, text.length, performance.now() - start);
-        
-        return cached.translatedText;
+  ): string {
+      if (sourceLanguage === targetLanguage) {
+        return text;
       }
-      return null;
-    } catch (error) {
-      console.error('Error checking translation cache:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Store a translation in the cache
-   */
-  private async storeInCache(
-    sourceText: string,
-    sourceLanguage: string,
-    targetLanguage: string,
-    translatedText: string
-  ): Promise<void> {
-    try {
-      await db
-        .insert(translationCache)
-        .values({
-          sourceText,
-          sourceLanguage,
-          targetLanguage,
-          translatedText,
-        })
-        .onConflictDoUpdate({
-          target: [
-            translationCache.sourceText,
-            translationCache.sourceLanguage,
-            translationCache.targetLanguage,
-          ],
-          set: {
-            translatedText,
-            lastUsedAt: new Date(),
-            useCount: sql`use_count + 1`,
-          },
-        });
-    } catch (error) {
-      console.error('Error storing translation in cache:', error);
-    }
-  }
-
-  /**
-   * Update metrics for this translation
-   */
-  private async updateMetrics(
-    sourceLanguage: string,
-    targetLanguage: string,
-    cacheHit: boolean,
-    characterCount: number,
-    latencyMs: number
-  ): Promise<void> {
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Try to update existing metrics for today
-      const result = await db.execute(
-        sql`INSERT INTO translation_metrics 
-           (date, source_language, target_language, translation_count, cache_hit_count, api_call_count, character_count, average_latency_ms) 
-           VALUES (${today.toISOString()}, ${sourceLanguage}, ${targetLanguage}, 1, ${cacheHit ? 1 : 0}, ${cacheHit ? 0 : 1}, ${characterCount}, ${Math.round(latencyMs)})
-           ON CONFLICT (date, source_language, target_language) 
-           DO UPDATE SET 
-             translation_count = translation_metrics.translation_count + 1,
-             cache_hit_count = translation_metrics.cache_hit_count + ${cacheHit ? 1 : 0},
-             api_call_count = translation_metrics.api_call_count + ${cacheHit ? 0 : 1},
-             character_count = translation_metrics.character_count + ${characterCount},
-             average_latency_ms = (translation_metrics.average_latency_ms * translation_metrics.translation_count + ${Math.round(latencyMs)}) / (translation_metrics.translation_count + 1)`
-      );
-    } catch (error) {
-      console.error('Error updating translation metrics:', error);
-    }
+      return `${text} [Translation not available: ${sourceLanguage} → ${targetLanguage}]`;
   }
 }
 
-// Create singleton instance
-const translationProvider = new BasicTranslationProvider();
+// Create singleton instance using environment variables for credentials.  Adjust as needed.
+const translationProvider = new GoogleCloudTranslationProvider(process.env.GOOGLE_CLOUD_CREDENTIALS || '{}');
+
 
 /**
  * Get all supported languages
@@ -406,29 +285,3 @@ export default {
   updateUserLanguagePreference,
   getTranslationMetrics
 };
-import { TranslationServiceClient } from '@google-cloud/translate';
-
-export class RealTimeTranslation {
-  private translationClient: TranslationServiceClient;
-  
-  constructor(credentials: string) {
-    this.translationClient = new TranslationServiceClient({
-      credentials: JSON.parse(credentials)
-    });
-  }
-
-  async translateMessage(text: string, targetLanguage: string): Promise<string> {
-    try {
-      const [response] = await this.translationClient.translateText({
-        parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
-        contents: [text],
-        targetLanguageCode: targetLanguage,
-      });
-
-      return response.translations[0].translatedText;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return text; // Fallback to original text
-    }
-  }
-}

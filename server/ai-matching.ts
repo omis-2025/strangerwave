@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import { User, UserInteractionMetrics, UserInterests } from '@shared/schema';
 import { OpenAI } from 'openai';
+import { calculateInterestSimilarity, getUserPreferences } from './utils';
 
 /**
  * Types for AI matching implementation
@@ -362,4 +363,48 @@ export class EnhancedAIMatching {
 
     return (sharedInterests * 0.4) + (languageMatch * 0.3) + (styleMatch * 0.2) + (experienceMatch * 0.1); // Adjusted weights
   }
+}
+
+// New AI Matching Algorithm
+const openaiNew = new OpenAI();
+
+interface MatchScore {
+  score: number;
+  compatibility: number;
+  commonInterests: string[];
+}
+
+export async function findOptimalMatchNew(userId: string, availableUsers: string[]): Promise<string | null> {
+  try {
+    const userPreferences = await getUserPreferences(userId);
+    let bestMatch = null;
+    let highestScore = 0;
+
+    for (const candidateId of availableUsers) {
+      const score = await calculateMatchScoreNew(userId, candidateId);
+      if (score.score > highestScore) {
+        highestScore = score.score;
+        bestMatch = candidateId;
+      }
+    }
+
+    return bestMatch;
+  } catch (error) {
+    console.error('Matching error:', error);
+    return null;
+  }
+}
+
+async function calculateMatchScoreNew(userId: string, candidateId: string): Promise<MatchScore> {
+  const userPrefs = await getUserPreferences(userId);
+  const candidatePrefs = await getUserPreferences(candidateId);
+
+  const interestSimilarity = calculateInterestSimilarity(userPrefs.interests, candidatePrefs.interests);
+  const languageCompatibility = userPrefs.languages.some(l => candidatePrefs.languages.includes(l)) ? 1 : 0;
+
+  return {
+    score: (interestSimilarity * 0.7) + (languageCompatibility * 0.3),
+    compatibility: interestSimilarity,
+    commonInterests: userPrefs.interests.filter(i => candidatePrefs.interests.includes(i))
+  };
 }
