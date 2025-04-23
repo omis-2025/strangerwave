@@ -7,7 +7,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "gce"
-build = ["npm", "run", "build"]
+build = ["sh", "-c", "npm run build"]
 run = ["sh", "-c", "npm start"]
 
 [[ports]]
@@ -15,7 +15,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Deploy"
+runButton = "Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -91,6 +91,23 @@ args = "npm start"
 
 [[workflows.workflow]]
 name = "Deploy"
+author = 41549550
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
+
+[[workflows.workflow]]
+name = "Production"
 author = 41549550
 mode = "sequential"
 
