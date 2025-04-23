@@ -23,25 +23,19 @@ import authRoutes from "./routes/auth";
 import paymentRoutes from "./routes/payment";
 import chatRoutes from "./routes/chat";
 import paypalRoutes from "./routes/paypal";
+import feedbackRoutes from "./routes/feedback"; // Added import for feedbackRoutes
+import referralRoutes from "./routes/referral"; // Added import for referralRoutes
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(express.json());
+// Configure CORS before any routes
 app.use(cors({
   origin: true,
   credentials: true
 }));
 
-// Add routes here
-app.use('/api/feedback', feedbackRoutes);
-app.use('/api/referral', referralRoutes);
-
-app.listen(process.env.PORT || 5000, '0.0.0.0', () => {
-  console.log(`Server running on port ${process.env.PORT || 5000}`);
-});
-
-// Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -102,6 +96,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// Add routes here
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/referral', referralRoutes);
 
 // Register API routes
 app.use('/api/auth', authRoutes);
