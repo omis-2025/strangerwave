@@ -92,11 +92,37 @@ export default function StreakTracker({ streak, isPremium = false }: StreakTrack
 
       <CardContent>
         <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+              <span className="text-xl font-bold text-white">{streak.currentStreak}</span>
+            </div>
+            <div>
+              <h4 className="font-semibold">Current Streak</h4>
+              <p className="text-sm text-muted-foreground">Keep it going!</p>
+            </div>
+          </div>
+
+          <div className="relative pt-2">
+            <div className="flex justify-between mb-2 text-sm">
+              <span>Progress to Next Tier</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-500 bg-gradient-to-r ${currentTier.color}`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
           <div>
             <h4 className="font-semibold mb-2">Current Rewards:</h4>
-            <ul className="list-disc list-inside space-y-1">
+            <ul className="list-none space-y-2">
               {currentTier.rewards.map((reward, i) => (
-                <li key={i} className="text-sm text-muted-foreground">{reward}</li>
+                <li key={i} className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-amber-500" />
+                  <span className="text-sm">{reward}</span>
+                </li>
               ))}
             </ul>
           </div>

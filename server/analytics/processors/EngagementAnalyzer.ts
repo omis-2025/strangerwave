@@ -48,8 +48,28 @@ export class EngagementAnalyzer {
   }
 
   private async calculateRetentionScore(userId: string): Promise<number> {
-    // Implementation for retention score
-    return 0.82; // 82% retention probability
+    const metrics = await this.getDetailedRetentionMetrics(userId);
+    const weights = {
+      sessionFrequency: 0.3,
+      conversationLength: 0.2,
+      featureUsage: 0.2,
+      streakMaintenance: 0.15,
+      premiumEngagement: 0.15
+    };
+
+    return Object.entries(weights).reduce((score, [key, weight]) => {
+      return score + (metrics[key] * weight);
+    }, 0);
+  }
+
+  private async getDetailedRetentionMetrics(userId: string): Promise<Record<string, number>> {
+    return {
+      sessionFrequency: await this.calculateSessionFrequency(userId),
+      conversationLength: await this.calculateAverageConversationLength(userId),
+      featureUsage: await this.calculateFeatureEngagement(userId),
+      streakMaintenance: await this.calculateStreakScore(userId),
+      premiumEngagement: await this.calculatePremiumFeatureUsage(userId)
+    };
   }
 
   private async calculateAverageSessionDuration(userId: string): Promise<number> {

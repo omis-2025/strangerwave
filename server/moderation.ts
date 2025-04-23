@@ -13,10 +13,13 @@ const MODERATION_CONFIG = {
     review: 2.5
   },
   categories: {
-    hate: { weight: 1.5, autoban: true },
-    harassment: { weight: 1.3, autoban: true },
-    sexual: { weight: 1.2, autoban: false },
-    spam: { weight: 0.8, autoban: false }
+    hate: { weight: 1.5, autoban: true, threshold: 3.8 },
+    harassment: { weight: 1.3, autoban: true, threshold: 3.5 },
+    sexual: { weight: 1.2, autoban: false, threshold: 4.0 },
+    spam: { weight: 0.8, autoban: false, threshold: 3.0 },
+    violence: { weight: 1.4, autoban: true, threshold: 3.7 },
+    selfHarm: { weight: 1.6, autoban: false, threshold: 2.5 },
+    extremism: { weight: 1.7, autoban: true, threshold: 3.2 }
   },
   actions: {
     warning: { cooldown: 300000 }, // 5 minutes between warnings
