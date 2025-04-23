@@ -5,10 +5,24 @@ import { storage } from "./storage";
 const openaiKey = process.env.OPENAI_API_KEY;
 const openai = openaiKey ? new OpenAI({ apiKey: openaiKey }) : null;
 
-// Moderation thresholds (1-5 scale)
-const AUTO_BAN_THRESHOLD = 4.5;     // Increased threshold for auto-bans
-const WARNING_THRESHOLD = 3.5;      // Threshold for user warnings
-const REVIEW_THRESHOLD = 2.5;       // Threshold for manual review
+// Moderation configuration
+const MODERATION_CONFIG = {
+  thresholds: {
+    autoBan: 4.5,
+    warning: 3.5,
+    review: 2.5
+  },
+  categories: {
+    hate: { weight: 1.5, autoban: true },
+    harassment: { weight: 1.3, autoban: true },
+    sexual: { weight: 1.2, autoban: false },
+    spam: { weight: 0.8, autoban: false }
+  },
+  actions: {
+    warning: { cooldown: 300000 }, // 5 minutes between warnings
+    review: { timeout: 1800000 }   // 30 minutes review window
+  }
+};
 
 // Logging categories
 const LOG_LEVELS = {
