@@ -5,8 +5,17 @@ import { storage } from "./storage";
 const openaiKey = process.env.OPENAI_API_KEY;
 const openai = openaiKey ? new OpenAI({ apiKey: openaiKey }) : null;
 
-// Toxicity threshold for auto-banning (1-5 scale where 5 is most toxic)
-const AUTO_BAN_THRESHOLD = 4;
+// Moderation thresholds (1-5 scale)
+const AUTO_BAN_THRESHOLD = 4.5;     // Increased threshold for auto-bans
+const WARNING_THRESHOLD = 3.5;      // Threshold for user warnings
+const REVIEW_THRESHOLD = 2.5;       // Threshold for manual review
+
+// Logging categories
+const LOG_LEVELS = {
+  SEVERE: 'SEVERE',
+  WARNING: 'WARNING',
+  INFO: 'INFO'
+};
 
 export interface ModerationResult {
   isFlagged: boolean;
@@ -83,10 +92,16 @@ export async function moderateMessage(
       const toxicityScore = analysis.toxicityScore;
       const autoBan = toxicityScore >= AUTO_BAN_THRESHOLD;
       
-      // If auto-ban threshold reached, ban the user
+      // Handle different moderation cases
       if (autoBan) {
         await storage.banUser(userId);
-        console.log(`User ${userId} has been auto-banned for toxic content. Score: ${toxicityScore}`);
+        console.log(LOG_LEVELS.SEVERE, `User ${userId} auto-banned. Score: ${toxicityScore}`);
+      } else if (toxicityScore >= WARNING_THRESHOLD) {
+        await storage.warnUser(userId, toxicityScore);
+        console.log(LOG_LEVELS.WARNING, `User ${userId} warned. Score: ${toxicityScore}`);
+      } else if (toxicityScore >= REVIEW_THRESHOLD) {
+        await storage.flagForReview(userId, content, toxicityScore);
+        console.log(LOG_LEVELS.INFO, `User ${userId} flagged for review. Score: ${toxicityScore}`);
       }
       
       // Return the detailed result
