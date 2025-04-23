@@ -48,56 +48,56 @@ export default function VideoCallInterface({
   const [isInputRTL, setIsInputRTL] = useState(false);
   const [translatingMessages, setTranslatingMessages] = useState<{[key: string]: boolean}>({});
   const [showTranslationPref, setShowTranslationPref] = useState(true); // Default to showing translations
-  
+
   // Media stream refs
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   // Reference to store the local media stream to prevent it from being lost between matches
   const localMediaStreamRef = useRef<MediaStream | null>(null);
-  
+
   // Connection and permission states
   const [isConnecting, setIsConnecting] = useState(true);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [permissionErrorType, setPermissionErrorType] = useState<'camera' | 'microphone' | 'both' | null>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [remoteCameraActive, setRemoteCameraActive] = useState(false);
-  
+
   // UI state - never hide controls on mobile
   const [hideControls, setHideControls] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState<'video' | 'chat'>('video'); // For mobile tab navigation
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'partner-left' | null>(null);
-  
+
   // Check if device is mobile for better UI handling
   useEffect(() => {
     const checkMobile = () => {
       const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       setIsMobile(mobile);
-      
+
       // On mobile, make sure controls are always visible
       if (mobile) {
         setHideControls(false);
       }
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Flag animation state for new match
   const [showFlagAnimation, setShowFlagAnimation] = useState(false);
-  
+
   // Initialize WebRTC and handle permissions
   useEffect(() => {
     console.log(`Initializing WebRTC - video: ${videoEnabled}, audio: ${micEnabled}, mobile: ${isMobile}`);
     setIsConnecting(true);
-    
+
     // Set up permission error callback
     webRTC.onPermissionError((type, error) => {
       console.error(`Permission error for ${type}:`, error);
-      
+
       if (type === 'camera' && !micEnabled) {
         setPermissionErrorType('camera');
       } else if (type === 'microphone' && !videoEnabled) {
@@ -105,25 +105,25 @@ export default function VideoCallInterface({
       } else {
         setPermissionErrorType('both');
       }
-      
+
       setShowPermissionModal(true);
     });
-    
+
     // Set up connection state change callback
     webRTC.onConnectionStateChange((state) => {
       console.log(`WebRTC connection state changed to: ${state}`);
-      
+
       if (state === 'connected') {
         setIsConnecting(false);
         setConnectionStatus('connected');
         setTimeout(() => setConnectionStatus(null), 3000); // Hide after 3 seconds
-        
+
         // When connected, ensure the local video stream is reattached if needed
         if (localMediaStreamRef.current && localVideoRef.current) {
           if (localVideoRef.current.srcObject !== localMediaStreamRef.current) {
             console.log('Reattaching local stream to video element after connection state change');
             localVideoRef.current.srcObject = localMediaStreamRef.current;
-            
+
             // Make sure video autoplays
             try {
               const playPromise = localVideoRef.current.play();
@@ -146,16 +146,16 @@ export default function VideoCallInterface({
         setConnectionStatus('reconnecting');
       }
     });
-    
+
     // Set up remote stream handler - add better error handling
     webRTC.onTrack((stream) => {
       console.log('Received remote track:', stream);
-      
+
       if (remoteVideoRef.current) {
         try {
           remoteVideoRef.current.srcObject = stream;
           setRemoteCameraActive(true);
-          
+
           // Add safeguard in case video doesn't play
           const playPromise = remoteVideoRef.current.play();
           if (playPromise !== undefined) {
@@ -171,25 +171,25 @@ export default function VideoCallInterface({
         console.warn('Remote video ref is not available');
       }
     });
-    
+
     // Initialize the media stream with better error handling
     const initializeMedia = async () => {
       let retryCount = 0;
       const maxRetries = 3;
-      
+
       const attemptInitialize = async () => {
         try {
           console.log(`Attempting to get local stream (attempt ${retryCount + 1}/${maxRetries})`);
-          const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled);
-          
+          const localStream = await webRTC.getLocalStream(videoEnabled, micEnabled, { videoBandwidth: 600, videoQuality: 'medium' }); //Added parameters here
+
           // Store a reference to the local stream
           localMediaStreamRef.current = localStream;
-          
+
           // Attach local stream to video element
           if (localVideoRef.current && localStream) {
             console.log('Attaching local stream to video element');
             localVideoRef.current.srcObject = localStream;
-            
+
             // Make sure autoplay works properly on mobile
             if (isMobile) {
               try {
@@ -206,11 +206,11 @@ export default function VideoCallInterface({
           } else {
             console.warn('Local video ref is not available or stream is null');
           }
-          
+
           setIsConnecting(false);
         } catch (error) {
           console.error(`Failed to get local media stream (attempt ${retryCount + 1}/${maxRetries}):`, error);
-          
+
           if (retryCount < maxRetries - 1) {
             retryCount++;
             console.log(`Retrying in 1 second... (${retryCount}/${maxRetries - 1})`);
@@ -220,25 +220,25 @@ export default function VideoCallInterface({
           }
         }
       };
-      
+
       await attemptInitialize();
     };
-    
+
     initializeMedia();
-    
+
     // Clean up when component unmounts
     return () => {
       console.log('Cleaning up WebRTC resources');
-      
+
       // Save a reference to our local media stream before we close the connection
       const savedStream = localMediaStreamRef.current;
-      
+
       // Here's the trick: we're going to manually save the tracks before closing
       const savedTracks = savedStream?.getTracks() || [];
-      
+
       // Close the WebRTC connection - this normally stops all tracks
       webRTC.close();
-      
+
       // But we don't want the tracks to be completely stopped when finding a new match
       // So we only stop the tracks if component is truly unmounting (not just disconnecting)
       if (window.onbeforeunload) {
@@ -256,35 +256,35 @@ export default function VideoCallInterface({
       setInputMessage('');
     }
   };
-  
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-  
+
   // Trigger flag animation when connection is established
   useEffect(() => {
     if (connectionStatus === 'connected') {
       setShowFlagAnimation(true);
-      
+
       // Reset flag animation after it plays
       const timer = setTimeout(() => {
         setShowFlagAnimation(false);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [connectionStatus]);
-  
+
   // Simulate messages being translated for demo purposes
   useEffect(() => {
     messages.forEach(message => {
       if (message.sender === 'partner' && !message.translatedContent && !translatingMessages[message.id]) {
         // Mark the message as being translated
         setTranslatingMessages(prev => ({ ...prev, [message.id]: true }));
-        
+
         // Simulate translation completion after 1-2 seconds
         const delay = 1000 + Math.random() * 1000;
         setTimeout(() => {
@@ -293,7 +293,7 @@ export default function VideoCallInterface({
       }
     });
   }, [messages, translatingMessages]);
-  
+
   return (
     <ResponsiveContainer 
       className="flex flex-col h-full bg-gray-900 relative overflow-hidden" 
@@ -422,7 +422,7 @@ export default function VideoCallInterface({
               >
                 {micEnabled ? <Mic className="h-4 w-4 sm:h-5 sm:w-5" /> : <MicOff className="h-4 w-4 sm:h-5 sm:w-5" />}
               </button>
-              
+
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -433,7 +433,7 @@ export default function VideoCallInterface({
               >
                 <Phone className="h-5 w-5 sm:h-6 sm:w-6 transform rotate-135" />
               </button>
-              
+
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -468,7 +468,7 @@ export default function VideoCallInterface({
                 <span>Find Next</span>
               </button>
             </div>
-            
+
             {/* Chat messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map(message => (
@@ -491,7 +491,7 @@ export default function VideoCallInterface({
                 </div>
               ))}
             </div>
-            
+
             {/* Chat input */}
             <div className="p-3 border-t border-gray-800">
               <div className="flex items-center">
@@ -515,7 +515,7 @@ export default function VideoCallInterface({
           </div>
         </FlexContainer>
       </div>
-      
+
       {/* Connection error message */}
       {connectionError && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
@@ -533,14 +533,14 @@ export default function VideoCallInterface({
           </div>
         </div>
       )}
-      
+
       {/* Permission error modal */}
       <PermissionErrorModal
         type={permissionErrorType || 'both'}
         isOpen={showPermissionModal}
         onClose={() => setShowPermissionModal(false)}
       />
-      
+
       {/* Connection status toast */}
       <ConnectionStatusToast 
         status={connectionStatus} 

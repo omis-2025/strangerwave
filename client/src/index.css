@@ -11,3 +11,10 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+.chat-container {
+  padding: clamp(0.5rem, 2vw, 1rem);
+  margin: clamp(0.25rem, 1vw, 0.5rem);
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+}
