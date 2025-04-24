@@ -1,0 +1,50 @@
+It looks like you're working on integrating ChartMogul into your project. To do this, make sure to follow these steps to ensure a successful integration:
+
+Step 1: ChartMogul API Key
+Create a ChartMogul Account: If you haven't already, sign up for an account on ChartMogul.
+Generate API Key: Once you're logged in, navigate to the API Section in your dashboard to generate an API key.
+Step 2: Set Up API Calls
+You can use the following example to make API requests to ChartMogul. Ensure to include your API key in the headers:
+
+import axios from 'axios';
+// Replace 'YOUR_API_KEY' with your actual ChartMogul API key
+const apiKey = 'YOUR_API_KEY';
+const getDataFromChartMogul = async () => {
+  try {
+    const response = await axios.get('https://api.chartmogul.com/v1/metrics/revenue', {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(apiKey).toString('base64')}`
+      }
+    });
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error fetching data from ChartMogul:', error);
+  }
+};
+// Call the function to fetch data
+getDataFromChartMogul();
+Step 3: Environment Variables
+For security reasons, it's good practice to store your API keys in environment variables rather than hard-coding them directly into your source code. In Replit, you can do this by adding your variables like this:
+
+Go to the "Secrets" section in Replit.
+Add a new secret with the key CHARTMOGUL_API_KEY and the value set as your API key.
+Step 4: Using Environment Variables in Your Code
+Modify the API call to use the environment variable:
+
+const apiKey = process.env.CHARTMOGUL_API_KEY;
+const getDataFromChartMogul = async () => {
+  try {
+    const response = await axios.get('https://api.chartmogul.com/v1/metrics/revenue', {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(apiKey).toString('base64')}`
+      }
+    });
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error fetching data from ChartMogul:', error);
+  }
+};
+// Call the function to fetch data
+getDataFromChartMogul();
+Step 5: Test Your Integration
+Run your code on Replit to see if it successfully fetches data from ChartMogul. If you encounter any issues, check the console for error messages, and ensure that your API key is valid and correctly entered in the environment variables.
