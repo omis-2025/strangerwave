@@ -1,0 +1,67 @@
+To convert the provided executive summary text file into a PDF, you can use the existing shell script generate-pitch-deck.sh in your project. This script converts Markdown files to PDFs using pandoc.
+
+Here's how to do it:
+
+Edit the Markdown Source: First, ensure that your executive summary text file is in Markdown format. It looks like you already have the content you need.
+
+Create a Markdown File: If you haven't done so, convert the contents of the executive summary from the text file to a Markdown format and save it as docs/pitch-deck.md.
+
+Run the Shell Script: Use the existing script in your project to generate the PDF. You can run the script from the terminal in your Replit environment:
+
+bash generate-pitch-deck.sh
+The script will then create a file named strangerwave-pitch-deck.pdf. Make sure that pandoc is installed in your Replit environment; if it's not, the script will prompt you to install it.
+
+Existing Script
+Here’s a concise overview of the generate-pitch-deck.sh for your reference:
+
+#!/bin/bash
+echo "Generating StrangerWave Pitch Deck PDF..."
+# Check if pandoc is installed
+if ! command -v pandoc &> /dev/null; then
+    echo "Error: This script requires pandoc to be installed."
+    echo "Please install pandoc with: apt-get install pandoc"
+    exit 1
+fi
+# Ensure the pitch deck markdown exists
+if [ ! -f "docs/pitch-deck.md" ]; then
+    echo "Error: docs/pitch-deck.md not found!"
+    exit 1
+fi
+# Create a temporary CSS file for styling
+cat > temp-style.css << EOF
+body {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+}
+h1, h2, h3 {
+    color: #3366cc;
+}
+h1 {
+    font-size: 28px;
+    text-align: center;
+    margin-top: 40px;
+}
+h2 {
+    font-size: 24px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+EOF
+# Generate the PDF
+echo "Converting Markdown to PDF..."
+pandoc docs/pitch-deck.md -o strangerwave-pitch-deck.pdf --pdf-engine=wkhtmltopdf --css=temp-style.css
+# Clean up
+rm temp-style.css
+# Check if conversion was successful
+if [ -f "strangerwave-pitch-deck.pdf" ]; then
+    echo "Success! PDF created: strangerwave-pitch-deck.pdf"
+else
+    echo "Error: PDF creation failed!"
+    exit 1
+fi
+echo "Done."
+Notes
+Ensure your Markdown file (docs/pitch-deck.md) is formatted correctly for Pandoc.
+After running the script, you can download the generated PDF from your project files in Replit.
