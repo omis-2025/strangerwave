@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const marked = require('marked');
+import fs from 'fs';
+import path from 'path';
+import { marked } from 'marked';
 
 // Function to convert markdown to HTML
 function convertMarkdownToHTML(markdownFilePath, outputPath) {
@@ -123,24 +123,8 @@ const filesToConvert = [
   }
 ];
 
-// Install marked first if it's not already installed
-const installMarked = () => {
-  console.log('Installing required dependencies...');
-  try {
-    require.resolve('marked');
-    console.log('marked is already installed');
-    return true;
-  } catch (e) {
-    console.log('marked is not installed. Please install it using: npm install marked');
-    return false;
-  }
-};
-
 // Main function
 const main = () => {
-  if (!installMarked()) {
-    return;
-  }
   
   console.log('Converting markdown files to HTML...');
   let allSuccessful = true;
