@@ -21,6 +21,7 @@ import FoodSourceDemo from "./pages/FoodSourceDemo";
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ToolsAccess from './pages/ToolsAccess';
 
 // Loading indicator component for transitions
 function LoadingScreen() {
@@ -38,7 +39,7 @@ function LoadingScreen() {
 function AuthRoute({ component: Component, adminOnly = false, ...rest }: any) {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
-  
+
   useEffect(() => {
     if (!isLoading && !user) {
       // Redirect to landing page if not authenticated
@@ -48,11 +49,11 @@ function AuthRoute({ component: Component, adminOnly = false, ...rest }: any) {
       navigate('/chat');
     }
   }, [user, isLoading, navigate, adminOnly]);
-  
+
   if (isLoading) {
     return <LoadingScreen />;
   }
-  
+
   return user ? <Component {...rest} /> : null;
 }
 
@@ -60,25 +61,25 @@ function Router() {
   const { user } = useAuth();
   const [_, navigate] = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Simulated loading for smoother transitions
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 500);
-    
+
     return () => clearTimeout(timer);
   }, []);
-  
+
   // Enhanced navigation logic with stability improvements
   useEffect(() => {
     // Only execute navigation logic if we're not in a loading state
     if (isLoading) return;
-    
+
     try {
       const currentPath = window.location.pathname;
       const isOnLandingPage = currentPath === '/' || currentPath === '/landing';
-      
+
       // Handle navigation flags with more information
       console.log('Navigation check:', { 
         currentPath,
@@ -86,37 +87,37 @@ function Router() {
         startChatting: localStorage.getItem('startChatting'),
         showLandingPage: localStorage.getItem('showLandingPage')
       });
-      
+
       // Setting landing page preference
       if (isOnLandingPage) {
         localStorage.setItem('showLandingPage', 'true');
-        
+
         // Don't overwrite explicit startChatting preference if it exists
         if (localStorage.getItem('startChatting') !== 'true') {
           localStorage.removeItem('startChatting');
         }
       }
-      
+
       // Only perform redirection under specific conditions
       const shouldRedirectToChat = 
         user && // User must be authenticated
         isOnLandingPage && // Must be on landing page
         localStorage.getItem('startChatting') === 'true' && // Must have explicit redirect flag
         !localStorage.getItem('preventRedirect'); // Emergency override for debugging
-      
+
       if (shouldRedirectToChat) {
         console.log('Redirecting from landing page to chat based on user preference');
-        
+
         // Set a temporary flag to prevent redirect loops
         localStorage.setItem('redirecting', 'true');
-        
+
         // Clear navigation flags after redirect
         localStorage.removeItem('startChatting');
         localStorage.removeItem('showLandingPage');
-        
+
         // Navigate to chat page
         navigate('/chat');
-        
+
         // Remove temporary flag after a short delay
         setTimeout(() => {
           localStorage.removeItem('redirecting');
@@ -127,11 +128,11 @@ function Router() {
       // Don't let navigation errors break the app
     }
   }, [user, navigate, isLoading]);
-  
+
   if (isLoading) {
     return <LoadingScreen />;
   }
-  
+
   return (
     <AnimatePresence mode="wait">
       <Switch>
@@ -142,6 +143,7 @@ function Router() {
         <Route path="/enhanced-admin" component={() => <AuthRoute component={EnhancedAdmin} adminOnly={true} />} />
         <Route path="/payment" component={Payment} />
         <Route path="/pricing" component={Pricing} />
+        <Route path="/tools" element={<ToolsAccess />} />
         <Route path="/rewards" component={() => <AuthRoute component={Rewards} />} />
         <Route path="/referral" component={() => <AuthRoute component={ReferralPage} />} />
         <Route path="/social" component={() => <AuthRoute component={SocialSharingPage} />} />
