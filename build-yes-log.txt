@@ -1,0 +1,11 @@
+===== StrangerWave Android AAB Build Script =====
+This script will build the Android App Bundle (AAB) for StrangerWave.
+
+===== Building Web App =====
+Building production version of the web app...
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.14 building for production...
+transforming...

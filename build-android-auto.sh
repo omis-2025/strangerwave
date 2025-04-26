@@ -1,74 +1,63 @@
 #!/bin/bash
 
-# Modified StrangerWave Mobile App Build Script with automatic "yes" responses
-# This script builds the web assets and prepares the Android app for submission
+# StrangerWave Android Build Script - Automated Version
+# This script focuses solely on building the Android App Bundle without prompts
 
-echo "===== StrangerWave Android App Build Script (Automated) ====="
-echo "This script will build the web app and prepare the Android app for submission."
+echo "===== StrangerWave Android AAB Build Script ====="
+echo "This script will build the Android App Bundle (AAB) for StrangerWave."
 
-# Function to build the web app
-build_web_app() {
-    echo ""
-    echo "===== Building Web App ====="
-    echo "Building production version of the web app..."
-    npm run build
-    
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Web build failed. Exiting."
-        exit 1
-    fi
-    
-    echo "Web app built successfully!"
-}
+# Ensure web assets are built first
+echo ""
+echo "===== Building Web App ====="
+echo "Building production version of the web app..."
+npm run build
 
-# Function to build Android app
-build_android() {
-    echo ""
-    echo "===== Building Android App ====="
-    echo "Copying web assets to Android..."
-    npx cap copy android
-    
-    echo "Syncing Android project..."
-    npx cap sync android
-    
-    echo "Automatically building Android APK/AAB..."
-    
-    echo "Building Android App Bundle (AAB)..."
-    cd android && ./gradlew bundleRelease
-    
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Android build failed."
-        cd ..
-        exit 1
-    fi
-    
-    echo ""
-    echo "Android App Bundle (AAB) built successfully!"
-    echo "Location: android/app/build/outputs/bundle/release/app-release.aab"
-    
-    echo "Building Android APK..."
-    ./gradlew assembleRelease
-    
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Android APK build failed."
-        cd ..
-        exit 1
-    fi
-    
-    echo ""
-    echo "Android APK built successfully!"
-    echo "Location: android/app/build/outputs/apk/release/app-release.apk"
-    
+if [ $? -ne 0 ]; then
+    echo "ERROR: Web build failed. Exiting."
+    exit 1
+fi
+
+echo "Web app built successfully!"
+
+# Copy and sync to Android
+echo ""
+echo "===== Preparing Android App ====="
+echo "Copying web assets to Android..."
+npx cap copy android
+
+echo "Syncing Android project..."
+npx cap sync android
+
+# Build the AAB
+echo ""
+echo "===== Building Android App Bundle ====="
+echo "This may take several minutes. Please wait..."
+
+cd android && ./gradlew bundleRelease --console=plain
+
+# Check build status
+if [ $? -ne 0 ]; then
+    echo "ERROR: Android build failed."
     cd ..
-}
-
-# Build process
-build_web_app
-build_android
+    exit 1
+fi
 
 echo ""
 echo "===== Build Process Complete ====="
-echo "For more information on app submission:"
-echo "- Review docs/app-submission-index.md for all submission documentation"
-echo "- Android app store submission: docs/app-store-submission-guide.md"
+echo "Android App Bundle (AAB) should be available at:"
+echo "android/app/build/outputs/bundle/release/app-release.aab"
+
+# Check if the file was actually created
+if [ -f "app/build/outputs/bundle/release/app-release.aab" ]; then
+    echo "✅ AAB file successfully created!"
+    # Copy to root directory for easier access
+    cp app/build/outputs/bundle/release/app-release.aab ../strangerwave-release.aab
+    echo "AAB file copied to project root: strangerwave-release.aab"
+else
+    echo "⚠️ AAB file not found at the expected location."
+    echo "Check for errors in the build process."
+fi
+
+cd ..
 echo ""
+echo "Build process completed."

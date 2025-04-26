@@ -1,0 +1,82 @@
+To build the Android App Bundle (AAB) in your Replit environment, considering the constraints you've mentioned, we can modify the build script to focus solely on Android packaging. This way, we can skip the web build step if the web assets are already built, making the process more efficient.
+
+Steps to Modify the Build Script
+Edit the Build Script: We'll update the build-mobile-apps.sh script to allow for a focused build on Android.
+Here's how you can modify the build-mobile-apps.sh to skip the web building step:
+
+#!/bin/bash
+# StrangerWave Mobile App Build Script
+# This script builds the web assets (if needed) and prepares the mobile apps for submission
+echo "===== StrangerWave Mobile App Build Script ====="
+echo "This script will prepare mobile apps for submission."
+# Check if script is run with an argument
+if [ "$1" == "android" ] || [ "$1" == "ios" ] || [ "$1" == "both" ]; then
+    BUILD_TARGET=$1
+else
+    echo ""
+    echo "Please specify which platform to build for:"
+    echo "  ./build-mobile-apps.sh android  - Build only Android app"
+    echo "  ./build-mobile-apps.sh ios      - Build only iOS app"
+    echo "  ./build-mobile-apps.sh both     - Build both platforms"
+    echo ""
+    exit 1
+fi
+# Function to build the web app
+build_web_app() {
+    echo ""
+    echo "===== Building Web App ====="
+    echo "Building production version of the web app..."
+    npm run build
+    
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Web build failed. Exiting."
+        exit 1
+    fi
+    
+    echo "Web app built successfully!"
+}
+# Function to build Android app
+build_android() {
+    echo ""
+    echo "===== Building Android App ====="
+    echo "Copying web assets to Android..."
+    npx cap copy android
+    
+    echo "Syncing Android project..."
+    npx cap sync android
+    
+    echo "Building Android App Bundle (AAB)..."
+    cd android && ./gradlew bundleRelease
+    
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Android build failed."
+        cd ..
+        exit 1
+    fi
+    
+    echo ""
+    echo "Android App Bundle (AAB) built successfully!"
+    echo "Location: android/app/build/outputs/bundle/release/app-release.aab"
+    
+    cd ..
+}
+if [ "$BUILD_TARGET" == "android" ] || [ "$BUILD_TARGET" == "both" ]; then
+    # Optionally build the web app if not already built
+    if [ ! -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+        build_web_app
+    fi
+    build_android
+fi
+echo ""
+echo "===== Build Process Complete ====="
+Explanation of Changes:
+The script checks if the AAB file already exists. If it does, it skips the web build step.
+Focuses on copying web assets and syncing the Android project, then builds the AAB.
+Next Steps:
+Make the Script Executable: If you haven't already, run the following command to grant execution permissions:
+
+chmod +x build-mobile-apps.sh
+Run the Build: Execute the modified script with:
+
+./build-mobile-apps.sh android
+This approach should help you build the AAB more efficiently in the Replit environment. If you encounter any further issues

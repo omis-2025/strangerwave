@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # StrangerWave Mobile App Build Script
-# This script builds the web assets and prepares the mobile apps for submission
+# This script builds the web assets (if needed) and prepares the mobile apps for submission
 
 echo "===== StrangerWave Mobile App Build Script ====="
-echo "This script will build the web app and prepare mobile apps for submission."
+echo "This script will prepare mobile apps for submission."
 
 # Check if script is run with an argument
 if [ "$1" == "android" ] || [ "$1" == "ios" ] || [ "$1" == "both" ]; then
@@ -44,41 +44,20 @@ build_android() {
     echo "Syncing Android project..."
     npx cap sync android
     
-    echo "Do you want to build the Android APK/AAB now? (y/n)"
-    read -r build_apk
+    echo "Building Android App Bundle (AAB)..."
+    cd android && ./gradlew bundleRelease
     
-    if [ "$build_apk" == "y" ] || [ "$build_apk" == "Y" ]; then
-        echo "Building Android App Bundle (AAB)..."
-        cd android && ./gradlew bundleRelease
-        
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Android build failed."
-            cd ..
-            exit 1
-        fi
-        
-        echo ""
-        echo "Android App Bundle (AAB) built successfully!"
-        echo "Location: android/app/build/outputs/bundle/release/app-release.aab"
-        
-        echo "Building Android APK..."
-        ./gradlew assembleRelease
-        
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Android APK build failed."
-            cd ..
-            exit 1
-        fi
-        
-        echo ""
-        echo "Android APK built successfully!"
-        echo "Location: android/app/build/outputs/apk/release/app-release.apk"
-        
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Android build failed."
         cd ..
-    else
-        echo "Skipping APK/AAB build. Android project is ready to be opened in Android Studio."
-        echo "To open in Android Studio, run: npx cap open android"
+        exit 1
     fi
+    
+    echo ""
+    echo "Android App Bundle (AAB) built successfully!"
+    echo "Location: android/app/build/outputs/bundle/release/app-release.aab"
+    
+    cd ..
 }
 
 # Function to prepare iOS app
@@ -103,13 +82,17 @@ prepare_ios() {
 }
 
 # Build process
-build_web_app
-
 if [ "$BUILD_TARGET" == "android" ] || [ "$BUILD_TARGET" == "both" ]; then
+    # Always build the web app first for Android
+    build_web_app
     build_android
 fi
 
 if [ "$BUILD_TARGET" == "ios" ] || [ "$BUILD_TARGET" == "both" ]; then
+    # Build web app if not already built
+    if [ "$BUILD_TARGET" != "android" ]; then
+        build_web_app
+    fi
     prepare_ios
 fi
 
