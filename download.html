@@ -5,34 +5,116 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             text-align: center;
+            line-height: 1.6;
+            padding: 0 20px;
         }
         h1 {
             color: #2d3748;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #4361ee;
+            margin-top: 40px;
         }
         .download-button {
             display: inline-block;
             background-color: #4361ee;
             color: white;
-            padding: 20px 30px;
+            padding: 15px 25px;
             text-align: center;
             text-decoration: none;
-            font-size: 20px;
+            font-size: 18px;
             border-radius: 8px;
-            margin: 30px 0;
+            margin: 10px;
             font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .download-button:hover {
+            background-color: #3a56d4;
+        }
+        .download-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .package-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .steps {
+            text-align: left;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <h1>StrangerWave Deployment Package</h1>
     
-    <p>Click the button below to download the StrangerWave deployment package:</p>
+    <p>The deployment package contains all the necessary files to build the Android App Bundle (AAB) for submission to the Google Play Store.</p>
     
-    <a href="/public/strangerwave-deployment-package.tar.gz" class="download-button" download>Download Package (2.5 MB)</a>
+    <div class="download-options">
+        <a href="/public/strangerwave-deployment-package.tar.gz" class="download-button" download>Download Option 1</a>
+        <a href="/public/download-package.tar.gz" class="download-button" download>Download Option 2</a>
+        <a href="/download-package.tar.gz" class="download-button" download>Download Option 3</a>
+    </div>
     
-    <p>If the button doesn't work, <a href="/public/strangerwave-deployment-package.tar.gz">click this direct link</a>.</p>
+    <p>All options download the same 2.5 MB package file. If one doesn't work, try another.</p>
+    
+    <div class="package-details">
+        <h2>Package Contents</h2>
+        <ul>
+            <li>The complete Android project with all dependencies</li>
+            <li>The signing keystore (strangerwave.keystore) for app signing</li>
+            <li>Key configuration files (key.properties)</li>
+            <li>Documentation and supporting files</li>
+        </ul>
+        <p><strong>Keystore Details:</strong></p>
+        <ul>
+            <li>Keystore password: <code>strangerwave123</code></li>
+            <li>Key alias: <code>strangerwave</code></li>
+        </ul>
+    </div>
+    
+    <div class="steps">
+        <h2>Next Steps After Downloading</h2>
+        <ol>
+            <li><strong>Extract the package</strong> on your computer:
+                <ul>
+                    <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
+                    <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
+                </ul>
+            </li>
+            <li><strong>Navigate to the Android project directory</strong>:
+                <ul>
+                    <li><code>cd export_package/android</code></li>
+                </ul>
+            </li>
+            <li><strong>Build the AAB</strong>:
+                <ul>
+                    <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
+                    <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
+                </ul>
+            </li>
+            <li><strong>Find the AAB</strong> at:
+                <ul>
+                    <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
+                </ul>
+            </li>
+            <li><strong>Upload this file to Google Play Console</strong></li>
+        </ol>
+    </div>
 </body>
 </html>
