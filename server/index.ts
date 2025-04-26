@@ -33,6 +33,7 @@ import chatRoutes from "./routes/chat";
 import paypalRoutes from "./routes/paypal";
 import feedbackRoutes from "./routes/feedback"; // Added import for feedbackRoutes
 import referralRoutes from "./routes/referral"; // Added import for referralRoutes
+import downloadRoutes from "./routes/download"; // Added import for downloadRoutes
 
 
 const app = express();
@@ -111,6 +112,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/paypal', paypalRoutes);
+app.use('', downloadRoutes); // Direct download route for the package
 
 // Serve static HTML files for legal pages
 app.get('/privacy', (req, res) => {
