@@ -1,26 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Download StrangerWave Deployment Package</title>
+    <title>StrangerWave AAB Build Package</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
             color: #333;
+            background-color: #f8f9fa;
         }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        h1 {
+            font-size: 32px;
+            color: #2c3e50;
         }
         .download-button {
             display: inline-block;
-            background-color: #4361ee;
+            background-color: #4CAF50;
             color: white;
             padding: 15px 25px;
             text-align: center;
@@ -28,89 +32,174 @@
             font-size: 18px;
             border-radius: 5px;
             margin: 20px 0;
-            transition: background-color 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         .download-button:hover {
-            background-color: #3a56d4;
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .steps {
-            background-color: #f9f9f9;
-            border-left: 4px solid #4361ee;
-            padding: 15px 20px;
-            margin: 20px 0;
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
         }
-        h1 {
-            color: #2d3748;
-            border-bottom: 2px solid #eaeaea;
-            padding-bottom: 10px;
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
         }
-        h2 {
-            color: #3a56d4;
+        .step-card {
+            flex: 1 1 250px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
         code {
-            background-color: #f1f1f1;
-            padding: 2px 5px;
+            background: #f4f4f4;
+            padding: 3px 5px;
             border-radius: 3px;
-            font-family: 'Courier New', monospace;
+            font-family: monospace;
+            font-size: 0.9em;
         }
-        .note {
-            background-color: #fffde7;
+        .code-block {
+            background: #f4f4f4;
             padding: 15px;
             border-radius: 5px;
-            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffeeba;
+        }
+        .tip {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #c3e6cb;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>StrangerWave Deployment Package</h1>
-        
-        <p>Welcome to the download page for the StrangerWave deployment package. This package contains all the necessary files to build the Android App Bundle (AAB) for submission to the Google Play Store.</p>
-        
-        <a href="/download-package" class="download-button" download>Download Deployment Package (2.5 MB)</a>
-        
-        <div class="steps">
-            <h2>Next Steps After Downloading:</h2>
-            <ol>
-                <li><strong>Extract the package</strong> on your computer:
-                    <ul>
-                        <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
-                        <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
-                    </ul>
-                </li>
-                <li><strong>Navigate to the Android project directory</strong>:
-                    <ul>
-                        <li><code>cd export_package/android</code></li>
-                    </ul>
-                </li>
-                <li><strong>Build the AAB</strong>:
-                    <ul>
-                        <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
-                        <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
-                    </ul>
-                </li>
-                <li><strong>Find the AAB</strong> at:
-                    <ul>
-                        <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
-                    </ul>
-                </li>
-                <li><strong>Upload this file to Google Play Console</strong></li>
-            </ol>
-        </div>
-        
-        <div class="note">
-            <p><strong>Note:</strong> This package includes:</p>
-            <ul>
-                <li>The complete Android project with all dependencies</li>
-                <li>The signing keystore (strangerwave.keystore) for app signing</li>
-                <li>Key configuration files (key.properties)</li>
-                <li>Documentation and supporting files</li>
-            </ul>
-            <p>The keystore password is: <code>strangerwave123</code></p>
-            <p>The key alias is: <code>strangerwave</code></p>
-        </div>
-        
-        <p>If you encounter any issues with the download, try the alternative direct link: <a href="/public/strangerwave-deployment-package.tar.gz">Alternative Download</a></p>
+    <div class="header">
+        <h1>StrangerWave Android App Bundle Builder</h1>
+        <p>Download this package to build the Android App Bundle (AAB) for Google Play Store submission</p>
     </div>
+
+    <div class="card">
+        <h2>Deployment Package</h2>
+        <p>This package contains all the necessary files to build an Android App Bundle (AAB) for the StrangerWave app. The AAB format is required for Google Play Store submissions.</p>
+        
+        <div class="tip">
+            <strong>Tip:</strong> Make sure to build this on a machine with at least 4GB of RAM and sufficient disk space (10GB recommended).
+        </div>
+        
+        <a href="/public/strangerwave-deployment-package.tar.gz" class="download-button" download>
+            Download Deployment Package (2.5 MB)
+        </a>
+    </div>
+
+    <h2>Building the AAB Step-by-Step</h2>
+    
+    <div class="steps-container">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Extract the Package</h3>
+            <p>Open a terminal and run:</p>
+            <div class="code-block">tar -xzf strangerwave-deployment-package.tar.gz</div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Navigate to Android Directory</h3>
+            <p>Change to the Android project directory:</p>
+            <div class="code-block">cd export_package/android</div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Make Gradle Executable</h3>
+            <p>On Mac/Linux, make the Gradle wrapper executable:</p>
+            <div class="code-block">chmod +x gradlew</div>
+        </div>
+    </div>
+    
+    <div class="steps-container">
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <h3>Build the App Bundle</h3>
+            <p>Run the Gradle task to build the bundle:</p>
+            <div class="code-block">./gradlew bundleRelease</div>
+            <p>On Windows, use:</p>
+            <div class="code-block">gradlew.bat bundleRelease</div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">5</div>
+            <h3>Locate the AAB File</h3>
+            <p>After a successful build, find your AAB at:</p>
+            <div class="code-block">app/build/outputs/bundle/release/app-release.aab</div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">6</div>
+            <h3>Upload to Google Play</h3>
+            <p>Go to Google Play Console and upload the AAB file to your app's production track.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Troubleshooting</h2>
+        
+        <h3>Memory Issues</h3>
+        <p>If you encounter memory errors, increase Gradle memory by adding this to <code>gradle.properties</code>:</p>
+        <div class="code-block">org.gradle.jvmargs=-Xmx2048m</div>
+        
+        <h3>Keystore Information</h3>
+        <p>The keystore is already configured in the project. If needed for reference:</p>
+        <ul>
+            <li>Keystore path: <code>../../keystores/strangerwave.keystore</code></li>
+            <li>Keystore password: <code>strangerwave123</code></li>
+            <li>Key alias: <code>strangerwave</code></li>
+            <li>Key password: <code>strangerwave123</code></li>
+        </ul>
+        
+        <div class="warning">
+            <strong>Important:</strong> Make sure you have Java JDK 11+ and Android SDK installed on your system before attempting the build.
+        </div>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; color: #777; font-size: 0.9em;">
+        &copy; 2025 StrangerWave Technologies. All rights reserved.
+    </footer>
 </body>
 </html>

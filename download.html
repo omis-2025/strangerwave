@@ -66,14 +66,54 @@
     </div>
 
     <div class="installation-steps">
-        <h2>Installation Instructions</h2>
+        <h2>AAB Build Instructions</h2>
         <ol>
-            <li>Extract the downloaded .tar.gz file</li>
-            <li>Navigate to the extracted directory</li>
-            <li>Follow the setup instructions in README.md</li>
-            <li>Run the build script: <code>./build-android-auto.sh</code></li>
-            <li>Find the generated AAB in android/app/build/outputs/bundle/release/</li>
+            <li><strong>Extract the package</strong> on your local machine:
+                <ul>
+                    <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
+                    <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
+                </ul>
+            </li>
+            <li><strong>Navigate to the Android project directory</strong>:
+                <ul>
+                    <li><code>cd export_package/android</code></li>
+                </ul>
+            </li>
+            <li><strong>Ensure you have the Android development environment set up</strong>:
+                <ul>
+                    <li>Java JDK 11 or higher installed</li>
+                    <li>Android SDK installed (minimum API level 33)</li>
+                    <li>JAVA_HOME environment variable properly set</li>
+                    <li>At least 4GB of RAM and 10GB of free disk space</li>
+                </ul>
+            </li>
+            <li><strong>Make Gradle executable</strong> (Mac/Linux only):
+                <ul>
+                    <li><code>chmod +x gradlew</code></li>
+                </ul>
+            </li>
+            <li><strong>Build the AAB</strong>:
+                <ul>
+                    <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
+                    <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
+                    <li>This process may take several minutes to complete</li>
+                </ul>
+            </li>
+            <li><strong>Find the AAB</strong> at:
+                <ul>
+                    <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
+                </ul>
+            </li>
+            <li><strong>Upload this file to Google Play Console</strong></li>
         </ol>
+        
+        <h3>Troubleshooting Build Issues</h3>
+        <ul>
+            <li><strong>Memory Issues</strong>: If you encounter memory errors, try increasing the Gradle memory allocation by adding this line to <code>gradle.properties</code>: <code>org.gradle.jvmargs=-Xmx2048m</code></li>
+            <li><strong>Build Errors</strong>: Make sure you have the correct Android SDK version installed. The project requires API level 33 or higher.</li>
+            <li><strong>Keystore Issues</strong>: The keystore is already included in the package and configured in build.gradle. The keystore password is <code>strangerwave123</code> and the key alias is <code>strangerwave</code>.</li>
+            <li><strong>Permission Denied</strong>: If you encounter permission issues with gradlew, make sure to run <code>chmod +x gradlew</code> to make it executable.</li>
+        </ul>
     </div>
 
     <script>
