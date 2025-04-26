@@ -83,12 +83,13 @@ The docs directory contains all the necessary documentation for the project, inc
 
 EOL
 
-# Create zip file with everything
-echo "Creating zip archive..."
-zip -r strangerwave-deployment-package.zip export_package
+# Create tar archive instead of zip
+echo "Creating tar archive..."
+tar -czf strangerwave-deployment-package.tar.gz export_package
 
 echo ""
 echo "===== Bundle Creation Complete ====="
-echo "Download the file 'strangerwave-deployment-package.zip'"
+echo "Download the file 'strangerwave-deployment-package.tar.gz'"
 echo "This contains all the documentation and Android project files needed to build the AAB."
+echo "Extract it with: tar -xzf strangerwave-deployment-package.tar.gz"
 echo ""
