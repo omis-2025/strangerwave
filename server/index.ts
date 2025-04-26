@@ -114,7 +114,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/paypal', paypalRoutes);
 app.use('', downloadRoutes); // Direct download route for the package
 
-// Serve static HTML files for legal pages
+// Serve static HTML files for legal pages and download pages
 app.get('/privacy', (req, res) => {
   res.sendFile('privacy-policy.html', { root: './' });
 });
@@ -125,6 +125,14 @@ app.get('/terms', (req, res) => {
 
 app.get('/legal', (req, res) => {
   res.sendFile('index.html', { root: './' });
+});
+
+app.get('/download-package.html', (req, res) => {
+  res.sendFile('download-package.html', { root: './' });
+});
+
+app.get('/download-direct', (req, res) => {
+  res.sendFile('download-direct.html', { root: './' });
 });
 
 (async () => {
