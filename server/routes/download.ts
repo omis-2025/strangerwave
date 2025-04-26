@@ -58,3 +58,20 @@ router.get('/download-android-package', (req, res) => {
 });
 
 export default router;
+
+// Track download analytics
+router.post('/track-download', async (req, res) => {
+  try {
+    const { option, timestamp } = req.body;
+    
+    // Log download event
+    console.log(`Download tracked - Option: ${option}, Time: ${timestamp}`);
+    
+    // Here you would typically save to your analytics database
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error tracking download:', error);
+    res.status(500).json({ success: false });
+  }
+});
