@@ -1,58 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Download StrangerWave Package</title>
+    <title>Download StrangerWave Deployment Package</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            text-align: center;
             line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .download-button {
             display: inline-block;
-            background-color: #4CAF50;
+            background-color: #4361ee;
             color: white;
             padding: 15px 25px;
+            text-align: center;
             text-decoration: none;
             font-size: 18px;
-            border-radius: 4px;
+            border-radius: 5px;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+        .download-button:hover {
+            background-color: #3a56d4;
+        }
+        .steps {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4361ee;
+            padding: 15px 20px;
             margin: 20px 0;
         }
-        pre {
-            background-color: #f5f5f5;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: left;
-            overflow-x: auto;
+        h1 {
+            color: #2d3748;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3a56d4;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .note {
+            background-color: #fffde7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>StrangerWave Deployment Package</h1>
-    
-    <p><strong>Click the button below to download:</strong></p>
-    
-    <a href="/strangerwave-deployment-package.tar.gz" class="download-button">Download Package (2.6 MB)</a>
-    
-    <h2>After downloading:</h2>
-    <ol style="text-align: left;">
-        <li>Extract the package:
-            <pre>tar -xzf strangerwave-deployment-package.tar.gz</pre>
-        </li>
-        <li>Navigate to the Android project:
-            <pre>cd export_package/android</pre>
-        </li>
-        <li>Build the AAB:
-            <pre>./gradlew bundleRelease</pre>
-            <em>On Windows use:</em> <pre>gradlew.bat bundleRelease</pre>
-        </li>
-        <li>Find the AAB file at:
-            <pre>app/build/outputs/bundle/release/app-release.aab</pre>
-        </li>
-        <li>Upload this file to Google Play Console</li>
-    </ol>
+    <div class="container">
+        <h1>StrangerWave Deployment Package</h1>
+        
+        <p>Welcome to the download page for the StrangerWave deployment package. This package contains all the necessary files to build the Android App Bundle (AAB) for submission to the Google Play Store.</p>
+        
+        <a href="/strangerwave-deployment-package.tar.gz" class="download-button" download>Download Deployment Package (2.5 MB)</a>
+        
+        <div class="steps">
+            <h2>Next Steps After Downloading:</h2>
+            <ol>
+                <li><strong>Extract the package</strong> on your computer:
+                    <ul>
+                        <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
+                        <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
+                    </ul>
+                </li>
+                <li><strong>Navigate to the Android project directory</strong>:
+                    <ul>
+                        <li><code>cd export_package/android</code></li>
+                    </ul>
+                </li>
+                <li><strong>Build the AAB</strong>:
+                    <ul>
+                        <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
+                        <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
+                    </ul>
+                </li>
+                <li><strong>Find the AAB</strong> at:
+                    <ul>
+                        <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
+                    </ul>
+                </li>
+                <li><strong>Upload this file to Google Play Console</strong></li>
+            </ol>
+        </div>
+        
+        <div class="note">
+            <p><strong>Note:</strong> This package includes:</p>
+            <ul>
+                <li>The complete Android project with all dependencies</li>
+                <li>The signing keystore (strangerwave.keystore) for app signing</li>
+                <li>Key configuration files (key.properties)</li>
+                <li>Documentation and supporting files</li>
+            </ul>
+            <p>The keystore password is: <code>strangerwave123</code></p>
+            <p>The key alias is: <code>strangerwave</code></p>
+        </div>
+        
+        <p>If you encounter any issues with the download, try the alternative direct link: <a href="/public/strangerwave-deployment-package.tar.gz">Alternative Download</a></p>
+    </div>
 </body>
 </html>
