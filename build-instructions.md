@@ -2,6 +2,14 @@
 
 This document provides detailed instructions for building the StrangerWave Android App Bundle (AAB) for Google Play Store submission.
 
+## App Version Information
+
+- **Version Code:** 1000000
+- **Version Name:** 1.0.0
+- **App ID:** com.strangerwave.app
+
+These values are already set in the build.gradle file.
+
 ## Prerequisites
 
 Before you begin, make sure you have the following installed:
