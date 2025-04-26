@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download StrangerWave Deployment Package</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .download-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .steps {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>StrangerWave Deployment Package</h1>
+    
+    <p>This page provides a direct link to download the StrangerWave deployment package, which contains all the necessary files to build the Android App Bundle (AAB).</p>
+    
+    <a href="/strangerwave-deployment-package.tar.gz" class="download-button" download>Download Deployment Package</a>
+    
+    <div class="steps">
+        <h2>Next Steps After Downloading:</h2>
+        <ol>
+            <li>Extract the package on your computer:
+                <ul>
+                    <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
+                    <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
+                </ul>
+            </li>
+            <li>Navigate to the Android project directory:
+                <ul>
+                    <li><code>cd export_package/android</code></li>
+                </ul>
+            </li>
+            <li>Build the AAB:
+                <ul>
+                    <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
+                    <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
+                </ul>
+            </li>
+            <li>Find the AAB at:
+                <ul>
+                    <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
+                </ul>
+            </li>
+            <li>Upload this file to Google Play Console</li>
+        </ol>
+    </div>
+    
+    <p><strong>Note:</strong> If the download doesn't start automatically, right-click the button and select "Save Link As..." or "Download Linked File".</p>
+</body>
+</html>
