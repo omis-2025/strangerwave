@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StrangerWave Package Direct Download</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+    </style>
+    <script>
+        // Auto-trigger the download when the page loads
+        window.onload = function() {
+            // Create a temporary link element
+            var a = document.createElement('a');
+            a.href = '/strangerwave-deployment-package.tar.gz'; 
+            a.download = 'strangerwave-deployment-package.tar.gz';
+            document.body.appendChild(a);
+            
+            // Trigger the download after a short delay
+            setTimeout(function() {
+                a.click();
+                document.body.removeChild(a);
+                document.getElementById('status').innerHTML = 'Download started! If it doesn\'t begin automatically, <a href="/strangerwave-deployment-package.tar.gz">click here</a>.';
+            }, 1000);
+        };
+    </script>
+</head>
+<body>
+    <h1>StrangerWave Deployment Package</h1>
+    <p>Your download should start automatically...</p>
+    <p id="status">Preparing download...</p>
+    <p>If you're having trouble with the download, try one of these alternative options:</p>
+    <ul style="list-style: none; padding: 0;">
+        <li><a href="/download-package">Option 1: API Endpoint</a></li>
+        <li><a href="/download-android-package">Option 2: Alternative API Endpoint</a></li>
+        <li><a href="/public/strangerwave-deployment-package.tar.gz">Option 3: Public Directory Path</a></li>
+    </ul>
+</body>
+</html>
