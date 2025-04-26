@@ -112,6 +112,19 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/paypal', paypalRoutes);
 
+// Serve static HTML files for legal pages
+app.get('/privacy', (req, res) => {
+  res.sendFile('privacy-policy.html', { root: './' });
+});
+
+app.get('/terms', (req, res) => {
+  res.sendFile('terms-of-service.html', { root: './' });
+});
+
+app.get('/legal', (req, res) => {
+  res.sendFile('index.html', { root: './' });
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
