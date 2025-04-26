@@ -59,9 +59,15 @@ org.gradle.jvmargs=-Xmx2048m
 - Ensure all dependencies are properly resolved
 
 ### Keystore Information
-The keystore is already included in the package and configured in build.gradle. If needed:
+The keystore is already included in the package and properly referenced in the `key.properties` file, which is automatically loaded by the build.gradle script.
+
+**Key Properties:**
+- Keystore path: `../keystores/strangerwave.keystore`
 - Keystore password: `strangerwave123`
 - Key alias: `strangerwave`
+- Key password: `strangerwave123`
+
+**Note:** If you need to use your own keystore, simply replace the `strangerwave.keystore` file in the `keystores` directory and update the `key.properties` file with your keystore details.
 
 ### Permission Issues
 If you encounter permission issues with gradlew, make sure to run:
