@@ -1,34 +1,94 @@
 #!/bin/bash
 
-# StrangerWave Documentation Bundler
-# This script creates a ZIP file containing all documentation and assets needed for handover
+# StrangerWave Documentation and Android Project Bundle Creator
+# This script packages the existing built Android project and documentation for export
 
-echo "Creating StrangerWave documentation bundle..."
+echo "===== Creating StrangerWave Documentation and Android Project Bundle ====="
 
-# Create temp directory for the bundle
-mkdir -p temp_bundle
-mkdir -p temp_bundle/docs
-mkdir -p temp_bundle/assets
-mkdir -p temp_bundle/config
+# Create export directory
+mkdir -p export_package
 
-# Copy documentation files
-cp -r docs/* temp_bundle/docs/
+# Copy essential documentation
+echo "Copying documentation files..."
+cp -r docs export_package/
+cp privacy-policy.html export_package/
+cp terms-of-service.html export_package/
+cp executive-summary.html export_package/
+cp financial-projections.html export_package/
+cp technical-architecture.html export_package/
+cp growth-strategy-and-roadmap.html export_package/
+cp competitor-analysis.html export_package/
 
-# Copy environment sample
-cp .env.sample temp_bundle/config/
+# Copy Android project files
+echo "Copying Android project files..."
+cp -r android export_package/
+if [ -f "key.properties" ]; then
+  cp key.properties export_package/
+fi
+cp -r keystores export_package/
 
-# Copy key assets (logo, etc.)
-cp -r public/assets/* temp_bundle/assets/ 2>/dev/null || echo "No assets folder found, skipping..."
+# Create README with instructions
+cat > export_package/README.md << 'EOL'
+# StrangerWave App Deployment Package
 
-# Copy README and LICENSE
-cp README.md temp_bundle/ 2>/dev/null || echo "No README.md found, skipping..."
-cp LICENSE temp_bundle/ 2>/dev/null || echo "No LICENSE found, skipping..."
+This package contains everything needed to build and deploy the StrangerWave app.
 
-# Create the ZIP file
-zip -r strangerwave-documentation.zip temp_bundle
+## Contents
 
-# Clean up
-rm -rf temp_bundle
+- **android/** - The Android project directory
+- **docs/** - Complete documentation for the project
+- **keystores/** - Android keystore files for signing the app
+- Various HTML documents (privacy policy, terms of service, etc.)
 
-echo "Documentation bundle created: strangerwave-documentation.zip"
-echo "This file contains all documentation and assets needed for handover."
+## Building the Android App Bundle (AAB)
+
+### Prerequisites
+- Android Studio or Android SDK with Gradle
+- Java Development Kit (JDK) 11+
+
+### Steps to Build:
+
+1. Open a terminal and navigate to the android directory:
+   ```
+   cd android
+   ```
+
+2. Make sure the key.properties file is in the android directory (copy it from the root if needed)
+
+3. Run the Gradle build command:
+   ```
+   ./gradlew bundleRelease
+   ```
+   
+   If you're on Windows, use:
+   ```
+   gradlew.bat bundleRelease
+   ```
+
+4. The AAB file will be generated at:
+   ```
+   app/build/outputs/bundle/release/app-release.aab
+   ```
+
+5. This file can be uploaded directly to the Google Play Store.
+
+## Documentation
+
+The docs directory contains all the necessary documentation for the project, including:
+- App store submission guide
+- Executive summary for acquirers
+- Technical architecture
+- Financial projections
+- And more
+
+EOL
+
+# Create zip file with everything
+echo "Creating zip archive..."
+zip -r strangerwave-deployment-package.zip export_package
+
+echo ""
+echo "===== Bundle Creation Complete ====="
+echo "Download the file 'strangerwave-deployment-package.zip'"
+echo "This contains all the documentation and Android project files needed to build the AAB."
+echo ""

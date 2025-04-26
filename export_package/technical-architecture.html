@@ -1,0 +1,321 @@
+
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>StrangerWave Documentation</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          h1, h2, h3, h4 {
+            color: #333;
+            margin-top: 1.5em;
+          }
+          h1 {
+            text-align: center;
+            font-size: 2.2em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+          }
+          h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+          }
+          th, td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+          }
+          th {
+            background-color: #f2f2f2;
+          }
+          tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+          }
+          pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+          }
+          .print-instruction {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          @media print {
+            .print-instruction {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-instruction">
+          <p><strong>To convert to PDF:</strong> Use your browser's print function (Ctrl+P or Cmd+P) and select "Save as PDF".</p>
+        </div>
+        <h1>StrangerWave Technical Architecture</h1>
+<p><em>April 2025</em></p>
+<h2>Executive Summary</h2>
+<p>This document details StrangerWave&#39;s comprehensive technical architecture, highlighting the platform&#39;s innovative components, scalability features, and proprietary technologies. The architecture is designed to support real-time, global communication while maintaining high performance, strict privacy, and advanced content moderation capabilities.</p>
+<h2>System Architecture Overview</h2>
+<p><img src="../store-assets/system-architecture.png" alt="System Architecture Diagram"></p>
+<p>StrangerWave employs a microservices architecture organized into four primary domains:</p>
+<ol>
+<li><strong>User Interface Layer</strong> - Frontend applications optimized for cross-platform consistency</li>
+<li><strong>Application Services Layer</strong> - Core business logic and specialized services</li>
+<li><strong>Infrastructure Layer</strong> - Scalable computing and data resources</li>
+<li><strong>Security &amp; Compliance Layer</strong> - Cross-cutting security controls and monitoring</li>
+</ol>
+<h2>Core Technology Stack</h2>
+<h3>Frontend Technologies</h3>
+<ul>
+<li><strong>React/TypeScript</strong> - Main web application framework</li>
+<li><strong>React Native</strong> - Cross-platform mobile applications</li>
+<li><strong>TailwindCSS</strong> - Utility-first styling framework</li>
+<li><strong>Framer Motion</strong> - Animation and interaction enhancements</li>
+<li><strong>WebRTC</strong> - Browser-based real-time communication</li>
+</ul>
+<h3>Backend Technologies</h3>
+<ul>
+<li><strong>Node.js</strong> - Primary application server runtime</li>
+<li><strong>Express</strong> - Web application framework</li>
+<li><strong>WebSocket</strong> - Real-time user messaging and status updates</li>
+<li><strong>MediaSoup</strong> - Selective forwarding unit (SFU) for WebRTC</li>
+<li><strong>PostgreSQL</strong> - Primary relational database</li>
+<li><strong>Redis</strong> - In-memory data structure store for caching and real-time features</li>
+</ul>
+<h3>Cloud Infrastructure</h3>
+<ul>
+<li><strong>Multi-region deployment</strong> - Distributed across 5 geographic regions</li>
+<li><strong>Auto-scaling compute resources</strong> - Dynamic resource allocation</li>
+<li><strong>Content delivery network (CDN)</strong> - Static assets and media acceleration</li>
+<li><strong>STUN/TURN servers</strong> - WebRTC connection facilitation</li>
+<li><strong>Media processing pipeline</strong> - Specialized for audio/video optimization</li>
+</ul>
+<h2>Proprietary Components</h2>
+<h3>1. AI-Powered Matching System</h3>
+<p>The matching system represents StrangerWave&#39;s most significant technical innovation, combining multiple AI components to create highly compatible user pairings.</p>
+<h4>Key Components:</h4>
+<ul>
+<li><strong>Compatibility Engine</strong> - Calculates weighted interest similarity scores</li>
+<li><strong>Interest Extraction</strong> - NLP-based user interest identification</li>
+<li><strong>Session Quality Predictor</strong> - ML model predicting conversation longevity</li>
+<li><strong>Geographic Optimization</strong> - Connection quality-aware matching</li>
+<li><strong>Preference Balancing</strong> - Multiple-constraint satisfaction algorithm</li>
+</ul>
+<h4>Technical Implementation:</h4>
+<ul>
+<li>Built on TensorFlow.js for client-side and TensorFlow for server-side processing</li>
+<li>Trained on 3.2M+ anonymized conversation datasets</li>
+<li>Average matching latency: 650ms with 92% accuracy</li>
+<li>Model size: 89MB (optimized) with monthly retraining cycle</li>
+</ul>
+<h3>2. Real-Time Content Moderation System</h3>
+<p>StrangerWave&#39;s multi-layered content moderation system combines rule-based and AI approaches to ensure platform safety.</p>
+<h4>Key Components:</h4>
+<ul>
+<li><strong>Text Analysis Engine</strong> - Multi-language inappropriate content detection</li>
+<li><strong>Image Classification</strong> - Frame-sampling visual content analysis</li>
+<li><strong>Behavior Pattern Detection</strong> - User interaction pattern monitoring</li>
+<li><strong>Escalation Pipeline</strong> - Automated to human review workflow</li>
+</ul>
+<h4>Technical Implementation:</h4>
+<ul>
+<li>OpenAI API integration for text content classification</li>
+<li>Custom-trained image recognition model using TensorFlow</li>
+<li>Real-time processing with 250ms average latency</li>
+<li>Multi-stage filtering with escalation logic</li>
+<li>99.7% detection rate for prohibited content</li>
+</ul>
+<h3>3. Enhanced WebRTC Implementation</h3>
+<p>StrangerWave&#39;s custom WebRTC stack includes significant optimizations beyond standard implementations.</p>
+<h4>Key Components:</h4>
+<ul>
+<li><strong>Adaptive Bitrate Control</strong> - Network-aware quality adjustment</li>
+<li><strong>Connection Resilience Layer</strong> - Recovery from temporary disconnections</li>
+<li><strong>Media Quality Enhancement</strong> - Background noise reduction and video enhancement</li>
+<li><strong>Bandwidth Optimization</strong> - Intelligent quality/bandwidth balancing</li>
+</ul>
+<h4>Technical Implementation:</h4>
+<ul>
+<li>WebRTC with custom signaling protocol</li>
+<li>MediaSoup SFU for scalability</li>
+<li>DTLS-SRTP for end-to-end encryption</li>
+<li>WebAssembly audio/video processing modules</li>
+<li>VP9 and H.264 codec optimization</li>
+</ul>
+<h2>Data Architecture</h2>
+<h3>Data Storage Strategy</h3>
+<h4>User Data</h4>
+<ul>
+<li><strong>Profile Information</strong> - PostgreSQL with encryption at rest</li>
+<li><strong>Credentials</strong> - Bcrypt hashing with PostgreSQL storage</li>
+<li><strong>Preferences</strong> - PostgreSQL with rapid retrieval optimization</li>
+</ul>
+<h4>Conversation Data</h4>
+<ul>
+<li><strong>Message Content</strong> - Not persistently stored (transient only)</li>
+<li><strong>Interaction Metadata</strong> - Time-limited PostgreSQL storage</li>
+<li><strong>Matching Data</strong> - Redis for active sessions, PostgreSQL for analytics</li>
+</ul>
+<h4>Analytics Data</h4>
+<ul>
+<li><strong>Usage Metrics</strong> - Time-series database (TimeScaleDB)</li>
+<li><strong>Performance Metrics</strong> - Prometheus with Grafana visualization</li>
+<li><strong>Business Metrics</strong> - Aggregate storage with materialized views</li>
+</ul>
+<h3>Data Flow Architecture</h3>
+<ol>
+<li><p><strong>User Authentication Flow</strong></p>
+<ul>
+<li>JWT-based authentication with refresh token rotation</li>
+<li>OAuth integration for social login</li>
+<li>Rate limiting and brute force protection</li>
+</ul>
+</li>
+<li><p><strong>Matching Process Flow</strong></p>
+<ul>
+<li>Preference collection and validation</li>
+<li>Compatibility calculation and queue management</li>
+<li>Match proposal and acceptance</li>
+<li>Connection establishment</li>
+</ul>
+</li>
+<li><p><strong>Communication Flow</strong></p>
+<ul>
+<li>WebRTC signaling via secure WebSocket</li>
+<li>Direct peer connection with TURN fallback</li>
+<li>Media stream monitoring and quality adaptation</li>
+<li>Moderation integration points</li>
+</ul>
+</li>
+</ol>
+<h2>Scalability Architecture</h2>
+<h3>Vertical Scaling Components</h3>
+<ul>
+<li>Database read replicas with connection pooling</li>
+<li>Memory optimization for high-throughput services</li>
+<li>Compute resource allocation based on service priority</li>
+</ul>
+<h3>Horizontal Scaling Components</h3>
+<ul>
+<li>Stateless service design for easy replication</li>
+<li>Kubernetes-orchestrated container deployment</li>
+<li>Geographic load distribution based on user concentration</li>
+<li>Distributed caching layer with Redis cluster</li>
+</ul>
+<h3>Load Management</h3>
+<ul>
+<li>Rate limiting at API gateway level</li>
+<li>Graceful degradation strategies during peak loads</li>
+<li>Circuit breakers to prevent cascade failures</li>
+<li>Intelligent retry logic with exponential backoff</li>
+</ul>
+<h2>Security Architecture</h2>
+<h3>Security Controls by Layer</h3>
+<h4>Network Security</h4>
+<ul>
+<li>DDoS protection with traffic filtering</li>
+<li>Web Application Firewall (WAF) with custom rulesets</li>
+<li>API gateway with request validation</li>
+<li>Internal network segmentation with zero-trust principles</li>
+</ul>
+<h4>Application Security</h4>
+<ul>
+<li>Secure coding practices enforcement</li>
+<li>Regular vulnerability scanning</li>
+<li>Input validation at all entry points</li>
+<li>Output encoding to prevent injection attacks</li>
+</ul>
+<h4>Data Security</h4>
+<ul>
+<li>Encryption in transit (TLS 1.3)</li>
+<li>Encryption at rest (AES-256)</li>
+<li>Key management system with rotation</li>
+<li>Data anonymization for analytics</li>
+</ul>
+<h4>Authentication &amp; Authorization</h4>
+<ul>
+<li>Role-based access control</li>
+<li>Multi-factor authentication option</li>
+<li>Session management with secure timeouts</li>
+<li>Principle of least privilege enforcement</li>
+</ul>
+<h2>Monitoring &amp; Reliability</h2>
+<h3>Observability Infrastructure</h3>
+<ul>
+<li>Distributed tracing with OpenTelemetry</li>
+<li>Structured logging with central aggregation</li>
+<li>Real-time metrics dashboard</li>
+<li>Alerting system with escalation paths</li>
+</ul>
+<h3>Reliability Measures</h3>
+<ul>
+<li>Automated recovery procedures</li>
+<li>Chaos engineering practices</li>
+<li>Regular disaster recovery testing</li>
+<li>Multiple redundancy layers for critical components</li>
+</ul>
+<h2>Deployment &amp; CI/CD</h2>
+<h3>Deployment Pipeline</h3>
+<ul>
+<li>Trunk-based development workflow</li>
+<li>Automated testing gates (unit, integration, e2e)</li>
+<li>Canary deployments for risk reduction</li>
+<li>Automated rollback capabilities</li>
+</ul>
+<h3>Environment Strategy</h3>
+<ul>
+<li>Development, Staging, Production separation</li>
+<li>Production-like testing environments</li>
+<li>Feature flag infrastructure</li>
+<li>A/B testing framework</li>
+</ul>
+<h2>Appendices</h2>
+<h3>A. API Documentation</h3>
+<ul>
+<li>REST API specifications</li>
+<li>GraphQL schema documentation</li>
+<li>WebSocket event documentation</li>
+<li>Rate limiting and usage guidelines</li>
+</ul>
+<h3>B. Database Schema</h3>
+<ul>
+<li>Entity relationship diagrams</li>
+<li>Indexing strategy</li>
+<li>Partitioning approach</li>
+<li>Query optimization guidelines</li>
+</ul>
+<h3>C. Third-Party Dependencies</h3>
+<ul>
+<li>External service integrations</li>
+<li>Open-source components</li>
+<li>Vendor evaluation criteria</li>
+<li>Contingency plans for service disruptions</li>
+</ul>
+<hr>
+<p><em>This technical architecture document is confidential and proprietary to StrangerWave. It is intended for potential acquirers under NDA.</em></p>
+
+      </body>
+      </html>
+    

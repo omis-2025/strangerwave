@@ -1,86 +1,56 @@
 #!/bin/bash
 
 # StrangerWave Deployment Preparation Script
-# This script helps ensure your environment is properly configured for deployment
+# This script prepares the Android project for export and building locally
 
 echo "===== StrangerWave Deployment Preparation ====="
-echo "Checking for required database environment variables..."
+echo "This script will prepare the Android project for local building."
 
-# Required environment variables
-REQUIRED_VARS=(
-  "DATABASE_URL"
-  "PGUSER" 
-  "PGPASSWORD" 
-  "PGDATABASE" 
-  "PGHOST" 
-  "PGPORT"
-  "STRIPE_SECRET_KEY"
-  "VITE_STRIPE_PUBLIC_KEY"
-  "VITE_FIREBASE_PROJECT_ID"
-  "VITE_FIREBASE_API_KEY"
-  "VITE_FIREBASE_APP_ID"
-)
+# Ensure the project is built and synced first
+echo ""
+echo "===== Building Web App ====="
+echo "Building production version of the web app..."
+npm run build
 
-MISSING=0
-
-# Check if variables are set
-for VAR in "${REQUIRED_VARS[@]}"; do
-  if [ -z "${!VAR}" ]; then
-    echo "❌ $VAR is not set"
-    MISSING=$((MISSING+1))
-  else
-    echo "✅ $VAR is set"
-  fi
-done
-
-# Summary
-if [ $MISSING -eq 0 ]; then
-  echo "✅ All required environment variables are set."
-else
-  echo "❌ $MISSING environment variable(s) missing."
-  echo "Make sure these variables are properly set in your Replit Secrets."
+if [ $? -ne 0 ]; then
+    echo "ERROR: Web build failed. Exiting."
+    exit 1
 fi
 
-# Sync deployment secrets instruction
-echo ""
-echo "===== Deployment Instructions ====="
-echo "1. In Replit, click on 'Secrets' in the Tools panel"
-echo "2. For each secret, make sure to sync it with deployment:"
-echo "   - Click on the '...' menu next to each secret"
-echo "   - Select 'Sync with deployment'"
-echo ""
-echo "3. When ready to deploy:"
-echo "   - Click on the 'Deploy' button at the top of your Replit workspace"
-echo "   - This will deploy your app with all the synced environment variables"
-echo ""
-echo "4. After deploying, add your deployed domain to Firebase authorized domains"
-echo "   - Go to Firebase Console > Authentication > Settings"
-echo "   - Add your '[app-name].replit.app' domain to authorized domains"
-echo ""
+echo "Web app built successfully!"
 
-echo "===== Database Migration Check ====="
-# Check if database migrations are in sync
-if command -v npm &> /dev/null; then
-  echo "Running database migration check..."
-  npm run db:check
-  if [ $? -eq 0 ]; then
-    echo "✅ Database schema is in sync"
-  else
-    echo "❌ Database schema needs migration. Run 'npm run db:push' before deploying."
-  fi
-else
-  echo "⚠️ npm not available, skipping database migration check"
-fi
+# Copy and sync to Android
+echo ""
+echo "===== Preparing Android App ====="
+echo "Copying web assets to Android..."
+npx cap copy android
+
+echo "Syncing Android project..."
+npx cap sync android
+
+# Create a tarball of the Android project
+echo ""
+echo "===== Creating Export Package ====="
+
+# Create a directory for export files
+mkdir -p export
+
+# Copy key files needed for Android build
+cp -r android export/
+cp key.properties export/android/
+cp -r keystores export/
+
+# Create a tarball
+tar -czf strangerwave-android-export.tar.gz export/
 
 echo ""
-echo "===== Deployment Readiness ====="
-# Check if the app is running locally
-if nc -z localhost 5000 >/dev/null 2>&1; then
-  echo "✅ App is running locally on port 5000"
-else
-  echo "❌ App is NOT running locally. Start it with 'npm run dev' before deploying."
-fi
-
+echo "===== Export Package Created ====="
+echo "Download the file 'strangerwave-android-export.tar.gz' to your local machine."
 echo ""
-echo "When all checks are green, your app is ready for deployment!"
+echo "To build locally:"
+echo "1. Extract the tarball: tar -xzf strangerwave-android-export.tar.gz"
+echo "2. Navigate to the android directory: cd export/android"
+echo "3. Run the build command: ./gradlew bundleRelease"
+echo "4. The AAB will be at: export/android/app/build/outputs/bundle/release/app-release.aab"
 echo ""
+echo "Alternatively, you can open the Android project in Android Studio to build the AAB."
