@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Download</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .download-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a202c;
+        }
+        h1 {
+            margin-top: 0;
+            color: #1a202c;
+            font-size: 28px;
+        }
+        p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .download-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            margin: 20px 0;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .download-button:hover {
+            background-color: #45a049;
+        }
+        .steps {
+            text-align: left;
+            margin-top: 32px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+        }
+        .steps h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 12px;
+            color: #4a5568;
+        }
+        code {
+            background-color: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="download-container">
+        <div class="logo">StrangerWave</div>
+        <h1>Android App Package Download</h1>
+        
+        <p>Click the button below to download the deployment package for building the Android App Bundle (AAB):</p>
+        
+        <a href="/download-package" class="download-button" download>Download Deployment Package (2.6MB)</a>
+        
+        <div class="steps">
+            <h3>Build Instructions:</h3>
+            <ol>
+                <li>Extract the downloaded file:<br>
+                    <code>tar -xzf strangerwave-deployment-package.tar.gz</code>
+                </li>
+                <li>Navigate to the Android folder:<br>
+                    <code>cd export_package/android</code>
+                </li>
+                <li>Make gradlew executable (on Mac/Linux):<br>
+                    <code>chmod +x gradlew</code>
+                </li>
+                <li>Build the AAB file:<br>
+                    <code>./gradlew bundleRelease</code> (Mac/Linux)<br>
+                    <code>gradlew.bat bundleRelease</code> (Windows)
+                </li>
+                <li>Find the AAB file at:<br>
+                    <code>app/build/outputs/bundle/release/app-release.aab</code>
+                </li>
+            </ol>
+            <p>Upload the AAB file to Google Play Console when the build is complete.</p>
+        </div>
+    </div>
+</body>
+</html>

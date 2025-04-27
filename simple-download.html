@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Download Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .download-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>StrangerWave Deployment Package Download</h1>
+    
+    <p>Click the button below to download the deployment package:</p>
+    
+    <a href="/strangerwave-deployment-package.tar.gz" class="download-button" download>Download Deployment Package (2.6MB)</a>
+    
+    <h2>Build Instructions:</h2>
+    <ol>
+        <li>Extract the file: <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
+        <li>Navigate to Android folder: <code>cd export_package/android</code></li>
+        <li>Make gradlew executable: <code>chmod +x gradlew</code> (Mac/Linux only)</li>
+        <li>Build the AAB: <code>./gradlew bundleRelease</code> (or <code>gradlew.bat bundleRelease</code> on Windows)</li>
+        <li>Find the AAB file at: <code>app/build/outputs/bundle/release/app-release.aab</code></li>
+    </ol>
+    
+    <p>Upload the AAB file to Google Play Console when the build is complete.</p>
+</body>
+</html>

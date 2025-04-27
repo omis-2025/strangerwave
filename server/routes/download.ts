@@ -57,7 +57,27 @@ router.get('/download-android-package', (req, res) => {
   }
 });
 
-export default router;
+// Simple download page
+router.get('/simple-download', (req, res) => {
+  const filePath = path.join(process.cwd(), 'simple-download.html');
+  
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('Simple download page not found');
+  }
+});
+
+// Direct download page (prettier version)
+router.get('/direct', (req, res) => {
+  const filePath = path.join(process.cwd(), 'direct-download.html');
+  
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('Direct download page not found');
+  }
+});
 
 // Track download analytics
 router.post('/track-download', async (req, res) => {
@@ -75,3 +95,5 @@ router.post('/track-download', async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
+
+export default router;
