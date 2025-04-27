@@ -1,0 +1,62 @@
+# GitHub Integration Guide for StrangerWave
+
+This project is connected to the GitHub repository at:
+https://github.com/omis-2025/strangerwave.git
+
+## Pushing Code to GitHub
+
+To push your code changes to GitHub, follow these steps:
+
+1. Add all the files you want to commit:
+   ```
+   git add .
+   ```
+   
+   Or specific files:
+   ```
+   git add file1.js file2.js
+   ```
+
+2. Commit your changes with a meaningful message:
+   ```
+   git commit -m "Your commit message here"
+   ```
+
+3. Push your changes to the GitHub repository:
+   ```
+   git push -u origin main
+   ```
+
+## Authentication
+
+You'll need to authenticate to GitHub when pushing. If you're prompted for credentials, you can:
+
+- Use a Personal Access Token (PAT) as the password
+- Set up SSH keys for authentication
+
+## GitHub Actions
+
+This project has a GitHub Actions workflow configured at `.github/workflows/android-build.yml` that will automatically build the AAB file when triggered.
+
+To manually trigger this workflow after pushing:
+1. Go to your GitHub repository
+2. Click on "Actions" tab
+3. Select the "Android Build" workflow
+4. Click "Run workflow" button
+
+The resulting AAB file will be available as an artifact when the workflow completes.
+
+## Downloading the Deployment Package
+
+If you need to download the deployment package directly:
+1. Go to: https://workspacestep4.danielufkgigg.repl.co/ (This URL should be replaced with your actual Replit URL)
+2. The download will start automatically
+
+## Build Instructions
+
+After downloading the deployment package:
+1. Extract the archive: `tar -xzf strangerwave-deployment-package.tar.gz`
+2. Navigate to the Android folder: `cd export_package/android`
+3. Make gradlew executable (Mac/Linux only): `chmod +x gradlew`
+4. Build the AAB file: `./gradlew bundleRelease` (or `gradlew.bat bundleRelease` on Windows)
+5. The AAB file will be at: `app/build/outputs/bundle/release/app-release.aab`
