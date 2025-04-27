@@ -1,131 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Download StrangerWave Deployment Package</title>
+    <title>StrangerWave Download</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .download-section {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .download-button {
             display: inline-block;
             background-color: #4CAF50;
             color: white;
-            padding: 15px 25px;
+            padding: 15px 30px;
             text-align: center;
             text-decoration: none;
             font-size: 18px;
             border-radius: 5px;
             margin: 20px 0;
-            cursor: pointer;
+            transition: background-color 0.3s;
         }
         .download-button:hover {
             background-color: #45a049;
         }
-        .error-message {
-            color: #ff0000;
-            background: #ffe6e6;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-        }
-        .version-info {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .installation-steps {
-            background: #f9f9f9;
+        .instructions {
+            text-align: left;
             padding: 20px;
-            border-radius: 5px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #eee;
+            padding: 3px 5px;
+            border-radius: 3px;
+        }
+        .instructions li {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>StrangerWave Deployment Package</h1>
-
-    <div class="version-info">
-        <h3>Version 1.0.0</h3>
-        <p>Release Date: April 2025</p>
-        <p>Package Size: 2.5 MB</p>
+    <h1>StrangerWave Android Deployment Package</h1>
+    
+    <div class="download-section">
+        <h2>Download Package</h2>
+        <p>Click the button below to download the deployment package:</p>
+        <a href="strangerwave-deployment-package.tar.gz" class="download-button" download>Download Package (2.6MB)</a>
     </div>
-
-    <p>This deployment package contains all necessary files to build the Android App Bundle (AAB) for submission to the Google Play Store.</p>
-
-    <div class="download-options">
-        <a href="/public/strangerwave-deployment-package.tar.gz" class="download-button" onclick="trackDownload('option1')" download>Download Package (Primary)</a>
-        <a href="/download-package" class="download-button" onclick="trackDownload('option2')" download>Download Package (Mirror)</a>
-    </div>
-
-    <div id="errorMessage" class="error-message">
-        Download failed. Please try another download option or contact support.
-    </div>
-
-    <div class="installation-steps">
-        <h2>AAB Build Instructions</h2>
+    
+    <div class="instructions">
+        <h2>Build Instructions</h2>
         <ol>
-            <li><strong>Extract the package</strong> on your local machine:
-                <ul>
-                    <li>Windows: Use 7-Zip, WinRAR, or similar tools</li>
-                    <li>Mac/Linux: Use <code>tar -xzf strangerwave-deployment-package.tar.gz</code></li>
-                </ul>
+            <li>Extract the downloaded file:<br>
+                <code>tar -xzf strangerwave-deployment-package.tar.gz</code>
             </li>
-            <li><strong>Navigate to the Android project directory</strong>:
-                <ul>
-                    <li><code>cd export_package/android</code></li>
-                </ul>
+            <li>Navigate to the Android folder:<br>
+                <code>cd export_package/android</code>
             </li>
-            <li><strong>Ensure you have the Android development environment set up</strong>:
-                <ul>
-                    <li>Java JDK 11 or higher installed</li>
-                    <li>Android SDK installed (minimum API level 33)</li>
-                    <li>JAVA_HOME environment variable properly set</li>
-                    <li>At least 4GB of RAM and 10GB of free disk space</li>
-                </ul>
+            <li>Make the gradlew file executable (Mac/Linux only):<br>
+                <code>chmod +x gradlew</code>
             </li>
-            <li><strong>Make Gradle executable</strong> (Mac/Linux only):
-                <ul>
-                    <li><code>chmod +x gradlew</code></li>
-                </ul>
+            <li>Build the AAB file:<br>
+                <code>./gradlew bundleRelease</code> (Mac/Linux)<br>
+                <code>gradlew.bat bundleRelease</code> (Windows)
             </li>
-            <li><strong>Build the AAB</strong>:
-                <ul>
-                    <li>On Mac/Linux: <code>./gradlew bundleRelease</code></li>
-                    <li>On Windows: <code>gradlew.bat bundleRelease</code></li>
-                    <li>This process may take several minutes to complete</li>
-                </ul>
+            <li>Find the AAB file at:<br>
+                <code>app/build/outputs/bundle/release/app-release.aab</code>
             </li>
-            <li><strong>Find the AAB</strong> at:
-                <ul>
-                    <li><code>app/build/outputs/bundle/release/app-release.aab</code></li>
-                </ul>
-            </li>
-            <li><strong>Upload this file to Google Play Console</strong></li>
+            <li>Upload this AAB file to the Google Play Console</li>
         </ol>
-        
-        <h3>Troubleshooting Build Issues</h3>
+    </div>
+    
+    <div class="instructions">
+        <h2>System Requirements</h2>
         <ul>
-            <li><strong>Memory Issues</strong>: If you encounter memory errors, try increasing the Gradle memory allocation by adding this line to <code>gradle.properties</code>: <code>org.gradle.jvmargs=-Xmx2048m</code></li>
-            <li><strong>Build Errors</strong>: Make sure you have the correct Android SDK version installed. The project requires API level 33 or higher.</li>
-            <li><strong>Keystore Issues</strong>: The keystore is already included in the package and configured in build.gradle. The keystore password is <code>strangerwave123</code> and the key alias is <code>strangerwave</code>.</li>
-            <li><strong>Permission Denied</strong>: If you encounter permission issues with gradlew, make sure to run <code>chmod +x gradlew</code> to make it executable.</li>
+            <li>Java JDK 11 or higher</li>
+            <li>Android SDK (included in the package)</li>
+            <li>At least 4GB of RAM</li>
+            <li>At least 10GB of free disk space</li>
         </ul>
     </div>
-
-    <script>
-        function trackDownload(option) {
-            // Basic download tracking
-            console.log('Download initiated:', option);
-
-            // Error handling
-            window.onerror = function() {
-                document.getElementById('errorMessage').style.display = 'block';
-            };
-        }
-    </script>
 </body>
 </html>
